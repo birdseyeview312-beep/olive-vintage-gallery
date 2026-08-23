@@ -153,3 +153,59 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
   .hero-object-card figcaption small{font-size:6px;letter-spacing:.13em}
   .hero-brand-seal-centered{width:54px;height:54px;left:61%;bottom:32%}
 }
+
+/* Mobile hero continuity fix — headline first, artwork second, no overlapping seal */
+@media(max-width:620px){
+  .hero{
+    min-height:auto;
+    grid-template-columns:1fr;
+    align-items:start;
+    padding:132px 5vw 82px;
+    gap:30px;
+  }
+  .hero-copy{
+    display:block!important;
+    position:relative;
+    z-index:12;
+    padding-top:0;
+    margin:0;
+    opacity:1!important;
+    transform:none!important;
+  }
+  .hero-copy .eyebrow{
+    max-width:100%;
+    line-height:1.55;
+    margin-bottom:14px;
+  }
+  .hero-copy h1{
+    font-size:clamp(48px,14vw,68px);
+    line-height:.91;
+    max-width:10ch;
+  }
+  .hero-sub{
+    max-width:34rem;
+    margin:22px 0 24px;
+    font-size:15px;
+    line-height:1.72;
+  }
+  .hero-actions{
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px 20px;
+  }
+  .hero-collection-art{
+    min-height:510px;
+    width:100%;
+    margin:0;
+  }
+  .hero-brand-seal-centered{
+    display:none!important;
+  }
+  .scroll-cue{
+    position:relative;
+    left:auto;
+    bottom:auto;
+    margin-top:4px;
+  }
+}
