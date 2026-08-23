@@ -1,7 +1,7 @@
 const intro = document.getElementById("intro");
 const dismissIntro = () => intro?.classList.add("done");
-window.addEventListener("load", () => setTimeout(dismissIntro, 850));
-setTimeout(dismissIntro, 1800);
+window.addEventListener("load", () => setTimeout(dismissIntro, 1250));
+setTimeout(dismissIntro, 2500);
 
 const header = document.querySelector(".site-header");
 const menuBtn = document.getElementById("menuBtn");
@@ -39,231 +39,48 @@ const money = value => {
   }).format(Number(value));
 };
 
-const STATIC_PRODUCTS = [
-  {
-    "title": "Bryan Rubino Signed Art Glass Vessel",
-    "maker": "Bryan Rubino",
-    "price": 7900,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/bryan-rubino-vessel.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Vintage Barcroft Zippo Table Lighter",
-    "maker": "Barcroft / Zippo",
-    "price": 175,
-    "category": "Vintage Objects",
-    "images": [
-      "./assets/products/barcroft-zippo-lighter.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Black Clay Vase, Signed Rigoberto Mateos",
-    "maker": "Rigoberto Mateos",
-    "price": 245,
-    "category": "Ceramics",
-    "images": [
-      "./assets/products/rigoberto-mateos-vase.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "William Manson Snr Paperweight, Limited Edition 4 of 5",
-    "maker": "Caithness / William Manson",
-    "price": 1450,
-    "category": "Art Glass",
-    "images": [
-      "./assets/products/caithness-manson-paperweight.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Ceramic Pitcher, 2004",
-    "maker": "Kristina Simanis",
-    "price": 90,
-    "category": "Ceramics",
-    "images": [
-      "./assets/products/kristina-simanis-pitcher.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Frederick Carder Gold Aurene Art Glass Vase",
-    "maker": "Steuben / Frederick Carder",
-    "price": 600,
-    "category": "American Art Glass",
-    "images": [
-      "./assets/products/steuben-carder-aurene.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Signed Art Glass Vessel",
-    "maker": "Anthony Gelpiart",
-    "price": 3995,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/anthony-gelpiart-purple.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Signed Pinch Vessel",
-    "maker": "Peter Bramhall",
-    "price": 1250,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/peter-bramhall-vessel.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Signed Multi-Color Blown Art Glass Sculpture, 8 in.",
-    "maker": "Rollin Karg",
-    "price": 500,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/rollin-karg-sculpture.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Paperweight 64/75",
-    "maker": "Paul Stankard",
-    "price": 980,
-    "category": "Art Glass",
-    "images": [
-      "./assets/products/paul-stankard-paperweight.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Studio & Gallery Angel Fish",
-    "maker": "Kai Pua Artists",
-    "price": 355,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/kai-pua-angel-fish.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Large Hand Blown Vessel, Original XL",
-    "maker": "Joan Nemtoi",
-    "price": 2499,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/joan-nemtoi-vessel.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Vintage Murano Penguin, 10 1/2 in.",
-    "maker": "Licio Zanetti",
-    "price": 1450,
-    "category": "Murano Glass",
-    "images": [
-      "./assets/products/licio-zanetti-penguin.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Signed Art Glass Vessel",
-    "maker": "Anthony Gelpiart",
-    "price": 4400,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/anthony-gelpiart-green.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Neptune Hot Glass Berry Davis Pyramid Ocean",
-    "maker": "Neptune Hot Glass",
-    "price": 850,
-    "category": "Studio Art Glass",
-    "images": [
-      "./assets/products/neptune-hot-glass.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Art Deco Bronze Dancers on Marble Bookends, 1930s",
-    "maker": "Art Deco",
-    "price": 595,
-    "category": "Vintage Objects",
-    "images": [
-      "./assets/products/art-deco-bookends.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  },
-  {
-    "title": "Signed Murano Aquarium Boot",
-    "maker": "Carlo Colizza",
-    "price": 1950,
-    "category": "Murano Glass",
-    "images": [
-      "./assets/products/carlo-colizza-aquarium-boot.jpg"
-    ],
-    "status": "available",
-    "marketplace": "eBay",
-    "source_url": "https://www.ebay.com/usr/olivevintagechicago"
-  }
+
+const fallbackProducts = [
+  { title: "Black Optic Teardrop Vase", category: "STUDIO GLASS", images: ["./assets/products/black-optic-teardrop-vase.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Lavender Studio Jug", category: "CERAMIC", images: ["./assets/products/lavender-studio-jug.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Raspberry & Blossom Paperweight", category: "ART GLASS", images: ["./assets/products/raspberry-blossom-paperweight.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Emerald & Violet Striped Vase", category: "STUDIO GLASS", images: ["./assets/products/emerald-violet-striped-vase.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Blue Bird Glass Sculpture", category: "ART GLASS", images: ["./assets/products/blue-bird-glass-sculpture.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Aqua Glass Boot Sculpture", category: "ART GLASS", images: ["./assets/products/aqua-glass-boot-sculpture.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Pink Floral Paperweight", category: "ART GLASS", images: ["./assets/products/pink-floral-paperweight.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "White Blossom Paperweight", category: "ART GLASS", images: ["./assets/products/white-blossom-paperweight.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Brushed Metal Table Object", category: "DESIGN OBJECT", images: ["./assets/products/brushed-metal-table-object.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
+  { title: "Color Burst Studio Vase", category: "STUDIO GLASS", images: ["./assets/products/color-burst-studio-vase.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true }
 ];
 
-function productCard(p) {
+function productCard(p, index = 0) {
   const image = p.images?.[0];
   const price = p.inquire_only ? "Inquire to purchase" : money(p.price);
   const makerLine = [p.maker, p.date_period].filter(Boolean).join(" · ") || "Olive Vintage Gallery";
+  const cardClass = index === 0 ? "product-card featured-product reveal visible" : "product-card reveal visible";
+  const inquirySubject = encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title || "Artwork"}`);
   return `
-    <article class="product-card reveal visible">
+    <article class="${cardClass}">
       <div class="product-image live-product-image">
         ${image
-          ? `<img src="${esc(image)}" alt="${esc(p.title)}" loading="lazy">`
+          ? `<div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" ${index === 0 ? 'fetchpriority="high"' : ""}></div>`
           : `<div class="product-placeholder p1"></div>`}
-        ${p.status === "reserved" ? `<span class="product-badge">Reserved</span>` : ""}
+        <div class="product-image-topline">
+          <span>New Acquisition</span>
+          ${p.status === "reserved" ? `<span class="product-badge">Reserved</span>` : ""}
+        </div>
+        <div class="product-image-number">${String(index + 1).padStart(2, "0")}</div>
       </div>
       <div class="product-info">
-        <p class="eyebrow">${esc(p.category || "ART GLASS")}</p>
+        <div class="product-meta-line">
+          <p class="eyebrow">${esc(p.category || "ART GLASS")}</p>
+          <span class="product-price">${esc(price)}</span>
+        </div>
         <h3>${esc(p.title)}</h3>
-        <p>${esc(makerLine)}</p>
-        <span>${esc(price)}</span>
-        ${p.source_url ? `<a class="product-source" href="${esc(p.source_url)}" target="_blank" rel="noopener">Shop on ${esc(p.marketplace || "eBay")} ↗</a>` : ""}
+        <div class="product-detail-row">
+          <p>${esc(makerLine)}</p>
+          <a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>
+        </div>
       </div>
     </article>`;
 }
@@ -275,18 +92,52 @@ async function loadLiveInventory() {
   try {
     const { getGalleryProducts } = await import("./gallery-data.js");
     // Show newest live acquisitions. Public RLS still determines which records are visible.
-    const rows = await getGalleryProducts({ status: null, limit: 9 });
+    const rows = await getGalleryProducts({ status: null, limit: 10 });
     const live = rows.filter(p => ["available","reserved"].includes(p.status));
-
-    if (live.length) {
-      grid.innerHTML = live.map(productCard).join("");
-    } else {
-      grid.innerHTML = STATIC_PRODUCTS.map(productCard).join("");
-    }
+    const products = live.length ? live : fallbackProducts;
+    grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
   } catch (error) {
-    console.info("Live inventory is not configured yet; using curated marketplace inventory.", error);
-    grid.innerHTML = STATIC_PRODUCTS.map(productCard).join("");
+    console.info("Live inventory is not configured yet. Showing curated local collection.", error);
+    grid.innerHTML = fallbackProducts.map((p, index) => productCard(p, index)).join("");
   }
 }
 
 loadLiveInventory();
+
+
+// Subtle gallery interactions. Disabled automatically for reduced-motion users.
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (!reducedMotion) {
+  const heroArt = document.querySelector("[data-hero-art]");
+  const heroImage = heroArt?.querySelector("[data-parallax-image]");
+  heroArt?.addEventListener("pointermove", (e) => {
+    const r = heroArt.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5;
+    const y = (e.clientY - r.top) / r.height - .5;
+    if (heroImage) heroImage.style.transform = `scale(.88) translate(${x * 9}px, ${y * 7}px)`;
+  });
+  heroArt?.addEventListener("pointerleave", () => {
+    if (heroImage) heroImage.style.transform = "scale(.88)";
+  });
+
+  document.querySelectorAll(".product-card").forEach(card => {
+    card.addEventListener("pointermove", e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      card.style.setProperty("--my", `${e.clientY - r.top}px`);
+    });
+  });
+
+  const signatureImage = document.querySelector(".signature-image [data-parallax-image]");
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (ticking || !signatureImage) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const r = signatureImage.parentElement.getBoundingClientRect();
+      const progress = Math.max(-1, Math.min(1, (window.innerHeight / 2 - (r.top + r.height / 2)) / window.innerHeight));
+      signatureImage.style.transform = `scale(1.04) translateY(${progress * 14}px)`;
+      ticking = false;
+    });
+  }, { passive: true });
+}
