@@ -1,7 +1,7 @@
 const intro = document.getElementById("intro");
 const dismissIntro = () => intro?.classList.add("done");
-window.addEventListener("load", () => setTimeout(dismissIntro, 1250));
-setTimeout(dismissIntro, 2500);
+window.addEventListener("load", () => setTimeout(dismissIntro, 850));
+setTimeout(dismissIntro, 1800);
 
 const header = document.querySelector(".site-header");
 const menuBtn = document.getElementById("menuBtn");
