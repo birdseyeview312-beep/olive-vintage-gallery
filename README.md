@@ -136,3 +136,9 @@ The public collection now paginates through Supabase in 10-row batches until no 
 - Homepage now renders every public available/reserved product returned by the unlimited paginated loader.
 - Products with recovered photography remain prioritized first.
 - Existing image lightbox, full Collection page, checkout, dashboard, and mobile styling are unchanged.
+
+
+## v13 photo-recovery placeholder
+- Replaces blank white no-photo cards with a dark gallery placeholder.
+- Clearly labels that original imagery is being recovered.
+- Never substitutes unrelated or stock imagery.

@@ -82,7 +82,7 @@ function productCard(p, index = 0) {
           ${p.status === "reserved" ? `<span class="product-badge">Reserved</span>` : ""}
         </div>
         <div class="product-image-number">${p.images?.length > 1 ? `${p.images.length} PHOTOS · ` : ""}${String(index + 1).padStart(2, "0")}</div>
-      </button>` : `<div class="product-image live-product-image"><div class="product-placeholder p1"></div><div class="product-image-topline"><span>New Acquisition</span></div><div class="product-image-number">${String(index + 1).padStart(2, "0")}</div></div>`}
+      </button>` : `<div class="product-image live-product-image awaiting-product-image"><div class="awaiting-product-art" aria-hidden="true"><span class="awaiting-product-ring"></span><span class="awaiting-product-mark">OV</span></div><div class="product-image-topline"><span>Photos being added</span></div><div class="awaiting-product-copy"><strong>Original imagery in recovery</strong><small>Exact marketplace photos only</small></div><div class="product-image-number">${String(index + 1).padStart(2, "0")}</div></div>`}
       <div class="product-info">
         <div class="product-meta-line">
           <p class="eyebrow">${esc(p.category || "ART GLASS")}</p>

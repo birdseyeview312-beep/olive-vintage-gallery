@@ -376,3 +376,51 @@ body.lightbox-open{overflow:hidden}
   .product-lightbox{padding:0}.product-lightbox-dialog{width:100vw;height:100dvh;max-height:none;border:0}.product-lightbox-bar{padding:13px 14px}.product-lightbox-bar strong{font-size:16px}.product-lightbox-stage>img{max-height:none;padding:10px}.product-lightbox-nav{width:42px;height:42px;font-size:30px}.product-lightbox-nav.prev{left:8px}.product-lightbox-nav.next{right:8px}.product-lightbox-thumbs{padding-bottom:max(12px,env(safe-area-inset-bottom))}
   .collection-page{padding-top:102px}.collection-page.section-pad{padding-left:5vw;padding-right:5vw}.collection-page-head{gap:18px;margin-bottom:24px}.collection-page-head h1{font-size:clamp(50px,14vw,68px)}.collection-product-grid{grid-template-columns:1fr}.collection-product-grid .product-image{aspect-ratio:3/2}.collection-product-grid .product-info h3{font-size:clamp(23px,6.8vw,30px)}
 }
+
+
+/* v13 — intentional photo-recovery state
+   Never substitutes unrelated imagery. Empty marketplace records receive a
+   dark gallery treatment until the exact original photo set is recovered. */
+.awaiting-product-image{
+  background:
+    radial-gradient(circle at 50% 38%,rgba(152,166,90,.12),transparent 24%),
+    radial-gradient(circle at 50% 70%,rgba(207,173,103,.055),transparent 34%),
+    linear-gradient(145deg,#11160f 0%,#0b0e0a 58%,#080a07 100%);
+  border-color:rgba(207,173,103,.16);
+  isolation:isolate;
+}
+.awaiting-product-image:before{
+  background:linear-gradient(135deg,rgba(255,255,255,.018),transparent 38%,rgba(207,173,103,.025));
+}
+.awaiting-product-image:after{
+  left:18%;right:18%;bottom:13%;height:1px;filter:none;
+  background:linear-gradient(90deg,transparent,rgba(207,173,103,.22),transparent);
+}
+.awaiting-product-art{
+  position:absolute;inset:0;display:grid;place-items:center;z-index:1;
+}
+.awaiting-product-ring{
+  position:absolute;width:min(37%,160px);aspect-ratio:1;border-radius:50%;
+  border:1px solid rgba(207,173,103,.18);
+  box-shadow:0 0 0 16px rgba(207,173,103,.018),0 0 70px rgba(107,124,73,.08);
+}
+.awaiting-product-ring:before,.awaiting-product-ring:after{
+  content:"";position:absolute;border-radius:50%;border:1px solid rgba(207,173,103,.08)
+}
+.awaiting-product-ring:before{inset:12%}.awaiting-product-ring:after{inset:29%;border-style:dashed}
+.awaiting-product-mark{
+  position:relative;font:500 clamp(27px,4vw,42px)/1 "Playfair Display",serif;
+  letter-spacing:.11em;color:rgba(224,207,167,.44);transform:translateX(.055em)
+}
+.awaiting-product-copy{
+  position:absolute;z-index:4;left:18px;right:18px;bottom:18px;display:grid;gap:4px;
+  text-align:center;text-transform:uppercase
+}
+.awaiting-product-copy strong{font:600 8px/1.3 "DM Sans",sans-serif;letter-spacing:.18em;color:#b9ae91}
+.awaiting-product-copy small{font-size:7px;letter-spacing:.13em;color:#6f7466}
+@media(max-width:620px){
+  .awaiting-product-copy{bottom:15px}
+  .awaiting-product-copy strong{font-size:8px}
+  .awaiting-product-copy small{font-size:6px}
+  .awaiting-product-ring{width:31%}
+}
