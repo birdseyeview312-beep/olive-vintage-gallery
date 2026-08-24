@@ -99,3 +99,9 @@ The stream key is stored in encrypted Vault storage and is not kept in the publi
 - The private Owner Login now includes **Forgot password?**.
 - It sends Supabase's official recovery email only when the owner taps it.
 - Recovery links return to the production site and automatically route the owner to **Settings & Security** to choose a new password.
+
+
+## v7 photo-first storefront update
+- Live homepage inventory now prioritizes available products with verified recovered photos.
+- Products awaiting original images remain in Supabase/admin and are not deleted.
+- Sold/draft visibility rules remain controlled by existing Supabase RLS/status logic.

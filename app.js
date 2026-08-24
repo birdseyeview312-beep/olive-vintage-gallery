@@ -104,10 +104,15 @@ async function loadLiveInventory() {
 
   try {
     const { getGalleryProducts } = await import("./gallery-data.js");
-    // Show newest live acquisitions. Public RLS still determines which records are visible.
-    const rows = await getGalleryProducts({ status: null, limit: 10 });
+    // Pull the live public inventory, then prioritize products that already have
+    // verified listing photos. Newness is preserved within each group because
+    // getGalleryProducts() returns newest records first.
+    const rows = await getGalleryProducts({ status: null });
     const live = rows.filter(p => ["available","reserved"].includes(p.status));
-    const products = live.length ? live : fallbackProducts;
+    const photographed = live.filter(p => Array.isArray(p.images) && p.images.length > 0);
+    const awaitingPhotos = live.filter(p => !Array.isArray(p.images) || p.images.length === 0);
+    const prioritized = [...photographed, ...awaitingPhotos].slice(0, 10);
+    const products = prioritized.length ? prioritized : fallbackProducts;
     grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
     bindBuyNowButtons();
   } catch (error) {
