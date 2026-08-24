@@ -129,3 +129,10 @@ The stream key is stored in encrypted Vault storage and is not kept in the publi
 
 ## v11 Unlimited Collection Loader
 The public collection now paginates through Supabase in 10-row batches until no more public records remain. There is no fixed catalog limit; the loader also guards against repeated backend pages to avoid accidental infinite request loops.
+
+
+## v12 — Unlimited homepage inventory
+- Removed the hard-coded `.slice(0, 10)` homepage cutoff.
+- Homepage now renders every public available/reserved product returned by the unlimited paginated loader.
+- Products with recovered photography remain prioritized first.
+- Existing image lightbox, full Collection page, checkout, dashboard, and mobile styling are unchanged.

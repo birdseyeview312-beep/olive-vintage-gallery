@@ -110,7 +110,9 @@ async function loadLiveInventory() {
     const live = rows.filter(p => ["available","reserved"].includes(p.status));
     const photographed = live.filter(p => Array.isArray(p.images) && p.images.length > 0);
     const awaitingPhotos = live.filter(p => !Array.isArray(p.images) || p.images.length === 0);
-    const prioritized = [...photographed, ...awaitingPhotos].slice(0, 10);
+    // v12: no homepage catalog cap. Keep photographed works first, then render
+    // every remaining available/reserved record returned by the unlimited loader.
+    const prioritized = [...photographed, ...awaitingPhotos];
     const products = prioritized.length ? prioritized : fallbackProducts;
     grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
     bindBuyNowButtons();
