@@ -29,7 +29,10 @@
       <form id="loginForm" class="stack">
         <label>Email<input id="loginEmail" type="email" required autocomplete="email"></label>
         <label>Password<input id="loginPassword" type="password" required autocomplete="current-password"></label>
-        <button class="primary" type="submit">Enter Owner Dashboard</button>
+        <div class="owner-login-actions">
+          <button class="primary" type="submit">Enter Owner Dashboard</button>
+          <button id="forgotPasswordBtn" class="forgot-password" type="button">Forgot password?</button>
+        </div>
         <p id="loginMessage" class="message" role="status"></p>
       </form>
     </section>

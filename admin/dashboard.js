@@ -1,7 +1,7 @@
 import { supabase } from "./supabase-client.js";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 const $=id=>document.getElementById(id);
-const e={loginPanel:$("loginPanel"),dashboardApp:$("dashboardApp"),loginForm:$("loginForm"),loginEmail:$("loginEmail"),loginPassword:$("loginPassword"),loginMessage:$("loginMessage"),signOutBtn:$("signOutBtn"),sessionEmail:$("sessionEmail"),overviewStats:$("overviewStats"),inventoryCardStatus:$("inventoryCardStatus"),auctionCardStatus:$("auctionCardStatus"),videoCardStatus:$("videoCardStatus"),paymentCardStatus:$("paymentCardStatus"),ordersCardStatus:$("ordersCardStatus"),ownerSessionLabel:$("ownerSessionLabel")};
+const e={loginPanel:$("loginPanel"),dashboardApp:$("dashboardApp"),loginForm:$("loginForm"),loginEmail:$("loginEmail"),loginPassword:$("loginPassword"),loginMessage:$("loginMessage"),signOutBtn:$("signOutBtn"),sessionEmail:$("sessionEmail"),overviewStats:$("overviewStats"),inventoryCardStatus:$("inventoryCardStatus"),auctionCardStatus:$("auctionCardStatus"),videoCardStatus:$("videoCardStatus"),paymentCardStatus:$("paymentCardStatus"),ordersCardStatus:$("ordersCardStatus"),ownerSessionLabel:$("ownerSessionLabel"),forgotPasswordBtn:$("forgotPasswordBtn")};
 let session=null;
 const isAdmin=()=>session?.user?.app_metadata?.olive_role==="admin";
 function esc(v=""){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));}
@@ -60,6 +60,19 @@ e.loginForm.addEventListener("submit",async ev=>{
   ev.preventDefault();e.loginMessage.textContent="Signing in…";
   const {error}=await supabase.auth.signInWithPassword({email:e.loginEmail.value.trim(),password:e.loginPassword.value});
   e.loginMessage.textContent=error?error.message:"";
+});
+e.forgotPasswordBtn?.addEventListener("click",async()=>{
+  const email=e.loginEmail.value.trim();
+  if(!email){e.loginMessage.textContent="Enter the owner email above, then tap Forgot password again.";e.loginEmail.focus();return;}
+  e.forgotPasswordBtn.disabled=true;
+  e.loginMessage.textContent="Sending a secure password-reset email…";
+  try{
+    const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${location.origin}/`});
+    if(error)throw error;
+    e.loginMessage.textContent="Password-reset email sent. Open it when you have access to the inbox, then follow the link to choose a new password.";
+  }catch(error){
+    e.loginMessage.textContent=error?.message||"Unable to send the reset email right now.";
+  }finally{e.forgotPasswordBtn.disabled=false;}
 });
 e.signOutBtn.onclick=async()=>{await supabase.auth.signOut();location.href="./dashboard.html";};
 async function boot(){const {data:{session:s}}=await supabase.auth.getSession();session=s;render();supabase.auth.onAuthStateChange((_event,next)=>{session=next;render();});}
