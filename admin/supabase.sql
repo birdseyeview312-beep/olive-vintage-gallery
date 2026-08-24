@@ -1,0 +1,11 @@
+-- OLIVE VINTAGE GALLERY — LEGACY STARTER FILE
+--
+-- IMPORTANT: The live Olive Vintage Supabase project is already configured.
+-- Do NOT run this legacy starter file against production.
+--
+-- The current production database includes the products catalog plus the
+-- Live Auctions V1 schema, RLS policies, admin-role isolation, real-time lot
+-- replication, atomic bid validation, anti-sniping, and product status sync.
+--
+-- Keep this file only as a marker for older deployment packages.
+-- See ../README.md for the current deployment notes.

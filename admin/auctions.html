@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Olive Vintage Gallery — Auction Manager</title>
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./auctions.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><div class="eyebrow">OLIVE VINTAGE GALLERY</div><h1>Auction Manager</h1></div>
+    <div class="top-actions">
+      <a class="ghost" style="text-decoration:none" href="./dashboard.html">Dashboard</a>
+      <a class="ghost" style="text-decoration:none" href="./admin.html">Inventory</a>
+      <span id="sessionEmail" class="muted"></span>
+      <button id="signOutBtn" class="ghost hidden">Sign out</button>
+    </div>
+  </header>
+
+  <main class="shell auction-admin-shell">
+    <section id="accessPanel" class="panel login-panel">
+      <div class="eyebrow">PRIVATE ACCESS</div><h2>Auction control</h2>
+      <p id="accessMessage" class="muted">Sign in through the Owner Dashboard first, then return here.</p>
+      <a class="primary inline-action" href="./dashboard.html">Open Owner Dashboard</a>
+    </section>
+
+    <section id="auctionApp" class="hidden">
+      <div class="auction-admin-grid">
+        <aside class="panel event-list-panel">
+          <div class="panel-head"><div><div class="eyebrow">EVENTS</div><h2>Live calendar</h2></div><button id="newEventBtn" class="primary">+ Auction</button></div>
+          <div id="eventList" class="event-list"></div>
+        </aside>
+
+        <section class="panel event-editor-panel">
+          <div class="panel-head"><div><div class="eyebrow">AUCTION EVENT</div><h2 id="eventEditorTitle">Select an auction</h2></div><span id="eventSaveMessage" class="message"></span></div>
+          <form id="eventForm" class="hidden">
+            <input id="eventId" type="hidden">
+            <div class="grid two"><label>Title<input id="eventTitle" required></label><label>Slug<input id="eventSlug" required placeholder="olive-live-001"></label></div>
+            <div class="grid two"><label>Subtitle<input id="eventSubtitle"></label><label>Status<select id="eventStatus"><option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option><option value="cancelled">Cancelled</option></select></label></div>
+            <label>Description<textarea id="eventDescription" rows="3"></textarea></label>
+            <div class="grid two"><label>Starts<input id="eventStarts" type="datetime-local"></label><label>Ends<input id="eventEnds" type="datetime-local"></label></div>
+            <label>Live video embed URL<input id="eventStream" type="url" placeholder="Automatically filled by Mux, or paste a supported embed URL"></label>
+
+            <section id="muxPanel" class="mux-broadcast-panel">
+              <div class="mux-panel-head">
+                <div><div class="eyebrow">MUX LIVE VIDEO</div><h3>Broadcast setup</h3></div>
+                <span id="muxStreamPill" class="connection-pill">Not created</span>
+              </div>
+              <p class="muted mux-intro">Create a low-latency Mux broadcast for this auction. The safe player URL is attached automatically; the private stream key is available only here to the signed-in owner.</p>
+              <div class="mux-actions">
+                <button id="muxCreateBtn" class="primary" type="button">Create Mux Broadcast</button>
+                <button id="muxDetailsBtn" class="ghost hidden" type="button">Show Broadcast Details</button>
+                <button id="muxRefreshBtn" class="ghost hidden" type="button">Check Signal</button>
+                <a class="ghost mux-settings-link" href="./video.html">Live Video Settings</a>
+              </div>
+              <p id="muxMessage" class="message"></p>
+              <div id="muxDetails" class="mux-details hidden">
+                <label>RTMPS Server
+                  <div class="mux-copy-row"><input id="muxRtmps" readonly><button id="muxCopyServer" class="ghost compact" type="button">Copy</button></div>
+                </label>
+                <label>Private Stream Key
+                  <div class="mux-copy-row"><input id="muxStreamKey" type="password" readonly><button id="muxToggleKey" class="ghost compact" type="button">Show</button><button id="muxCopyKey" class="ghost compact" type="button">Copy</button></div>
+                </label>
+                <label>Public Mux Player URL
+                  <div class="mux-copy-row"><input id="muxPlayerUrl" readonly><button id="muxCopyPlayer" class="ghost compact" type="button">Copy</button></div>
+                </label>
+                <div class="mux-key-warning"><strong>Keep the Stream Key private.</strong> Anyone with it can broadcast into this auction's video feed.</div>
+              </div>
+            </section>
+            <div class="grid two"><label>Hero image URL<input id="eventHeroImage" type="url"></label><label>Soft close (seconds)<input id="eventSoftClose" type="number" min="5" max="60" value="15"></label></div>
+            <div class="flags">
+              <label class="check"><input id="eventPublished" type="checkbox"> Published to website</label>
+              <label class="check"><input id="eventRegistrationOpen" type="checkbox"> Registration open</label>
+              <label class="check"><input id="eventApproval" type="checkbox"> Require bidder approval</label>
+            </div>
+            <div class="form-actions"><button class="primary" type="submit">Save Auction</button><button class="ghost danger" id="deleteEventBtn" type="button">Delete Auction</button></div>
+          </form>
+        </section>
+      </div>
+
+      <section id="lotWorkspace" class="panel lot-workspace hidden">
+        <div class="panel-head"><div><div class="eyebrow">CATALOG</div><h2>Lots</h2></div><div class="top-actions"><span id="lotCount" class="muted"></span><button id="newLotBtn" class="primary">+ Add Lot</button></div></div>
+        <div class="lot-admin-grid">
+          <div id="lotList" class="lot-admin-list"></div>
+          <form id="lotForm" class="lot-editor hidden">
+            <input id="lotId" type="hidden">
+            <div class="grid two"><label>Inventory piece<select id="lotProduct"><option value="">Unlinked / custom lot</option></select></label><label>Lot #<input id="lotNumber" type="number" min="1" required></label></div>
+            <div class="grid two"><label>Title<input id="lotTitle" required></label><label>Maker<input id="lotMaker"></label></div>
+            <label>Description<textarea id="lotDescription" rows="3"></textarea></label>
+            <div class="grid three"><label>Starting bid<input id="lotStartingBid" type="number" min="0" step="0.01" required></label><label>Increment<input id="lotIncrement" type="number" min="0.01" step="0.01" required></label><label>Buy now (optional)<input id="lotBuyNow" type="number" min="0" step="0.01"></label></div>
+            <div class="grid three"><label>Status<select id="lotStatus"><option value="draft">Draft</option><option value="upcoming">Upcoming</option><option value="live">LIVE</option><option value="sold">Sold</option><option value="passed">Passed</option><option value="withdrawn">Withdrawn</option></select></label><label>Opens<input id="lotOpens" type="datetime-local"></label><label>Closes<input id="lotCloses" type="datetime-local"></label></div>
+            <div id="lotImageStrip" class="lot-image-strip"></div>
+            <div class="lot-bid-readout"><div><span>Current bid</span><strong id="lotCurrentBid">—</strong></div><div><span>Bid count</span><strong id="lotBidCount">0</strong></div><div><span>Leader</span><strong id="lotLeader">—</strong></div></div>
+            <div id="winningBidPanel" class="winning-bid-panel hidden"></div>
+            <div class="form-actions"><button class="primary" type="submit">Save Lot</button><button id="deleteLotBtn" type="button" class="ghost danger">Delete Lot</button><span id="lotSaveMessage" class="message"></span></div>
+          </form>
+        </div>
+      </section>
+
+      <section id="bidderWorkspace" class="panel bidder-workspace hidden">
+        <div class="panel-head"><div><div class="eyebrow">BIDDERS</div><h2>Registrations</h2></div><span id="bidderCount" class="muted"></span></div>
+        <div id="bidderList" class="bidder-admin-list"></div>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="./auctions.js"></script>
+</body>
+</html>

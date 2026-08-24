@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Olive Vintage Gallery — Live Video Settings</title>
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./video.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><div class="eyebrow">OLIVE VINTAGE GALLERY</div><h1>Owner Settings</h1></div>
+    <div class="top-actions">
+      <a class="ghost settings-link" href="./dashboard.html">Dashboard</a>
+      <a class="ghost settings-link" href="./settings.html">Settings</a>
+      <span id="sessionEmail" class="muted"></span>
+      <button id="signOutBtn" class="ghost hidden">Sign out</button>
+    </div>
+  </header>
+
+  <main class="shell video-shell">
+    <section id="accessPanel" class="panel login-panel">
+      <div class="eyebrow">PRIVATE OWNER ACCESS</div>
+      <h2>Live video settings</h2>
+      <p id="accessMessage" class="muted">Sign in through the Owner Dashboard first, then return here.</p>
+      <a class="primary owner-link" href="./dashboard.html">Open Owner Dashboard</a>
+    </section>
+
+    <section id="videoApp" class="hidden">
+      <div class="settings-grid">
+        <section class="panel video-panel">
+          <div class="panel-head">
+            <div><div class="eyebrow">LIVE VIDEO</div><h2>Mux Broadcast Connection</h2></div>
+            <span id="statusPill" class="connection-pill">Not connected</span>
+          </div>
+
+          <p class="intro">Connect the Mux account used for Olive Vintage live auctions. The Token Secret is sent only to the secure backend and stored encrypted in Supabase Vault. It is never placed in the website code or returned to the browser after saving.</p>
+
+          <div id="connectedSummary" class="connected-summary hidden">
+            <div><span>Connection</span><strong>Connected</strong></div>
+            <div><span>Provider</span><strong>Mux Video</strong></div>
+            <div><span>Token ID</span><strong id="tokenHint">••••••</strong></div>
+          </div>
+
+          <form id="muxForm" class="video-form" autocomplete="off">
+            <label>Mux Token ID
+              <input id="tokenId" type="text" required spellcheck="false" autocomplete="off" placeholder="Paste the Mux Access Token ID">
+            </label>
+
+            <label>Mux Token Secret
+              <div class="secret-field">
+                <input id="tokenSecret" type="password" required spellcheck="false" autocomplete="new-password" placeholder="Paste Token Secret — it will not be displayed again">
+                <button id="toggleSecret" type="button" class="ghost compact">Show</button>
+              </div>
+            </label>
+
+            <div class="security-note">
+              <strong>Use Mux Video Read + Write permissions</strong>
+              <p>The owner creates an Access Token in Mux, then pastes its Token ID and Token Secret here. The secret remains encrypted on the backend.</p>
+            </div>
+
+            <div class="form-actions video-actions">
+              <button class="primary" type="submit">Save Mux Connection</button>
+              <button id="testBtn" class="ghost" type="button">Test Connection</button>
+              <button id="disconnectBtn" class="ghost danger hidden" type="button">Disconnect</button>
+            </div>
+            <p id="saveMessage" class="message" role="status"></p>
+          </form>
+        </section>
+
+        <aside class="panel handoff-panel">
+          <div class="eyebrow">HOW LIVE AUCTIONS WORK</div>
+          <h2>One setup, then one-button broadcasts</h2>
+          <ol>
+            <li>Owner connects Mux here one time.</li>
+            <li>Open <strong>Auction Manager</strong>.</li>
+            <li>Select an auction and press <strong>Create Mux Broadcast</strong>.</li>
+            <li>Copy the RTMPS server and private stream key into OBS or a compatible mobile broadcaster.</li>
+            <li>Start streaming. The Mux player is already attached to that auction page.</li>
+          </ol>
+          <div class="handoff-callout">
+            <strong>Bidding never depends on video timing.</strong>
+            <p>Supabase remains the authority for the bid amount, lot countdown, and anti-sniping extension even if a viewer's video is a few seconds behind.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./video.js"></script>
+</body>
+</html>

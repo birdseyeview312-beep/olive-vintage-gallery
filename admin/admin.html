@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Olive Vintage Gallery — Inventory Manager</title>
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">OLIVE VINTAGE GALLERY</div>
+      <h1>Inventory Manager</h1>
+    </div>
+    <div class="top-actions">
+      <a href="./dashboard.html" class="ghost" style="text-decoration:none">Dashboard</a>
+      <a href="./auctions.html" class="ghost" style="text-decoration:none">Auctions</a>
+      <span id="sessionEmail" class="muted"></span>
+      <button id="signOutBtn" class="ghost hidden">Sign out</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="loginPanel" class="panel login-panel">
+      <div class="eyebrow">PRIVATE ACCESS</div>
+      <h2>Sign in</h2>
+      <p class="muted">Manage inventory, photographs, prices, status, and featured pieces.</p>
+      <form id="loginForm" class="stack">
+        <label>Email<input id="loginEmail" type="email" required autocomplete="email"></label>
+        <label>Password<input id="loginPassword" type="password" required autocomplete="current-password"></label>
+        <button class="primary" type="submit">Enter Inventory Manager</button>
+        <p id="loginMessage" class="message"></p>
+      </form>
+    </section>
+
+    <section id="appPanel" class="hidden">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <input id="searchInput" type="search" placeholder="Search maker, title, category, inventory #...">
+        </div>
+        <select id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="available">Available</option>
+          <option value="reserved">Reserved</option>
+          <option value="sold">Sold</option>
+          <option value="draft">Draft</option>
+        </select>
+        <button id="newPieceBtn" class="primary">+ Add Piece</button>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="workspace">
+        <section class="panel inventory-panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">INVENTORY</div>
+              <h2>Collection</h2>
+            </div>
+            <span id="resultCount" class="muted"></span>
+          </div>
+          <div id="inventoryList" class="inventory-list"></div>
+        </section>
+
+        <section class="panel editor-panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">ARTWORK RECORD</div>
+              <h2 id="editorTitle">Add a piece</h2>
+            </div>
+            <button id="deleteBtn" class="danger ghost hidden">Delete</button>
+          </div>
+
+          <form id="pieceForm">
+            <input id="pieceId" type="hidden">
+
+            <div class="grid two">
+              <label>Inventory #<input id="inventoryNumber" required placeholder="OVG-0001"></label>
+              <label>Status
+                <select id="status" required>
+                  <option value="available">Available</option>
+                  <option value="reserved">Reserved</option>
+                  <option value="sold">Sold</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>Title<input id="title" required placeholder="Sommerso Glass Vase"></label>
+              <label>Maker / Artist<input id="maker" placeholder="Dino Martens"></label>
+            </div>
+
+            <div class="grid two">
+              <label>Category
+                <select id="category" required>
+                  <option>Contemporary Studio Glass</option>
+                  <option>Vintage & Antique Glass</option>
+                  <option>American Art Glass</option>
+                  <option>European & Italian Glass</option>
+                  <option>Sculptural Works</option>
+                  <option>New Acquisitions</option>
+                </select>
+              </label>
+              <label>Price (USD)<input id="price" type="number" min="0" step="0.01" placeholder="3750"></label>
+            </div>
+
+            <div class="grid three">
+              <label>Date / Period<input id="datePeriod" placeholder="c. 1958"></label>
+              <label>Origin<input id="origin" placeholder="Murano, Italy"></label>
+              <label>Medium<input id="medium" placeholder="Blown glass"></label>
+            </div>
+
+            <div class="grid three">
+              <label>Height<input id="height" placeholder="11.4 in"></label>
+              <label>Width<input id="width" placeholder="7.8 in"></label>
+              <label>Depth<input id="depth" placeholder="3.9 in"></label>
+            </div>
+
+            <label>Description<textarea id="description" rows="5" placeholder="Describe form, color, technique, history, and visual character."></textarea></label>
+            <label>Condition<textarea id="condition" rows="3" placeholder="Excellent vintage condition; note any wear, chips, scratches, restoration, etc."></textarea></label>
+            <label>Provenance<textarea id="provenance" rows="3" placeholder="Collection history, labels, exhibition history, documentation..."></textarea></label>
+
+            <div class="flags">
+              <label class="check"><input id="featured" type="checkbox"> Featured piece</label>
+              <label class="check"><input id="newArrival" type="checkbox"> New arrival</label>
+              <label class="check"><input id="inquireOnly" type="checkbox"> Inquire to purchase</label>
+            </div>
+
+            <div class="photo-box">
+              <div>
+                <div class="eyebrow">PHOTOGRAPHS</div>
+                <p class="muted">Upload one or more images. The first image becomes the primary gallery image.</p>
+              </div>
+              <input id="photoInput" type="file" accept="image/*" multiple>
+              <div id="photoPreview" class="photo-preview"></div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="primary">Save Piece</button>
+              <button type="button" id="resetBtn" class="ghost">Clear</button>
+              <span id="saveMessage" class="message"></span>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>
