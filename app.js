@@ -1,5 +1,6 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 import { supabase as authSupabase } from "./supabase-client.js";
+import { bindProductImageGalleries } from "./product-gallery.js";
 
 authSupabase.auth.onAuthStateChange((event) => {
   if (event === "PASSWORD_RECOVERY") {
@@ -74,16 +75,14 @@ function productCard(p, index = 0) {
     : `<a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `
     <article class="${cardClass}" data-product-id="${esc(p.id || "")}">
-      <div class="product-image live-product-image">
-        ${image
-          ? `<div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" ${index === 0 ? 'fetchpriority="high"' : ""}></div>`
-          : `<div class="product-placeholder p1"></div>`}
+      ${image ? `<button class="product-image live-product-image product-gallery-trigger" type="button" data-gallery-product="${esc(p.id)}" aria-label="View ${p.images?.length > 1 ? `all ${p.images.length} photos` : "larger photo"} of ${esc(p.title)}">
+        <div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" ${index === 0 ? 'fetchpriority="high"' : ""}></div>
         <div class="product-image-topline">
           <span>New Acquisition</span>
           ${p.status === "reserved" ? `<span class="product-badge">Reserved</span>` : ""}
         </div>
-        <div class="product-image-number">${String(index + 1).padStart(2, "0")}</div>
-      </div>
+        <div class="product-image-number">${p.images?.length > 1 ? `${p.images.length} PHOTOS · ` : ""}${String(index + 1).padStart(2, "0")}</div>
+      </button>` : `<div class="product-image live-product-image"><div class="product-placeholder p1"></div><div class="product-image-topline"><span>New Acquisition</span></div><div class="product-image-number">${String(index + 1).padStart(2, "0")}</div></div>`}
       <div class="product-info">
         <div class="product-meta-line">
           <p class="eyebrow">${esc(p.category || "ART GLASS")}</p>
@@ -115,10 +114,12 @@ async function loadLiveInventory() {
     const products = prioritized.length ? prioritized : fallbackProducts;
     grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
     bindBuyNowButtons();
+    bindProductImageGalleries(products, grid);
   } catch (error) {
     console.info("Live inventory is not configured yet. Showing curated local collection.", error);
     grid.innerHTML = fallbackProducts.map((p, index) => productCard(p, index)).join("");
     bindBuyNowButtons();
+    bindProductImageGalleries(fallbackProducts, grid);
   }
 }
 

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d0a">
+  <title>Collection — Olive Vintage Gallery</title>
+  <meta name="description" content="Explore the live Olive Vintage Gallery collection of contemporary, vintage, antique and studio art glass.">
+  <link rel="icon" href="./assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header scrolled">
+    <a class="brand" href="./index.html" aria-label="Olive Vintage Gallery home"><span class="brand-image-wrap"><img src="./assets/olive-brand.jpg" alt=""></span><span class="brand-text"><strong>OLIVE VINTAGE</strong><span>GALLERY</span></span></a>
+    <button id="menuBtn" class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav id="nav" class="nav"><a href="./collection.html">Collection</a><a href="./index.html#new">New Arrivals</a><a href="./auction.html">Live Auctions</a><a href="./index.html#story">Our Story</a><a href="./index.html#contact">Contact</a></nav>
+  </header>
+  <main class="collection-page section-pad">
+    <section class="collection-page-head">
+      <div><p class="eyebrow">THE LIVE COLLECTION</p><h1>Every available object.<br><em>One gallery.</em></h1></div>
+      <p>Browse the full public Olive Vintage inventory. Tap any photographed object to open its complete recovered image set.</p>
+    </section>
+    <div class="collection-controls">
+      <div class="collection-filters" role="group" aria-label="Filter collection"><button class="collection-filter active" type="button" data-collection-filter="available">Available</button><button class="collection-filter" type="button" data-collection-filter="sold">Sold Archive</button><button class="collection-filter" type="button" data-collection-filter="all">All Public</button></div>
+      <div id="collectionCount" class="collection-count">Loading collection…</div>
+    </div>
+    <section id="collectionGrid" class="collection-product-grid" aria-live="polite"><div class="collection-empty">Loading the collection…</div></section>
+  </main>
+  <footer><div class="footer-brand"><img src="./assets/olive-brand.jpg" alt=""> OLIVE VINTAGE GALLERY</div><div class="footer-links"><a href="./index.html">Home</a><a href="./auction.html">Auctions</a><a href="./admin/dashboard.html">Owner Login</a></div><div class="copyright">© <span id="year"></span> Olive Vintage Gallery</div></footer>
+  <script type="module">
+    const header=document.querySelector('.site-header'),menuBtn=document.getElementById('menuBtn'),nav=document.getElementById('nav');
+    menuBtn?.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open));});
+    nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+    document.getElementById('year').textContent=new Date().getFullYear();
+  </script>
+  <script type="module" src="./collection.js"></script>
+</body>
+</html>

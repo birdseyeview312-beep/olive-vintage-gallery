@@ -118,3 +118,10 @@ The stream key is stored in encrypted Vault storage and is not kept in the publi
 - Improves the New Acquisition overlay with a translucent, high-contrast label.
 - Tightens product information spacing so price, title, maker and checkout controls appear sooner.
 - Leaves desktop/tablet presentation unchanged.
+
+## v10 — Full Collection + Product Photo Gallery
+- Homepage product images are clickable when an original image is available.
+- Full-screen lightbox supports next/previous, keyboard arrows, mobile swipe, photo counter and thumbnails.
+- New `collection.html` shows the full public catalog rather than only the 10 homepage highlights.
+- Available and Sold Archive filters are populated live from Supabase.
+- Draft/ended/unresolved records remain hidden from shoppers by existing RLS.
