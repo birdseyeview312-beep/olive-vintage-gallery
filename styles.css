@@ -209,3 +209,23 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
     margin-top:4px;
   }
 }
+
+/* Olive Vintage Live Auctions — homepage invitation */
+.live-auction-promo{position:relative;overflow:hidden;background:linear-gradient(135deg,#0a0d09 0%,#11150e 60%,#0b0e0a 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.live-auction-promo:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 77% 38%,rgba(117,132,70,.17),transparent 24%);pointer-events:none}.live-auction-orbit{position:absolute;right:-8vw;top:50%;transform:translateY(-50%);width:50vw;height:50vw;border:1px solid rgba(207,173,103,.08);border-radius:50%}.live-auction-orbit:before,.live-auction-orbit:after{content:"";position:absolute;border:1px solid rgba(207,173,103,.06);border-radius:50%;inset:9%}.live-auction-orbit:after{inset:22%}
+.live-auction-label{position:relative;display:flex;align-items:center;gap:12px;margin-bottom:45px}.live-auction-label .eyebrow{margin:0}.live-pulse{width:8px;height:8px;border-radius:50%;background:#98a65a;box-shadow:0 0 18px rgba(152,166,90,.7)}
+.live-auction-promo-grid{position:relative;display:grid;grid-template-columns:1.25fr .65fr;gap:8vw;align-items:end}.live-auction-promo-copy h2{font-size:clamp(55px,7vw,106px);line-height:.9;margin:0 0 30px}.live-auction-promo-copy h2 em{color:#c9b77f}.live-auction-promo-copy>p{max-width:690px;color:#a4a69b;font-size:17px;line-height:1.85}.live-auction-promo-actions{display:flex;align-items:center;gap:24px;margin-top:35px;flex-wrap:wrap}.live-auction-promo-actions>span{font-size:10px;letter-spacing:.13em;color:#898d7d;text-transform:uppercase}
+.live-auction-promo-card{position:relative;border:1px solid rgba(207,173,103,.2);background:rgba(8,10,7,.62);backdrop-filter:blur(16px);padding:32px;min-height:300px;display:flex;flex-direction:column;justify-content:flex-end}.live-auction-promo-card>span{font-size:9px;letter-spacing:.2em;color:#8d9765}.live-auction-promo-card>strong{font:500 clamp(31px,3vw,46px)/1.05 "Playfair Display",serif;margin:18px 0 13px}.live-auction-promo-card>p{color:#97998f;line-height:1.6;font-size:13px}.auction-promo-rule{height:1px;background:linear-gradient(90deg,rgba(207,173,103,.4),transparent);margin:25px 0 16px}.live-auction-promo-card small{font-size:8px;letter-spacing:.17em;color:#6f7466}
+@media(max-width:900px){.live-auction-promo-grid{grid-template-columns:1fr;gap:45px}.live-auction-promo-card{max-width:560px}.live-auction-orbit{width:90vw;height:90vw;right:-45vw}}
+@media(max-width:620px){.live-auction-promo-copy h2{font-size:clamp(50px,15vw,72px)}.live-auction-promo-actions{align-items:flex-start;flex-direction:column}.live-auction-promo-card{padding:25px;min-height:250px}}
+
+
+/* Secure Buy Now checkout */
+.product-detail-row{align-items:center}
+.product-buy-now{appearance:none;border:1px solid rgba(207,173,103,.52);background:linear-gradient(135deg,rgba(207,173,103,.16),rgba(107,124,73,.12));color:#ead9ad;border-radius:999px;padding:10px 14px;font:600 9px/1 "DM Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:transform .25s ease,border-color .25s ease,background .25s ease}
+.product-buy-now:hover{transform:translateY(-1px);border-color:rgba(233,209,151,.8);background:linear-gradient(135deg,rgba(207,173,103,.24),rgba(107,124,73,.16))}
+.product-buy-now:disabled{opacity:.58;cursor:wait;transform:none}
+.checkout-notice{position:fixed;z-index:1000;left:50%;bottom:28px;transform:translate(-50%,18px);max-width:min(620px,calc(100vw - 32px));padding:14px 18px;border:1px solid rgba(207,173,103,.28);border-radius:14px;background:rgba(12,15,11,.96);box-shadow:0 24px 70px rgba(0,0,0,.5);color:#d9d3c2;font-size:12px;line-height:1.5;opacity:0;pointer-events:none;transition:.3s ease}
+.checkout-notice.show{opacity:1;transform:translate(-50%,0)}
+.checkout-notice.error{border-color:rgba(199,112,102,.45);color:#e8b8b0}
+@media(max-width:620px){.product-detail-row{align-items:flex-start;flex-direction:column}.product-buy-now{width:100%;justify-content:center;padding:13px 16px}}

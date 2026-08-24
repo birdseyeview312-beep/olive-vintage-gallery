@@ -1,3 +1,5 @@
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+
 const intro = document.getElementById("intro");
 const dismissIntro = () => intro?.classList.add("done");
 window.addEventListener("load", () => setTimeout(dismissIntro, 1250));
@@ -59,8 +61,12 @@ function productCard(p, index = 0) {
   const makerLine = [p.maker, p.date_period].filter(Boolean).join(" · ") || "Olive Vintage Gallery";
   const cardClass = index === 0 ? "product-card featured-product reveal visible" : "product-card reveal visible";
   const inquirySubject = encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title || "Artwork"}`);
+  const canBuyNow = !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
+  const action = canBuyNow
+    ? `<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`
+    : `<a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `
-    <article class="${cardClass}">
+    <article class="${cardClass}" data-product-id="${esc(p.id || "")}">
       <div class="product-image live-product-image">
         ${image
           ? `<div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" ${index === 0 ? 'fetchpriority="high"' : ""}></div>`
@@ -79,7 +85,7 @@ function productCard(p, index = 0) {
         <h3>${esc(p.title)}</h3>
         <div class="product-detail-row">
           <p>${esc(makerLine)}</p>
-          <a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>
+          ${action}
         </div>
       </div>
     </article>`;
@@ -96,10 +102,58 @@ async function loadLiveInventory() {
     const live = rows.filter(p => ["available","reserved"].includes(p.status));
     const products = live.length ? live : fallbackProducts;
     grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
+    bindBuyNowButtons();
   } catch (error) {
     console.info("Live inventory is not configured yet. Showing curated local collection.", error);
     grid.innerHTML = fallbackProducts.map((p, index) => productCard(p, index)).join("");
+    bindBuyNowButtons();
   }
+}
+
+function checkoutNotice(message, type = "") {
+  let el = document.getElementById("checkoutNotice");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "checkoutNotice";
+    el.className = "checkout-notice";
+    el.setAttribute("role", "status");
+    document.body.appendChild(el);
+  }
+  el.className = `checkout-notice show ${type}`.trim();
+  el.textContent = message;
+  clearTimeout(checkoutNotice.timer);
+  checkoutNotice.timer = setTimeout(() => el.classList.remove("show"), 6500);
+}
+
+async function beginBuyNow(productId, button) {
+  const original = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = "Opening secure checkout…";
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/paypal-checkout`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "create", product_id: productId })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.approve_url) throw new Error(data.error || "Secure checkout is temporarily unavailable.");
+    window.location.assign(data.approve_url);
+  } catch (error) {
+    checkoutNotice(error.message || "Secure checkout is temporarily unavailable.", "error");
+    button.disabled = false;
+    button.innerHTML = original;
+  }
+}
+
+function bindBuyNowButtons() {
+  document.querySelectorAll("[data-buy-product]").forEach(button => {
+    button.addEventListener("click", () => beginBuyNow(button.dataset.buyProduct, button));
+  });
+}
+
+const checkoutState = new URLSearchParams(location.search).get("checkout");
+if (checkoutState === "cancelled") {
+  setTimeout(() => checkoutNotice("Checkout cancelled. The artwork will return to available inventory when the short reservation expires."), 500);
 }
 
 loadLiveInventory();
@@ -141,3 +195,21 @@ if (!reducedMotion) {
     });
   }, { passive: true });
 }
+
+async function loadHomeAuctionPreview(){
+  const titleEl=document.getElementById("homeAuctionTitle");
+  if(!titleEl)return;
+  try{
+    const { supabase }=await import("./supabase-client.js");
+    const {data,error}=await supabase.from("auction_events").select("title,starts_at,status,published").eq("published",true).in("status",["live","scheduled"]).order("starts_at",{ascending:true,nullsFirst:false}).limit(5);
+    if(error)throw error;
+    const rows=data||[];
+    const active=rows.find(x=>x.status==="live")||rows.find(x=>x.status==="scheduled");
+    if(!active)return;
+    document.getElementById("homeAuctionKicker").textContent=active.status==="live"?"LIVE NOW":"NEXT AUCTION";
+    titleEl.textContent=active.title;
+    document.getElementById("homeAuctionStatus").textContent=active.status==="live"?"The auction room is open. Join the live bidding.":"Preview the catalog and register your bidder paddle.";
+    document.getElementById("homeAuctionDate").textContent=active.starts_at?new Intl.DateTimeFormat("en-US",{month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(active.starts_at)):"Date to be announced";
+  }catch(error){console.info("Auction preview is not public yet.",error);}
+}
+loadHomeAuctionPreview();
