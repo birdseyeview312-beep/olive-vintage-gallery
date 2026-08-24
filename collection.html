@@ -12,11 +12,41 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 
-  <!-- Mobile collection image correction:
-       gives tall glass pieces more vertical room without cropping the artwork.
-       This is intentionally scoped to the Collection page only. -->
+  <!-- Collection-page-only mobile corrections -->
   <style>
     @media (max-width:620px){
+      /* Keep the fixed header from covering the collection eyebrow. */
+      .collection-page{
+        padding-top:138px !important;
+      }
+
+      /* Tight, editorial mobile hero. */
+      .collection-page-head{
+        gap:14px !important;
+        margin-bottom:24px !important;
+        padding-bottom:26px !important;
+      }
+
+      .collection-page-head .eyebrow{
+        display:block;
+        margin:0 0 12px;
+        position:relative;
+        z-index:2;
+      }
+
+      .collection-page-head h1{
+        font-size:clamp(46px,12.2vw,60px) !important;
+        line-height:.92;
+        max-width:100%;
+      }
+
+      .collection-page-head>p{
+        margin:0;
+        font-size:15px;
+        line-height:1.65;
+      }
+
+      /* Preserve the larger, uncropped product presentation. */
       .collection-product-grid .product-image{
         aspect-ratio:1/1;
       }
