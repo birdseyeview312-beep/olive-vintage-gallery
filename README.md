@@ -105,3 +105,9 @@ The stream key is stored in encrypted Vault storage and is not kept in the publi
 - Live homepage inventory now prioritizes available products with verified recovered photos.
 - Products awaiting original images remain in Supabase/admin and are not deleted.
 - Sold/draft visibility rules remain controlled by existing Supabase RLS/status logic.
+
+## v8 mobile polish
+- Mobile New Acquisitions uses 4:3 product frames so product details appear sooner.
+- Reduced vertical spacing in Recently Selected on phones.
+- Added stronger horizontal overflow protection.
+- Desktop layout remains unchanged.

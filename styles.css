@@ -229,3 +229,66 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
 .checkout-notice.show{opacity:1;transform:translate(-50%,0)}
 .checkout-notice.error{border-color:rgba(199,112,102,.45);color:#e8b8b0}
 @media(max-width:620px){.product-detail-row{align-items:flex-start;flex-direction:column}.product-buy-now{width:100%;justify-content:center;padding:13px 16px}}
+
+/* v8 — mobile storefront polish
+   Keeps desktop editorial layout intact while making New Acquisitions feel
+   faster, cleaner and more shoppable on phones. */
+@media(max-width:620px){
+  html,body{width:100%;max-width:100%;overflow-x:clip}
+  main,section,.section-pad,.product-grid,.product-card{min-width:0;max-width:100%}
+
+  /* Tighten the acquisition intro so the first artwork enters the viewport sooner. */
+  .new-arrivals{padding-top:64px;padding-bottom:74px}
+  .new-arrivals .section-head{
+    gap:18px;
+    margin-bottom:28px;
+    padding-bottom:22px;
+  }
+  .new-arrivals .section-head h2{
+    font-size:clamp(46px,13vw,60px);
+    line-height:.98;
+    max-width:100%;
+  }
+  .new-arrivals .section-head .button.text{
+    min-height:38px;
+    font-size:11px;
+  }
+
+  /* A 4:3 gallery frame keeps the art large but reveals title/price/actions sooner. */
+  .product-grid{gap:18px;width:100%}
+  .product-card{
+    width:100%;
+    padding:10px 10px 18px;
+    border-radius:2px;
+  }
+  .product-image,
+  .featured-product .product-image{
+    aspect-ratio:4/3;
+    width:100%;
+    max-height:none;
+    border-radius:16px;
+  }
+  .live-product-stage,
+  .featured-product .live-product-stage{
+    padding:14px;
+  }
+  .product-image-topline{top:11px;left:11px;right:11px}
+  .product-image-number{right:13px;bottom:10px}
+
+  /* Pull the selling information directly under the image. */
+  .product-info{padding:15px 2px 0}
+  .product-meta-line{gap:12px;margin-bottom:8px}
+  .product-price{font-size:14px}
+  .product-info h3,
+  .featured-product .product-info h3{
+    font-size:clamp(27px,8vw,36px);
+    line-height:1.02;
+    margin-bottom:13px;
+  }
+  .product-detail-row{gap:12px;padding-top:12px}
+  .product-detail-row p{font-size:11px}
+  .product-buy-now{width:100%;justify-content:center;padding:13px 16px}
+
+  /* Guard against transformed/decorative children creating a horizontal scroll track. */
+  .new-arrivals,.product-card,.product-image,.live-product-stage{overflow:hidden}
+}
