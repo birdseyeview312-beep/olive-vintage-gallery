@@ -1,4 +1,11 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+import { supabase as authSupabase } from "./supabase-client.js";
+
+authSupabase.auth.onAuthStateChange((event) => {
+  if (event === "PASSWORD_RECOVERY") {
+    window.location.replace("./admin/settings.html?recovery=1");
+  }
+});
 
 const intro = document.getElementById("intro");
 const dismissIntro = () => intro?.classList.add("done");

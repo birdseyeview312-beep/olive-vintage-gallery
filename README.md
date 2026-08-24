@@ -93,3 +93,9 @@ The stream key is stored in encrypted Vault storage and is not kept in the publi
 - Successful capture marks the order paid and the product sold. Customer card/PayPal credentials are never stored by Olive Vintage Gallery.
 - `checkout-success.html` confirms the capture and returns the buyer to the gallery.
 - The owner can track paid website orders and set fulfillment to Unfulfilled, Processing, Shipped, or Completed.
+
+
+## Owner password recovery
+- The private Owner Login now includes **Forgot password?**.
+- It sends Supabase's official recovery email only when the owner taps it.
+- Recovery links return to the production site and automatically route the owner to **Settings & Security** to choose a new password.
