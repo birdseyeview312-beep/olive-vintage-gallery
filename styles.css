@@ -292,3 +292,52 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;op
   /* Guard against transformed/decorative children creating a horizontal scroll track. */
   .new-arrivals,.product-card,.product-image,.live-product-stage{overflow:hidden}
 }
+
+/* v9 — precision mobile commerce polish
+   Slightly shorter artwork frames, calmer product titles, and a legible
+   acquisition label. Desktop/tablet styling remains unchanged. */
+@media(max-width:620px){
+  /* Show more of the selling information in the first viewport. */
+  .product-image,
+  .featured-product .product-image{
+    aspect-ratio:3/2;
+  }
+  .live-product-stage,
+  .featured-product .live-product-stage{
+    padding:12px;
+  }
+
+  /* Keep long marketplace titles elegant instead of letting them dominate. */
+  .product-info h3,
+  .featured-product .product-info h3{
+    font-size:clamp(23px,6.8vw,30px);
+    line-height:1.01;
+    letter-spacing:-.012em;
+    margin-bottom:11px;
+  }
+  .product-info{padding-top:13px}
+  .product-meta-line{margin-bottom:7px}
+  .product-detail-row{padding-top:10px;gap:10px}
+
+  /* Make the acquisition tag readable over light or detailed photographs. */
+  .product-image-topline{
+    top:10px;
+    left:10px;
+    right:10px;
+    color:#f1eadc;
+  }
+  .product-image-topline>span:first-child{
+    display:inline-flex;
+    align-items:center;
+    min-height:25px;
+    padding:5px 8px;
+    border:1px solid rgba(241,234,220,.16);
+    border-radius:999px;
+    background:rgba(10,13,9,.66);
+    backdrop-filter:blur(7px);
+    -webkit-backdrop-filter:blur(7px);
+    box-shadow:0 6px 18px rgba(0,0,0,.14);
+    color:#f1eadc;
+    text-shadow:0 1px 2px rgba(0,0,0,.32);
+  }
+}

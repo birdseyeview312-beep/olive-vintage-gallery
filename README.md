@@ -111,3 +111,10 @@ The stream key is stored in encrypted Vault storage and is not kept in the publi
 - Reduced vertical spacing in Recently Selected on phones.
 - Added stronger horizontal overflow protection.
 - Desktop layout remains unchanged.
+
+## v9 mobile precision polish
+- Shortens mobile product artwork frames from 4:3 to 3:2.
+- Reduces oversized marketplace product titles on phones.
+- Improves the New Acquisition overlay with a translucent, high-contrast label.
+- Tightens product information spacing so price, title, maker and checkout controls appear sooner.
+- Leaves desktop/tablet presentation unchanged.
