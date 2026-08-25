@@ -88,3 +88,10 @@
     transition: none !important;
   }
 }
+
+/* v16 — mobile readability micro-polish */
+@media (max-width: 620px) {
+  .collection-page-head > p {
+    color: #aeb2a6 !important;
+  }
+}
