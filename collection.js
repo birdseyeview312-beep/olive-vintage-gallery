@@ -9,6 +9,15 @@ const esc = (s="") => String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;","
 const money = value => value === null || value === undefined || value === "" ? "Price on request" : new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
 let rows = [];
 let activeFilter = "available";
+let checkoutEnabled = false;
+
+async function getCheckoutEnabled(){
+  try{
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/payment-status`,{method:"GET",headers:{apikey:SUPABASE_ANON_KEY},cache:"no-store"});
+    const data=await response.json().catch(()=>({}));
+    return response.ok&&data?.enabled===true;
+  }catch{return false;}
+}
 
 function checkoutNotice(message, type = "") {
   let el = document.getElementById("checkoutNotice");
@@ -30,7 +39,7 @@ async function beginBuyNow(productId, button){
 function card(p,index){
   const image=p.images?.[0];
   const isSold=p.status==="sold";
-  const canBuy=!!p.id&&p.status==="available"&&!p.inquire_only&&p.price!==null&&p.price!==undefined&&Number(p.price)>0;
+  const canBuy=checkoutEnabled&&!!p.id&&p.status==="available"&&!p.inquire_only&&p.price!==null&&p.price!==undefined&&Number(p.price)>0;
   const inquirySubject=encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title||"Artwork"}`);
   const action=isSold?`<span class="collection-status sold">Sold</span>`:canBuy?`<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`:`<a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `<article class="product-card reveal visible ${isSold?"collection-sold":""}" data-product-id="${esc(p.id||"")}">
@@ -52,7 +61,9 @@ filters.forEach(btn=>btn.addEventListener("click",()=>{activeFilter=btn.dataset.
 
 async function boot(){
   try{
-    rows=await getGalleryProducts({status:null});
+    const [inventory,paymentsReady]=await Promise.all([getGalleryProducts({status:null}),getCheckoutEnabled()]);
+    checkoutEnabled=paymentsReady;
+    rows=inventory.filter(p=>["available","reserved","sold"].includes(p.status));
     const available=rows.filter(p=>p.status==="available").length;
     const sold=rows.filter(p=>p.status==="sold").length;
     document.querySelector('[data-collection-filter="available"]').textContent=`Available · ${available}`;

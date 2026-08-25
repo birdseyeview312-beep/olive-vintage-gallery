@@ -6,7 +6,8 @@ menuBtn?.addEventListener("click", () => {
   const open = nav?.classList.toggle("open");
   menuBtn.setAttribute("aria-expanded", String(!!open));
 });
-nav?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
+nav?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { nav.classList.remove("open"); menuBtn?.setAttribute("aria-expanded", "false"); }));
+document.addEventListener("keydown", event => { if (event.key === "Escape") { nav?.classList.remove("open"); menuBtn?.setAttribute("aria-expanded", "false"); } });
 document.getElementById("year").textContent = new Date().getFullYear();
 
 const form = document.getElementById("privateViewingRequestForm");
@@ -47,7 +48,7 @@ form?.addEventListener("submit", async event => {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data?.error || "The request could not be sent.");
     form.reset();
-    setStatus("Request received. The gallery can now review it in the owner dashboard and send your private invitation.");
+    setStatus("Request received. We’ll review your preferences and send a private invitation when your appointment is confirmed.");
     submit.textContent = "Request received";
   } catch (error) {
     setStatus(error?.message || "Private viewing requests are temporarily unavailable.", true);

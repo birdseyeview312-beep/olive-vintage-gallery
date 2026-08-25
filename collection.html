@@ -6,6 +6,15 @@
   <meta name="theme-color" content="#0b0d0a">
   <title>Collection — Olive Vintage Gallery</title>
   <meta name="description" content="Explore the live Olive Vintage Gallery collection of contemporary, vintage, antique and studio art glass.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://www.olivevintage.store/collection.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Olive Vintage Gallery">
+  <meta property="og:title" content="The Collection — Olive Vintage Gallery">
+  <meta property="og:description" content="Browse the complete public collection of available art glass and gallery archive works.">
+  <meta property="og:url" content="https://www.olivevintage.store/collection.html">
+  <meta property="og:image" content="https://www.olivevintage.store/assets/products/color-burst-studio-vase.webp">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="./assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,7 +94,8 @@
   <script type="module">
     const header=document.querySelector('.site-header'),menuBtn=document.getElementById('menuBtn'),nav=document.getElementById('nav');
     menuBtn?.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open));});
-    nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+    nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn?.setAttribute('aria-expanded','false');}));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){nav?.classList.remove('open');menuBtn?.setAttribute('aria-expanded','false');}});
     document.getElementById('year').textContent=new Date().getFullYear();
   </script>
   <script type="module" src="./collection.js"></script>

@@ -8,10 +8,18 @@ authSupabase.auth.onAuthStateChange((event) => {
   }
 });
 
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const intro = document.getElementById("intro");
 const dismissIntro = () => intro?.classList.add("done");
-window.addEventListener("load", () => setTimeout(dismissIntro, 1250));
-setTimeout(dismissIntro, 2500);
+let introSeen = false;
+try { introSeen = sessionStorage.getItem("olive_intro_seen") === "1"; } catch {}
+if (reducedMotion || introSeen) {
+  dismissIntro();
+} else {
+  window.addEventListener("load", () => setTimeout(dismissIntro, 850));
+  setTimeout(dismissIntro, 1800);
+  try { sessionStorage.setItem("olive_intro_seen", "1"); } catch {}
+}
 
 const header = document.querySelector(".site-header");
 const menuBtn = document.getElementById("menuBtn");
@@ -50,16 +58,30 @@ const money = value => {
 };
 
 
+let checkoutEnabled = false;
+
+async function getCheckoutEnabled() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/payment-status`, {
+      method: "GET",
+      headers: { apikey: SUPABASE_ANON_KEY },
+      cache: "no-store"
+    });
+    const data = await response.json().catch(() => ({}));
+    return response.ok && data?.enabled === true;
+  } catch {
+    return false;
+  }
+}
+
 const fallbackProducts = [
   { title: "Purple Optic Vase", category: "STUDIO GLASS", images: ["./assets/products/black-optic-teardrop-vase.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
-  { title: "Lavender Studio Jug", category: "CERAMIC", images: ["./assets/products/lavender-studio-jug.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "Raspberry & Blossom Paperweight", category: "ART GLASS", images: ["./assets/products/raspberry-blossom-paperweight.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "Emerald & Violet Striped Vase", category: "STUDIO GLASS", images: ["./assets/products/emerald-violet-striped-vase.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "Blue Bird Glass Sculpture", category: "ART GLASS", images: ["./assets/products/blue-bird-glass-sculpture.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "Aqua Glass Boot Sculpture", category: "ART GLASS", images: ["./assets/products/aqua-glass-boot-sculpture.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "Pink Floral Paperweight", category: "ART GLASS", images: ["./assets/products/pink-floral-paperweight.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "White Blossom Paperweight", category: "ART GLASS", images: ["./assets/products/white-blossom-paperweight.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
-  { title: "Brushed Metal Table Object", category: "DESIGN OBJECT", images: ["./assets/products/brushed-metal-table-object.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true },
   { title: "Color Burst Studio Vase", category: "STUDIO GLASS", images: ["./assets/products/color-burst-studio-vase.webp"], price: null, status: "available", maker: "", date_period: "", inquire_only: true }
 ];
 
@@ -69,7 +91,7 @@ function productCard(p, index = 0) {
   const makerLine = [p.maker, p.date_period].filter(Boolean).join(" · ") || "Olive Vintage Gallery";
   const cardClass = index === 0 ? "product-card featured-product reveal visible" : "product-card reveal visible";
   const inquirySubject = encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title || "Artwork"}`);
-  const canBuyNow = !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
+  const canBuyNow = checkoutEnabled && !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
   const action = canBuyNow
     ? `<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`
     : `<a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
@@ -106,14 +128,18 @@ async function loadLiveInventory() {
     // Pull the live public inventory, then prioritize products that already have
     // verified listing photos. Newness is preserved within each group because
     // getGalleryProducts() returns newest records first.
-    const rows = await getGalleryProducts({ status: null });
+    const [rows, paymentsReady] = await Promise.all([
+      getGalleryProducts({ status: null }),
+      getCheckoutEnabled()
+    ]);
+    checkoutEnabled = paymentsReady;
     const live = rows.filter(p => ["available","reserved"].includes(p.status));
     const photographed = live.filter(p => Array.isArray(p.images) && p.images.length > 0);
     const awaitingPhotos = live.filter(p => !Array.isArray(p.images) || p.images.length === 0);
-    // v12: no homepage catalog cap. Keep photographed works first, then render
-    // every remaining available/reserved record returned by the unlimited loader.
+    // Keep the homepage editorial and fast: show a curated newest set here.
+    // The Collection page remains unlimited and contains the complete public inventory.
     const prioritized = [...photographed, ...awaitingPhotos];
-    const products = prioritized.length ? prioritized : fallbackProducts;
+    const products = prioritized.length ? prioritized.slice(0, 9) : fallbackProducts;
     grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
     bindBuyNowButtons();
     bindProductImageGalleries(products, grid);
@@ -175,7 +201,6 @@ loadLiveInventory();
 
 
 // Subtle gallery interactions. Disabled automatically for reduced-motion users.
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 if (!reducedMotion) {
   const heroArt = document.querySelector("[data-hero-art]");
   const heroImage = heroArt?.querySelector("[data-parallax-image]");
