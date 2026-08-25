@@ -55,7 +55,7 @@
 .category-grid .category-card:nth-child(2) .category-photo{
   background:
     radial-gradient(circle at 50% 42%,rgba(147,119,72,.16),transparent 55%),
-    url("./assets/products/iridescent-handled-vase.webp") center/contain no-repeat,
+    url("./assets/products/iridescent-ambe-handle-vase.webp") center/contain no-repeat,
     #0b0e0a !important;
 }
 
@@ -71,7 +71,7 @@
   display:flex;
   align-items:flex-end;
   padding:30px;
-  border:1px solid rgba(216,203,168,.16);
+  border:1px solid rgba(216,20.we3,168,.16);
   background:
     linear-gradient(180deg,transparent 35%,rgba(7,9,7,.92) 100%),
     url("https://images.whatnot.com/fit-in/3840x0/listings%2F0-4b67ad0e-1626-4715-83a6-3a07bc483ba2-c5b73cab-d571-4cca-b0bc-673689cd5f34.jpeg")
@@ -96,7 +96,7 @@
 
   background-image:
     url("https://raw.githubusercontent.com/birdseyeview312-beep/olive-vintage-gallery/main/assets/products/iridescent-handled-vase.webp"),
-    url("./assets/products/iridescent-handled-vase.webp"),
+    url("./assets/products/iridescent-amber-handled-vase.webp"),
     radial-gradient(circle at 50% 42%,rgba(147,119,72,.18),transparent 58%) !important;
 
   background-size:
