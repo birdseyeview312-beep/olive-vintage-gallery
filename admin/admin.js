@@ -13,13 +13,16 @@ const els = {
   medium:$("medium"), height:$("height"), width:$("width"), depth:$("depth"),
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
   featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
-  photoInput:$("photoInput"), photoPreview:$("photoPreview"), saveMessage:$("saveMessage"),
+  photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
+  galleryCoverPreview:$("galleryCoverPreview"), saveMessage:$("saveMessage"),
   editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"), resetBtn:$("resetBtn")
 };
 
 let products = [];
 let existingImages = [];
 let pendingFiles = [];
+let existingCoverImage = null;
+let pendingCoverFile = null;
 
 function money(v){
   if(v === null || v === undefined || v === "") return "Price on request";
@@ -68,7 +71,7 @@ function render(){
   els.resultCount.textContent=`${filtered.length} piece${filtered.length===1?"":"s"}`;
   els.inventoryList.innerHTML=filtered.map(p=>`
     <button class="item" data-id="${p.id}" type="button">
-      ${p.images?.[0] ? `<img class="thumb" src="${escapeHtml(p.images[0])}" alt="">` : `<div class="thumb"></div>`}
+      ${(p.gallery_cover_image || p.images?.[0]) ? `<img class="thumb" src="${escapeHtml(p.gallery_cover_image || p.images[0])}" alt="">` : `<div class="thumb"></div>`}
       <div><h3>${escapeHtml(p.title)}</h3><p>${escapeHtml(p.maker||"Unknown maker")} · ${money(p.price)}</p><p>${escapeHtml(p.inventory_number)}</p></div>
       <span class="status">${escapeHtml(p.status)}</span>
     </button>`).join("") || `<p class="muted">No matching pieces.</p>`;
@@ -82,9 +85,9 @@ function render(){
 els.searchInput.addEventListener("input",render); els.statusFilter.addEventListener("change",render);
 
 function clearForm(){
-  els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[];
+  els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null;
   els.editorTitle.textContent="Add a piece"; els.deleteBtn.classList.add("hidden"); els.saveMessage.textContent="";
-  renderPhotos();
+  renderCover(); renderPhotos();
 }
 function editPiece(id){
   const p=products.find(x=>x.id===id); if(!p)return;
@@ -94,10 +97,23 @@ function editPiece(id){
   els.medium.value=p.medium||""; els.height.value=p.height||""; els.width.value=p.width||""; els.depth.value=p.depth||"";
   els.description.value=p.description||""; els.condition.value=p.condition||""; els.provenance.value=p.provenance||"";
   els.featured.checked=!!p.featured; els.newArrival.checked=!!p.new_arrival; els.inquireOnly.checked=!!p.inquire_only;
-  existingImages=[...(p.images||[])]; pendingFiles=[]; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
-  renderPhotos();
+  existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
+  renderCover(); renderPhotos();
 }
 els.newPieceBtn.addEventListener("click",clearForm); els.resetBtn.addEventListener("click",clearForm);
+
+els.galleryCoverInput.addEventListener("change",()=>{
+  pendingCoverFile=Array.from(els.galleryCoverInput.files||[])[0]||null; els.galleryCoverInput.value=""; renderCover();
+});
+function renderCover(){
+  if(!els.galleryCoverPreview)return;
+  const src=pendingCoverFile?URL.createObjectURL(pendingCoverFile):existingCoverImage;
+  els.galleryCoverPreview.innerHTML=src
+    ? `<div class="gallery-cover-card"><img src="${escapeHtml(src)}" alt="Gallery cover preview"><div><strong>Public listing cover</strong><small>Original gallery photos remain untouched.</small></div><button type="button" id="removeGalleryCover">Remove</button></div>`
+    : `<div class="gallery-cover-empty"><span>OV</span><div><strong>No gallery cover yet</strong><small>The first original photo will be used until a polished cover is added.</small></div></div>`;
+  const remove=$("removeGalleryCover");
+  if(remove)remove.onclick=()=>{existingCoverImage=null;pendingCoverFile=null;renderCover();};
+}
 
 els.photoInput.addEventListener("change",()=>{
   pendingFiles.push(...Array.from(els.photoInput.files||[])); els.photoInput.value=""; renderPhotos();
@@ -109,6 +125,16 @@ function renderPhotos(){
   els.photoPreview.innerHTML=cards.join("");
   els.photoPreview.querySelectorAll("[data-existing]").forEach(b=>b.onclick=()=>{existingImages.splice(Number(b.dataset.existing),1);renderPhotos();});
   els.photoPreview.querySelectorAll("[data-pending]").forEach(b=>b.onclick=()=>{pendingFiles.splice(Number(b.dataset.pending),1);renderPhotos();});
+}
+
+async function uploadCoverFile(productId){
+  if(!pendingCoverFile)return null;
+  const clean=(pendingCoverFile.name||"gallery-cover").replace(/[^a-zA-Z0-9._-]/g,"-");
+  const path=`${productId}/gallery-covers/${crypto.randomUUID()}-${clean}`;
+  const { error }=await supabase.storage.from(PRODUCT_BUCKET).upload(path,pendingCoverFile,{cacheControl:"3600",upsert:false});
+  if(error)throw error;
+  const { data }=supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
 }
 
 async function uploadFiles(productId){
@@ -154,8 +180,9 @@ els.pieceForm.addEventListener("submit",async e=>{
       const { data,error }=await supabase.from("products").insert({...formPayload(),images:[]}).select("id").single();
       if(error) throw error; id=data.id; els.pieceId.value=id;
     }
+    const newCoverUrl=await uploadCoverFile(id);
     const newUrls=await uploadFiles(id);
-    const payload={...formPayload(),images:[...existingImages,...newUrls]};
+    const payload={...formPayload(),gallery_cover_image:newCoverUrl||existingCoverImage||null,images:[...existingImages,...newUrls]};
     const { error }=await supabase.from("products").update(payload).eq("id",id);
     if(error) throw error;
     els.saveMessage.textContent="Saved."; await loadProducts(); editPiece(id);

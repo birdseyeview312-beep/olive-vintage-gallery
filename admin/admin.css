@@ -36,3 +36,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--olive)} textarea{resi
 .message{font-size:12px;color:var(--olive2)}
 @media(max-width:980px){.workspace{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.inventory-panel{min-height:auto}.inventory-list{max-height:420px}}
 @media(max-width:640px){.shell{padding:14px}.topbar{padding:16px}.toolbar{flex-wrap:wrap}.toolbar .search-wrap{flex-basis:100%}.toolbar select{flex:1;width:auto}.grid.two,.grid.three{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+
+
+/* v17 — dedicated luxury gallery cover workflow */
+.gallery-cover-box{border-style:solid;background:linear-gradient(145deg,rgba(181,189,143,.08),rgba(0,0,0,.08));}
+.gallery-cover-preview{margin-top:12px}.gallery-cover-note{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.gallery-cover-card,.gallery-cover-empty{display:grid;grid-template-columns:112px 1fr auto;gap:14px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#11140e}
+.gallery-cover-card img{width:112px;height:112px;object-fit:contain;border-radius:11px;background:#080a07;border:1px solid #34392b}
+.gallery-cover-card strong,.gallery-cover-empty strong{display:block;font:18px Georgia,serif;color:var(--text);margin-bottom:4px}
+.gallery-cover-card small,.gallery-cover-empty small{display:block;color:var(--muted);line-height:1.45}
+.gallery-cover-card button{border:1px solid #4c543c;background:transparent;color:var(--text);border-radius:999px;padding:8px 12px}
+.gallery-cover-empty span{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid #4c543c;color:var(--olive2);font:20px Georgia,serif;margin:auto}
+@media(max-width:640px){.gallery-cover-card,.gallery-cover-empty{grid-template-columns:82px 1fr}.gallery-cover-card img{width:82px;height:82px}.gallery-cover-card button{grid-column:1/-1;justify-self:start}}

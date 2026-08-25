@@ -128,10 +128,20 @@
               <label class="check"><input id="inquireOnly" type="checkbox"> Inquire to purchase</label>
             </div>
 
+            <div class="photo-box gallery-cover-box">
+              <div>
+                <div class="eyebrow">GALLERY COVER</div>
+                <p class="muted">Upload the polished Olive dark-background cover here. This image is used only as the public listing thumbnail; the original photographs below stay unchanged inside the click-through gallery.</p>
+              </div>
+              <input id="galleryCoverInput" type="file" accept="image/*">
+              <div id="galleryCoverPreview" class="gallery-cover-preview"></div>
+              <p class="gallery-cover-note">If no cover is uploaded, the first original photograph is used automatically.</p>
+            </div>
+
             <div class="photo-box">
               <div>
-                <div class="eyebrow">PHOTOGRAPHS</div>
-                <p class="muted">Upload one or more images. The first image becomes the primary gallery image.</p>
+                <div class="eyebrow">ORIGINAL PHOTOGRAPHS</div>
+                <p class="muted">Upload one or more original listing images. These stay in the product gallery and are never replaced by the Gallery Cover.</p>
               </div>
               <input id="photoInput" type="file" accept="image/*" multiple>
               <div id="photoPreview" class="photo-preview"></div>
