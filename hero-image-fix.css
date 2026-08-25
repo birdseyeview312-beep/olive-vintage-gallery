@@ -1,5 +1,6 @@
-/* Olive Vintage Gallery — v24 homepage hero collage fix
-   Desktop only: clean up the three hero object cards and remove the stray seal. */
+/* Olive Vintage Gallery — v26 full hero artwork fix
+   Desktop: keep the luxury three-card hero composition while showing
+   each artwork in full instead of cropping/zooming the source image. */
 
 .hero-brand-seal,
 .hero-brand-seal-centered{
@@ -11,35 +12,41 @@
   .hero-collection-art .hero-object-image{
     position:relative;
     overflow:hidden !important;
-    background:#11130f;
+    background:
+      radial-gradient(circle at 50% 35%, #f9fafb 0%, #edf0f2 60%, #d7dde0 100%);
   }
 
   .hero-collection-art .hero-object-image > img{
     display:block;
     width:100% !important;
     height:100% !important;
-    max-width:none !important;
-    max-height:none !important;
+    max-width:100% !important;
+    max-height:100% !important;
     margin:0 !important;
-    object-fit:cover !important;
+    padding:1.5% !important;
+    object-fit:contain !important;
     object-position:center center !important;
+    transform:none !important;
+    scale:1 !important;
   }
 
-  /* The source files have extra white breathing room baked into them.
-     These small per-card zooms crop that excess away without changing
-     the product-listing photography elsewhere on the site. */
+  /* Main artwork gets slightly less inset so it still feels dominant
+     without losing the top, bottom, or sides of the piece. */
   .hero-object-main .hero-object-image > img{
-    scale:1.22;
-    object-position:50% 48% !important;
+    padding:0.75% !important;
+    object-position:50% 50% !important;
+    scale:1 !important;
   }
 
   .hero-object-top .hero-object-image > img{
-    scale:1.34;
+    padding:1.5% !important;
     object-position:50% 50% !important;
+    scale:1 !important;
   }
 
   .hero-object-bottom .hero-object-image > img{
-    scale:1.26;
-    object-position:50% 51% !important;
+    padding:1.5% !important;
+    object-position:50% 50% !important;
+    scale:1 !important;
   }
 }
