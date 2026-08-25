@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#070907">
+  <title>Private Viewing Room — Olive Vintage Gallery</title>
+  <link rel="icon" href="./assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./private-viewing-room.css">
+</head>
+<body>
+  <div id="roomShell" class="pvr-shell loading">
+    <header class="pvr-topbar">
+      <a href="./index.html" class="pvr-brand"><img src="./assets/olive-brand.jpg" alt=""><span><strong>OLIVE VINTAGE</strong><small>PRIVATE GALLERY</small></span></a>
+      <div class="pvr-session-meta"><span id="roomKicker">PRIVATE VIEWING</span><strong id="roomTitle">Preparing room…</strong></div>
+      <div class="pvr-status"><i id="connectionDot"></i><span id="connectionStatus">Checking invitation…</span></div>
+    </header>
+
+    <main class="pvr-main">
+      <section class="pvr-video-area">
+        <div class="pvr-main-video-wrap">
+          <video id="mainVideo" autoplay playsinline></video>
+          <div id="mainVideoEmpty" class="pvr-video-empty"><img src="./assets/olive-brand.jpg" alt=""><span>PRIVATE GALLERY VIEWING</span></div>
+          <div class="pvr-video-caption"><span id="mainVideoLabel">Gallery</span><strong id="sessionClock">Private room</strong></div>
+        </div>
+        <div class="pvr-inset-video-wrap">
+          <video id="insetVideo" autoplay muted playsinline></video>
+          <div class="pvr-inset-label" id="insetVideoLabel">You</div>
+        </div>
+
+        <div id="startGate" class="pvr-start-gate">
+          <div class="pvr-start-card">
+            <img src="./assets/olive-brand.jpg" alt="">
+            <p class="eyebrow">INVITATION ONLY</p>
+            <h1 id="startTitle">Private Gallery Viewing</h1>
+            <p id="startCopy">Camera and microphone access are required for the live one-to-one room.</p>
+            <button id="startRoomBtn" class="pvr-primary" type="button">Enable Camera & Join</button>
+            <span id="startStatus"></span>
+          </div>
+        </div>
+
+        <div id="roomEnded" class="pvr-ended hidden">
+          <div><p class="eyebrow">SESSION COMPLETE</p><h2>The private viewing has ended.</h2><a id="endedLink" href="./private-viewing.html">Return to Olive Vintage</a></div>
+        </div>
+      </section>
+
+      <aside class="pvr-side">
+        <section class="pvr-side-panel pvr-spotlight-panel">
+          <div class="pvr-panel-head"><div><span>LIVE SPOTLIGHT</span><strong>Artwork in view</strong></div><i></i></div>
+          <div id="spotlightEmpty" class="pvr-spotlight-empty">When the gallery spotlights a piece, its details and Buy Now option appear here.</div>
+          <article id="spotlightCard" class="pvr-spotlight-card hidden">
+            <img id="spotlightImage" alt="">
+            <div class="pvr-spotlight-copy"><span id="spotlightCategory"></span><h2 id="spotlightTitle"></h2><p id="spotlightMaker"></p><strong id="spotlightPrice"></strong><button id="spotlightBuy" type="button" class="pvr-buy hidden">Buy Now</button><a id="spotlightInquire" class="pvr-inquire hidden" href="#">Inquire about this piece</a></div>
+          </article>
+          <div id="hostSpotlightTools" class="pvr-host-tools hidden">
+            <label>Choose a live product<select id="productSelect"><option value="">Select artwork…</option></select></label>
+            <button id="spotlightBtn" class="pvr-secondary" type="button">Spotlight for Collector</button>
+          </div>
+        </section>
+
+        <section class="pvr-side-panel pvr-chat-panel">
+          <div class="pvr-panel-head"><div><span>PRIVATE CHAT</span><strong>Session notes</strong></div></div>
+          <div id="chatMessages" class="pvr-chat-messages"><div class="pvr-chat-system">Messages in this room are live and are not shown publicly.</div></div>
+          <form id="chatForm" class="pvr-chat-form"><input id="chatInput" maxlength="500" placeholder="Type a message…" autocomplete="off"><button type="submit" aria-label="Send message">↑</button></form>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="pvr-controls">
+      <div class="pvr-control-group">
+        <button id="muteBtn" class="pvr-control" type="button"><span>MIC</span><strong>Mute</strong></button>
+        <button id="videoBtn" class="pvr-control" type="button"><span>CAM</span><strong>Camera Off</strong></button>
+        <button id="switchCameraBtn" class="pvr-control" type="button"><span>↻</span><strong>Switch Camera</strong></button>
+      </div>
+      <div class="pvr-secure-note"><span>🔒</span><div><strong>Private 1-on-1 room</strong><small id="relayStatus">Encrypted WebRTC connection</small></div></div>
+      <button id="leaveBtn" class="pvr-leave" type="button">Leave Viewing</button>
+      <button id="endBtn" class="pvr-end hidden" type="button">End Session</button>
+    </footer>
+    <div id="roomNotice" class="pvr-notice" role="status"></div>
+  </div>
+
+  <script type="module" src="./private-viewing-room.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+LIVE BACKEND STATUS — COMPLETED
+===============================
+Supabase project: hasewamqjectpfxxwspo
+
+Completed live changes:
+- private_viewing_requests: created, RLS enabled, anon direct access revoked
+- private_viewing_sessions: created, RLS enabled, anon direct access revoked
+- admin CRUD restricted by app_metadata.olive_role = admin
+- store_settings.private_viewings_enabled added and enabled
+- store_settings.private_viewing_default_minutes added
+- private-viewing-access Edge Function deployed, version 2, active
+- request endpoint smoke-tested successfully
+- test-only join invite resolved successfully and issued a guest lease
+- all temporary smoke-test rows removed
+
+Current limitation:
+- Dedicated TURN relay credentials are not configured yet.

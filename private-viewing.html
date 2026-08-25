@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Request a private one-to-one live gallery viewing with Olive Vintage Gallery.">
+  <meta name="theme-color" content="#0b0d0a">
+  <title>Private Gallery Viewing — Olive Vintage Gallery</title>
+  <link rel="icon" href="./assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./private-viewing.css">
+</head>
+<body>
+  <header class="site-header scrolled">
+    <a class="brand" href="./index.html" aria-label="Olive Vintage Gallery home">
+      <span class="brand-image-wrap"><img src="./assets/olive-brand.jpg" alt=""></span>
+      <span class="brand-text"><strong>OLIVE VINTAGE</strong><span>GALLERY</span></span>
+    </a>
+    <button id="menuBtn" class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav id="nav" class="nav">
+      <a href="./collection.html">Collection</a>
+      <a href="./private-viewing.html" aria-current="page">Private Viewing</a>
+      <a href="./auction.html">Live Auctions</a>
+      <a href="./index.html#story">Our Story</a>
+      <a href="./index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main class="pv-page">
+    <section class="pv-hero">
+      <div class="pv-hero-glow" aria-hidden="true"></div>
+      <div class="pv-hero-copy">
+        <p class="eyebrow">ONE COLLECTOR · ONE GALLERY · LIVE</p>
+        <h1>A private view,<br><em>from inside the gallery.</em></h1>
+        <p class="pv-lede">Meet live with Olive Vintage Gallery for a one-to-one walkthrough. Ask to see a piece from every angle, compare scale and color in real time, and purchase directly during the appointment.</p>
+        <div class="pv-hero-actions">
+          <a class="button primary" href="#request">Request a private viewing</a>
+          <a class="button text" href="#experience">See how it works</a>
+        </div>
+      </div>
+      <div class="pv-hero-art" aria-label="Private gallery viewing concept">
+        <div class="pv-video-frame pv-video-main">
+          <div class="pv-camera-orb"></div>
+          <div class="pv-video-label"><span>PRIVATE GALLERY</span><strong>Live from Olive Vintage</strong></div>
+        </div>
+        <div class="pv-video-frame pv-video-guest">
+          <div class="pv-guest-silhouette">OV</div>
+          <span>1 : 1</span>
+        </div>
+        <div class="pv-live-chip"><i></i> PRIVATE SESSION</div>
+      </div>
+    </section>
+
+    <section id="experience" class="pv-experience section-pad">
+      <div class="pv-section-head">
+        <div><p class="eyebrow">THE EXPERIENCE</p><h2>Closer than a listing.<br><em>More personal than a livestream.</em></h2></div>
+        <p>A private appointment is built for collectors who want context before they buy: surface, scale, signature, condition, light response and presence.</p>
+      </div>
+      <div class="pv-feature-grid">
+        <article><span>01</span><h3>Live two-way video</h3><p>Talk directly with the gallery while the camera moves through the collection.</p></article>
+        <article><span>02</span><h3>Ask for any angle</h3><p>See bases, signatures, condition details, translucency and scale on demand.</p></article>
+        <article><span>03</span><h3>Product spotlight</h3><p>The owner can place the exact artwork, maker, price and photos beside the live video.</p></article>
+        <article><span>04</span><h3>Purchase in session</h3><p>When a piece is right, use secure Buy Now without leaving the private room.</p></article>
+      </div>
+    </section>
+
+    <section id="request" class="pv-request-section section-pad">
+      <div class="pv-request-copy">
+        <p class="eyebrow">REQUEST AN APPOINTMENT</p>
+        <h2>Your own<br><em>gallery hour.</em></h2>
+        <p>Tell us what you would like to see and when you are generally available. The gallery will confirm the appointment and send a private invitation link.</p>
+        <div class="pv-request-note"><strong>Invitation only</strong><span>Each confirmed appointment receives its own private room link.</span></div>
+      </div>
+
+      <form id="privateViewingRequestForm" class="pv-request-form" novalidate>
+        <input class="pv-honeypot" id="website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="pv-form-grid two">
+          <label>Your name<input id="customerName" name="customer_name" required autocomplete="name"></label>
+          <label>Email<input id="customerEmail" name="customer_email" type="email" required autocomplete="email"></label>
+        </div>
+        <div class="pv-form-grid two">
+          <label>Phone <span>(optional)</span><input id="customerPhone" name="customer_phone" type="tel" autocomplete="tel"></label>
+          <label>Preferred date & time <span>(optional)</span><input id="preferredStart" name="preferred_start" type="datetime-local"></label>
+        </div>
+        <label>Best general time window <span>(optional)</span><input id="preferredWindow" name="preferred_window" placeholder="Example: weekday evenings after 6 PM Central"></label>
+        <label>What would you like to see? <span>(optional)</span><textarea id="requestMessage" name="message" rows="5" placeholder="Specific artists, pieces, price range, colors, or anything you want the gallery to prepare."></textarea></label>
+        <div class="pv-form-footer">
+          <button id="requestSubmit" class="button primary" type="submit">Request Private Viewing</button>
+          <p id="requestStatus" class="pv-form-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="pv-private-note">
+      <img src="./assets/olive-brand.jpg" alt="">
+      <div><p class="eyebrow">PRIVATE BY DESIGN</p><h2>Your appointment is not a public broadcast.</h2><p>Only the gallery and the invited collector enter the room. The invitation expires after the session.</p></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-brand"><img src="./assets/olive-brand.jpg" alt=""><span>OLIVE VINTAGE GALLERY</span></div>
+    <div class="footer-links"><a href="./collection.html">Collection</a><a href="./auction.html">Auctions</a><a href="./index.html#contact">Contact</a><a href="./admin/dashboard.html">Owner Login</a></div>
+    <div class="copyright">© <span id="year"></span> Olive Vintage Gallery</div>
+  </footer>
+
+  <script type="module" src="./private-viewing.js"></script>
+</body>
+</html>

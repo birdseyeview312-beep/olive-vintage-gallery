@@ -1,0 +1,19 @@
+OPTIONAL PUBLIC NAVIGATION PATCH — APPLY AFTER THE TWO-PHONE TEST
+================================================================
+
+In index.html, find the main <nav id="nav" class="nav"> links and add:
+
+  <a href="./private-viewing.html">Private Viewing</a>
+
+Recommended placement:
+
+  <a href="./collection.html">Collection</a>
+  <a href="./private-viewing.html">Private Viewing</a>
+  <a href="#new">New Arrivals</a>
+  <a href="./auction.html">Live Auctions</a>
+
+In collection.html, add the same link with a root-relative page path:
+
+  <a href="./private-viewing.html">Private Viewing</a>
+
+The Private Viewing page itself already contains the correct navigation.
