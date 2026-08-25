@@ -1,0 +1,45 @@
+/* Olive Vintage Gallery — v24 homepage hero collage fix
+   Desktop only: clean up the three hero object cards and remove the stray seal. */
+
+.hero-brand-seal,
+.hero-brand-seal-centered{
+  display:none !important;
+}
+
+@media (min-width: 701px){
+
+  .hero-collection-art .hero-object-image{
+    position:relative;
+    overflow:hidden !important;
+    background:#11130f;
+  }
+
+  .hero-collection-art .hero-object-image > img{
+    display:block;
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+    margin:0 !important;
+    object-fit:cover !important;
+    object-position:center center !important;
+  }
+
+  /* The source files have extra white breathing room baked into them.
+     These small per-card zooms crop that excess away without changing
+     the product-listing photography elsewhere on the site. */
+  .hero-object-main .hero-object-image > img{
+    scale:1.22;
+    object-position:50% 48% !important;
+  }
+
+  .hero-object-top .hero-object-image > img{
+    scale:1.34;
+    object-position:50% 50% !important;
+  }
+
+  .hero-object-bottom .hero-object-image > img{
+    scale:1.26;
+    object-position:50% 51% !important;
+  }
+}
