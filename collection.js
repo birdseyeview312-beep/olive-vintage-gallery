@@ -37,7 +37,7 @@ async function beginBuyNow(productId, button){
 }
 
 function card(p,index){
-  const image=p.images?.[0];
+  const image=p.gallery_cover_image||p.images?.[0];
   const isSold=p.status==="sold";
   const canBuy=checkoutEnabled&&!!p.id&&p.status==="available"&&!p.inquire_only&&p.price!==null&&p.price!==undefined&&Number(p.price)>0;
   const inquirySubject=encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title||"Artwork"}`);
