@@ -129,70 +129,19 @@
             </div>
 
             <div class="photo-box gallery-cover-box">
-              <div class="gallery-cover-heading">
-                <div>
-                  <div class="eyebrow">GALLERY COVER BUILDER</div>
-                  <p class="muted">Turn any original listing photo into a consistent Olive luxury thumbnail. The original gallery photographs are never modified.</p>
-                </div>
-                <span id="galleryCoverState" class="gallery-cover-state">READY</span>
+              <div>
+                <div class="eyebrow">GALLERY COVER</div>
+                <p class="muted">Upload the polished Olive dark-background cover here. This image is used only as the public listing thumbnail; the original photographs below stay unchanged inside the click-through gallery.</p>
               </div>
-
-              <div class="generator-connection">
-                <div>
-                  <div class="eyebrow">IMAGE ENGINE</div>
-                  <strong id="imageGeneratorStatus">Checking connection…</strong>
-                  <small id="imageGeneratorDetail">GPT-Image-2 · owner-only secure connection</small>
-                </div>
-                <div class="generator-connect-controls">
-                  <input id="imageGeneratorKey" type="password" autocomplete="off" placeholder="OpenAI API key">
-                  <button id="connectImageGeneratorBtn" class="primary" type="button">Connect</button>
-                  <button id="testImageGeneratorBtn" class="ghost" type="button">Test</button>
-                  <button id="disconnectImageGeneratorBtn" class="ghost danger" type="button">Disconnect</button>
-                </div>
-              </div>
-
-              <div class="cover-builder-step">
-                <div class="cover-step-title"><span>01</span><div><strong>Choose the source photo</strong><small>Select the original image that shows the piece most accurately. The choice is saved with the product.</small></div></div>
-                <div id="coverSourcePicker" class="cover-source-picker"></div>
-              </div>
-
-              <div class="cover-builder-step">
-                <div class="cover-step-title"><span>02</span><div><strong>Choose the finished look</strong><small>Use full-color fidelity or an elegant monochrome black-and-white presentation.</small></div></div>
-                <div class="cover-style-options">
-                  <label class="cover-style-option">
-                    <input id="coverStyleColor" type="radio" name="coverStyle" value="color" checked>
-                    <span><strong>Color</strong><small>Preserve the glass piece's real original colors.</small></span>
-                  </label>
-                  <label class="cover-style-option">
-                    <input id="coverStyleBlackWhite" type="radio" name="coverStyle" value="black_white">
-                    <span><strong>Black &amp; White</strong><small>Luxury monochrome while preserving form, transparency and detail.</small></span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="cover-builder-step">
-                <div class="cover-step-title"><span>03</span><div><strong>Generate Gallery Cover</strong><small>The selected original is edited with high-fidelity image input and saved back to this listing automatically.</small></div></div>
-                <div class="cover-generator-layout">
-                  <div id="coverSourcePreview" class="cover-source-preview"></div>
-                  <div class="cover-generator-actions">
-                    <button id="createGalleryCoverBtn" class="primary" type="button">Create Gallery Cover</button>
-                    <p id="coverBuilderMessage" class="message cover-builder-message">Select a source photo, choose Color or Black &amp; White, then generate.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cover-builder-step finished-cover-step">
-                <div class="cover-step-title"><span>04</span><div><strong>Finished Gallery Cover</strong><small>The generated cover appears here. You can still upload a replacement manually at any time.</small></div></div>
-                <input id="galleryCoverInput" type="file" accept="image/*">
-                <div id="galleryCoverPreview" class="gallery-cover-preview"></div>
-                <p class="gallery-cover-note">The homepage, Collection and Inventory Manager automatically use this cover while the click-through gallery keeps every original photo.</p>
-              </div>
+              <input id="galleryCoverInput" type="file" accept="image/*">
+              <div id="galleryCoverPreview" class="gallery-cover-preview"></div>
+              <p class="gallery-cover-note">If no cover is uploaded, the first original photograph is used automatically.</p>
             </div>
 
             <div class="photo-box">
               <div>
                 <div class="eyebrow">ORIGINAL PHOTOGRAPHS</div>
-                <p class="muted">Upload one or more original listing images. These remain in the product gallery and are never replaced by the Gallery Cover.</p>
+                <p class="muted">Upload one or more original listing images. These stay in the product gallery and are never replaced by the Gallery Cover.</p>
               </div>
               <input id="photoInput" type="file" accept="image/*" multiple>
               <div id="photoPreview" class="photo-preview"></div>

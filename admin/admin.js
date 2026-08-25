@@ -14,14 +14,8 @@ const els = {
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
   featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
-  galleryCoverPreview:$("galleryCoverPreview"), coverSourcePicker:$("coverSourcePicker"),
-  coverSourcePreview:$("coverSourcePreview"), createGalleryCoverBtn:$("createGalleryCoverBtn"),
-  coverBuilderMessage:$("coverBuilderMessage"), galleryCoverState:$("galleryCoverState"),
-  imageGeneratorStatus:$("imageGeneratorStatus"), imageGeneratorDetail:$("imageGeneratorDetail"),
-  imageGeneratorKey:$("imageGeneratorKey"), connectImageGeneratorBtn:$("connectImageGeneratorBtn"),
-  testImageGeneratorBtn:$("testImageGeneratorBtn"), disconnectImageGeneratorBtn:$("disconnectImageGeneratorBtn"),
-  coverStyleColor:$("coverStyleColor"), coverStyleBlackWhite:$("coverStyleBlackWhite"),
-  saveMessage:$("saveMessage"), editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"), resetBtn:$("resetBtn")
+  galleryCoverPreview:$("galleryCoverPreview"), saveMessage:$("saveMessage"),
+  editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"), resetBtn:$("resetBtn")
 };
 
 let products = [];
@@ -29,20 +23,12 @@ let existingImages = [];
 let pendingFiles = [];
 let existingCoverImage = null;
 let pendingCoverFile = null;
-let selectedCoverSource = null;
-let selectedCoverStyle = "color";
-let imageGeneratorConfigured = false;
-let objectUrls = [];
 
 function money(v){
   if(v === null || v === undefined || v === "") return "Price on request";
   return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(v));
 }
 function escapeHtml(s=""){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
-function localUrl(file){
-  const url=URL.createObjectURL(file); objectUrls.push(url); return url;
-}
-function clearObjectUrls(){ objectUrls.forEach(url=>URL.revokeObjectURL(url)); objectUrls=[]; }
 
 async function boot(){
   const { data:{ session } } = await supabase.auth.getSession();
@@ -60,7 +46,7 @@ async function setSession(session){
     els.loginMessage.textContent = "This account does not have Olive Vintage owner access.";
   } else if(signedIn){
     els.loginMessage.textContent = "";
-    await Promise.all([loadProducts(), loadGeneratorStatus()]);
+    await loadProducts();
   }
 }
 
@@ -70,39 +56,6 @@ els.loginForm.addEventListener("submit", async e=>{
   els.loginMessage.textContent = error ? error.message : "";
 });
 els.signOutBtn.addEventListener("click",()=>supabase.auth.signOut());
-
-async function invokeGenerator(body){
-  const { data, error } = await supabase.functions.invoke("gallery-cover-generator", { body });
-  if(error){
-    let message=error.message||"Image generator request failed.";
-    try{ const detail=await error.context?.json?.(); message=detail?.error||message; }catch{/* ignore */}
-    throw new Error(message);
-  }
-  if(data?.error)throw new Error(data.error);
-  return data||{};
-}
-function renderGeneratorStatus(status={}){
-  imageGeneratorConfigured=!!status.configured;
-  if(!els.imageGeneratorStatus)return;
-  els.imageGeneratorStatus.textContent=imageGeneratorConfigured?"Connected":"Not connected";
-  els.imageGeneratorDetail.textContent=imageGeneratorConfigured
-    ? `GPT-Image-2 · secure key ending ${status.key_hint||"••••••"}`
-    : "GPT-Image-2 · connect once to enable automatic covers";
-  els.imageGeneratorStatus.classList.toggle("connected",imageGeneratorConfigured);
-  els.testImageGeneratorBtn.disabled=!imageGeneratorConfigured;
-  els.disconnectImageGeneratorBtn.disabled=!imageGeneratorConfigured;
-  if(els.imageGeneratorKey)els.imageGeneratorKey.classList.toggle("hidden",imageGeneratorConfigured);
-  if(els.connectImageGeneratorBtn)els.connectImageGeneratorBtn.classList.toggle("hidden",imageGeneratorConfigured);
-  renderCoverBuilder();
-}
-async function loadGeneratorStatus(){
-  try{ renderGeneratorStatus(await invokeGenerator({action:"status"})); }
-  catch(err){
-    imageGeneratorConfigured=false;
-    if(els.imageGeneratorStatus)els.imageGeneratorStatus.textContent="Connection unavailable";
-    if(els.imageGeneratorDetail)els.imageGeneratorDetail.textContent=err.message||String(err);
-  }
-}
 
 async function loadProducts(){
   const { data, error } = await supabase.from("products").select("*").order("updated_at",{ascending:false});
@@ -132,14 +85,11 @@ function render(){
 els.searchInput.addEventListener("input",render); els.statusFilter.addEventListener("change",render);
 
 function clearForm(){
-  clearObjectUrls();
-  els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null; selectedCoverSource=null; selectedCoverStyle="color";
+  els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null;
   els.editorTitle.textContent="Add a piece"; els.deleteBtn.classList.add("hidden"); els.saveMessage.textContent="";
-  if(els.coverBuilderMessage)els.coverBuilderMessage.textContent="Add original photos, choose a source, then generate the Gallery Cover.";
-  syncCoverStyleControls(); renderCoverBuilder(); renderCover(); renderPhotos();
+  renderCover(); renderPhotos();
 }
 function editPiece(id){
-  clearObjectUrls();
   const p=products.find(x=>x.id===id); if(!p)return;
   els.pieceId.value=p.id; els.inventoryNumber.value=p.inventory_number||""; els.status.value=p.status||"available";
   els.title.value=p.title||""; els.maker.value=p.maker||""; els.category.value=p.category||"Contemporary Studio Glass";
@@ -147,14 +97,8 @@ function editPiece(id){
   els.medium.value=p.medium||""; els.height.value=p.height||""; els.width.value=p.width||""; els.depth.value=p.depth||"";
   els.description.value=p.description||""; els.condition.value=p.condition||""; els.provenance.value=p.provenance||"";
   els.featured.checked=!!p.featured; els.newArrival.checked=!!p.new_arrival; els.inquireOnly.checked=!!p.inquire_only;
-  existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null;
-  const savedSource=p.gallery_cover_source_image||existingImages[0]||null;
-  selectedCoverSource=savedSource?{type:"existing",url:savedSource}:null;
-  selectedCoverStyle=p.gallery_cover_style||"color";
-  syncCoverStyleControls();
-  els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
-  if(els.coverBuilderMessage)els.coverBuilderMessage.textContent=selectedCoverSource?"Source photo ready. Choose Color or Black & White, then create the Gallery Cover.":"Choose an original photo as the cover source.";
-  renderCoverBuilder(); renderCover(); renderPhotos();
+  existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
+  renderCover(); renderPhotos();
 }
 els.newPieceBtn.addEventListener("click",clearForm); els.resetBtn.addEventListener("click",clearForm);
 
@@ -163,79 +107,24 @@ els.galleryCoverInput.addEventListener("change",()=>{
 });
 function renderCover(){
   if(!els.galleryCoverPreview)return;
-  const src=pendingCoverFile?localUrl(pendingCoverFile):existingCoverImage;
+  const src=pendingCoverFile?URL.createObjectURL(pendingCoverFile):existingCoverImage;
   els.galleryCoverPreview.innerHTML=src
     ? `<div class="gallery-cover-card"><img src="${escapeHtml(src)}" alt="Gallery cover preview"><div><strong>Public listing cover</strong><small>Original gallery photos remain untouched.</small></div><button type="button" id="removeGalleryCover">Remove</button></div>`
-    : `<div class="gallery-cover-empty"><span>OV</span><div><strong>No finished cover yet</strong><small>The first original photo will remain public until a finished cover is generated or uploaded.</small></div></div>`;
+    : `<div class="gallery-cover-empty"><span>OV</span><div><strong>No gallery cover yet</strong><small>The first original photo will be used until a polished cover is added.</small></div></div>`;
   const remove=$("removeGalleryCover");
   if(remove)remove.onclick=()=>{existingCoverImage=null;pendingCoverFile=null;renderCover();};
 }
 
-function coverSourceSrc(){
-  if(!selectedCoverSource)return null;
-  return selectedCoverSource.type==="pending" ? localUrl(selectedCoverSource.file) : selectedCoverSource.url;
-}
-function isSelectedExisting(url){ return selectedCoverSource?.type==="existing" && selectedCoverSource.url===url; }
-function isSelectedPending(file){ return selectedCoverSource?.type==="pending" && selectedCoverSource.file===file; }
-function renderCoverBuilder(){
-  if(!els.coverSourcePicker||!els.coverSourcePreview)return;
-  clearObjectUrls();
-  const cards=[];
-  existingImages.forEach((url,i)=>cards.push(`<button type="button" class="cover-source-card ${isSelectedExisting(url)?"selected":""}" data-cover-existing="${i}"><img src="${escapeHtml(url)}" alt="Original photo ${i+1}"><span>${isSelectedExisting(url)?"Selected":"Use photo"} ${i+1}</span></button>`));
-  pendingFiles.forEach((file,i)=>{const src=localUrl(file);cards.push(`<button type="button" class="cover-source-card ${isSelectedPending(file)?"selected":""}" data-cover-pending="${i}"><img src="${escapeHtml(src)}" alt="New original photo ${existingImages.length+i+1}"><span>${isSelectedPending(file)?"Selected":"Use photo"} ${existingImages.length+i+1}</span></button>`);});
-  els.coverSourcePicker.innerHTML=cards.join("")||`<div class="cover-source-empty">Add original photographs below to choose a Gallery Cover source.</div>`;
-  els.coverSourcePicker.querySelectorAll("[data-cover-existing]").forEach(btn=>btn.onclick=()=>{
-    selectedCoverSource={type:"existing",url:existingImages[Number(btn.dataset.coverExisting)]};
-    els.coverBuilderMessage.textContent="Source selected. Save the piece to remember this choice, or continue to Create Gallery Cover.";
-    renderCoverBuilder();
-  });
-  els.coverSourcePicker.querySelectorAll("[data-cover-pending]").forEach(btn=>btn.onclick=()=>{
-    selectedCoverSource={type:"pending",file:pendingFiles[Number(btn.dataset.coverPending)]};
-    els.coverBuilderMessage.textContent="New source selected. Save the piece to upload and remember this choice.";
-    renderCoverBuilder();
-  });
-  const src=coverSourceSrc();
-  els.coverSourcePreview.innerHTML=src
-    ? `<div class="cover-source-stage"><img src="${escapeHtml(src)}" alt="Selected source photo"><span>SOURCE PHOTO</span></div>`
-    : `<div class="cover-source-stage empty"><span>SELECT A SOURCE PHOTO</span></div>`;
-  els.createGalleryCoverBtn.disabled=!selectedCoverSource;
-  els.galleryCoverState.textContent=existingCoverImage||pendingCoverFile?"COVER READY":selectedCoverSource?(imageGeneratorConfigured?"READY TO GENERATE":"SOURCE READY"):"READY";
-}
-
-function syncCoverStyleControls(){
-  if(els.coverStyleColor)els.coverStyleColor.checked=selectedCoverStyle!=="black_white";
-  if(els.coverStyleBlackWhite)els.coverStyleBlackWhite.checked=selectedCoverStyle==="black_white";
-}
-[els.coverStyleColor,els.coverStyleBlackWhite].filter(Boolean).forEach(input=>input.addEventListener("change",()=>{
-  selectedCoverStyle=els.coverStyleBlackWhite?.checked?"black_white":"color";
-  if(els.coverBuilderMessage)els.coverBuilderMessage.textContent=selectedCoverStyle==="black_white"?"Black & White selected. The object will be rendered in elegant monochrome on the dark Olive gallery background.":"Color selected. The generator will preserve the piece's real original colors.";
-}));
-
-/* Gallery Cover generation handler is attached after savePiece() so new listings can save automatically first. */
-
 els.photoInput.addEventListener("change",()=>{
-  const added=Array.from(els.photoInput.files||[]);
-  pendingFiles.push(...added); els.photoInput.value="";
-  if(!selectedCoverSource && added[0]) selectedCoverSource={type:"pending",file:added[0]};
-  renderCoverBuilder(); renderPhotos();
+  pendingFiles.push(...Array.from(els.photoInput.files||[])); els.photoInput.value=""; renderPhotos();
 });
 function renderPhotos(){
   const cards=[];
   existingImages.forEach((url,i)=>cards.push(`<div class="photo-card"><img src="${escapeHtml(url)}"><button type="button" data-existing="${i}">×</button></div>`));
-  pendingFiles.forEach((f,i)=>cards.push(`<div class="photo-card"><img src="${localUrl(f)}"><button type="button" data-pending="${i}">×</button></div>`));
+  pendingFiles.forEach((f,i)=>cards.push(`<div class="photo-card"><img src="${URL.createObjectURL(f)}"><button type="button" data-pending="${i}">×</button></div>`));
   els.photoPreview.innerHTML=cards.join("");
-  els.photoPreview.querySelectorAll("[data-existing]").forEach(b=>b.onclick=()=>{
-    const url=existingImages[Number(b.dataset.existing)];
-    existingImages.splice(Number(b.dataset.existing),1);
-    if(isSelectedExisting(url)) selectedCoverSource=existingImages[0]?{type:"existing",url:existingImages[0]}:pendingFiles[0]?{type:"pending",file:pendingFiles[0]}:null;
-    renderCoverBuilder(); renderPhotos();
-  });
-  els.photoPreview.querySelectorAll("[data-pending]").forEach(b=>b.onclick=()=>{
-    const file=pendingFiles[Number(b.dataset.pending)];
-    pendingFiles.splice(Number(b.dataset.pending),1);
-    if(isSelectedPending(file)) selectedCoverSource=existingImages[0]?{type:"existing",url:existingImages[0]}:pendingFiles[0]?{type:"pending",file:pendingFiles[0]}:null;
-    renderCoverBuilder(); renderPhotos();
-  });
+  els.photoPreview.querySelectorAll("[data-existing]").forEach(b=>b.onclick=()=>{existingImages.splice(Number(b.dataset.existing),1);renderPhotos();});
+  els.photoPreview.querySelectorAll("[data-pending]").forEach(b=>b.onclick=()=>{pendingFiles.splice(Number(b.dataset.pending),1);renderPhotos();});
 }
 
 async function uploadCoverFile(productId){
@@ -249,16 +138,16 @@ async function uploadCoverFile(productId){
 }
 
 async function uploadFiles(productId){
-  const uploads=[];
+  const urls=[];
   for(const file of pendingFiles){
     const clean=(file.name||"image").replace(/[^a-zA-Z0-9._-]/g,"-");
     const path=`${productId}/${crypto.randomUUID()}-${clean}`;
     const { error } = await supabase.storage.from(PRODUCT_BUCKET).upload(path,file,{cacheControl:"3600",upsert:false});
     if(error) throw error;
     const { data } = supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
-    uploads.push({file,url:data.publicUrl});
+    urls.push(data.publicUrl);
   }
-  return uploads;
+  return urls;
 }
 function formPayload(){
   return {
@@ -280,74 +169,25 @@ function formPayload(){
     featured:els.featured.checked,
     new_arrival:els.newArrival.checked,
     inquire_only:els.inquireOnly.checked,
-    gallery_cover_style:selectedCoverStyle,
     updated_at:new Date().toISOString()
   };
 }
-async function savePiece({reload=true,quiet=false}={}){
-  if(!quiet)els.saveMessage.textContent="Saving…";
-  let id=els.pieceId.value;
-  if(!id){
-    const { data,error }=await supabase.from("products").insert({...formPayload(),images:[]}).select("id").single();
-    if(error) throw error; id=data.id; els.pieceId.value=id;
-  }
-  const newCoverUrl=await uploadCoverFile(id);
-  const uploaded=await uploadFiles(id);
-  const newUrls=uploaded.map(x=>x.url);
-  let sourceUrl=null;
-  if(selectedCoverSource?.type==="existing") sourceUrl=selectedCoverSource.url;
-  if(selectedCoverSource?.type==="pending") sourceUrl=uploaded.find(x=>x.file===selectedCoverSource.file)?.url||null;
-  if(!sourceUrl) sourceUrl=existingImages[0]||newUrls[0]||null;
-  const payload={
-    ...formPayload(),
-    gallery_cover_image:newCoverUrl||existingCoverImage||null,
-    gallery_cover_source_image:sourceUrl,
-    gallery_cover_style:selectedCoverStyle,
-    images:[...existingImages,...newUrls]
-  };
-  const { error }=await supabase.from("products").update(payload).eq("id",id);
-  if(error) throw error;
-  existingImages=payload.images;
-  existingCoverImage=payload.gallery_cover_image;
-  pendingFiles=[]; pendingCoverFile=null;
-  selectedCoverSource=sourceUrl?{type:"existing",url:sourceUrl}:null;
-  if(!quiet)els.saveMessage.textContent="Saved.";
-  if(reload){await loadProducts();editPiece(id);}
-  return id;
-}
-
 els.pieceForm.addEventListener("submit",async e=>{
-  e.preventDefault();
-  try{await savePiece();}
-  catch(err){els.saveMessage.textContent=err.message||String(err);}
-});
-
-els.createGalleryCoverBtn.addEventListener("click",async()=>{
-  if(!selectedCoverSource){els.coverBuilderMessage.textContent="Choose an original source photo first.";return;}
-  if(!imageGeneratorConfigured){els.coverBuilderMessage.textContent="Connect the OpenAI image engine above once, then create the cover.";return;}
-  const oldText=els.createGalleryCoverBtn.textContent;
-  els.createGalleryCoverBtn.disabled=true;
-  els.createGalleryCoverBtn.textContent="Generating…";
-  els.galleryCoverState.textContent="GENERATING";
-  els.coverBuilderMessage.textContent=`Saving the source and generating the ${selectedCoverStyle==="black_white"?"Black & White":"Color"} gallery cover…`;
+  e.preventDefault(); els.saveMessage.textContent="Saving…";
   try{
-    const id=await savePiece({reload:false,quiet:true});
-    const result=await invokeGenerator({action:"generate",product_id:id,style:selectedCoverStyle});
-    existingCoverImage=result.cover_url||null;
-    pendingCoverFile=null;
-    els.coverBuilderMessage.textContent="Gallery Cover created and saved. The public listing will use it automatically.";
-    els.galleryCoverState.textContent="COVER READY";
-    await loadProducts(); editPiece(id);
-    els.coverBuilderMessage.textContent="Gallery Cover created and saved. The public listing is now using this cover automatically.";
-  }catch(err){
-    els.coverBuilderMessage.textContent=err.message||String(err);
-    els.galleryCoverState.textContent="TRY AGAIN";
-  }finally{
-    els.createGalleryCoverBtn.textContent=oldText;
-    els.createGalleryCoverBtn.disabled=!selectedCoverSource;
-  }
+    let id=els.pieceId.value;
+    if(!id){
+      const { data,error }=await supabase.from("products").insert({...formPayload(),images:[]}).select("id").single();
+      if(error) throw error; id=data.id; els.pieceId.value=id;
+    }
+    const newCoverUrl=await uploadCoverFile(id);
+    const newUrls=await uploadFiles(id);
+    const payload={...formPayload(),gallery_cover_image:newCoverUrl||existingCoverImage||null,images:[...existingImages,...newUrls]};
+    const { error }=await supabase.from("products").update(payload).eq("id",id);
+    if(error) throw error;
+    els.saveMessage.textContent="Saved."; await loadProducts(); editPiece(id);
+  }catch(err){ els.saveMessage.textContent=err.message||String(err); }
 });
-
 els.deleteBtn.addEventListener("click",async()=>{
   const id=els.pieceId.value;if(!id)return;
   if(!confirm("Delete this artwork record? This cannot be undone."))return;
@@ -355,26 +195,4 @@ els.deleteBtn.addEventListener("click",async()=>{
   if(error){els.saveMessage.textContent=error.message;return;}
   clearForm(); await loadProducts();
 });
-if(els.connectImageGeneratorBtn)els.connectImageGeneratorBtn.addEventListener("click",async()=>{
-  const key=els.imageGeneratorKey.value.trim();
-  if(!key){els.imageGeneratorDetail.textContent="Paste the OpenAI API key first.";return;}
-  els.connectImageGeneratorBtn.disabled=true;els.imageGeneratorDetail.textContent="Saving secure connection…";
-  try{
-    const status=await invokeGenerator({action:"save_key",api_key:key});
-    els.imageGeneratorKey.value="";renderGeneratorStatus(status);
-    els.imageGeneratorDetail.textContent=`GPT-Image-2 · secure key ending ${status.key_hint||"••••••"}`;
-  }catch(err){els.imageGeneratorDetail.textContent=err.message||String(err);}
-  finally{els.connectImageGeneratorBtn.disabled=false;}
-});
-if(els.testImageGeneratorBtn)els.testImageGeneratorBtn.addEventListener("click",async()=>{
-  els.imageGeneratorDetail.textContent="Testing GPT-Image-2 access…";
-  try{await invokeGenerator({action:"test"});els.imageGeneratorDetail.textContent="GPT-Image-2 connection verified.";}
-  catch(err){els.imageGeneratorDetail.textContent=err.message||String(err);}
-});
-if(els.disconnectImageGeneratorBtn)els.disconnectImageGeneratorBtn.addEventListener("click",async()=>{
-  if(!confirm("Disconnect the image generator? Existing Gallery Covers will stay intact."))return;
-  try{renderGeneratorStatus(await invokeGenerator({action:"disconnect"}));}
-  catch(err){els.imageGeneratorDetail.textContent=err.message||String(err);}
-});
-
 boot();
