@@ -14,8 +14,10 @@ const els = {
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
   featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
-  galleryCoverPreview:$("galleryCoverPreview"), saveMessage:$("saveMessage"),
-  editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"), resetBtn:$("resetBtn")
+  galleryCoverPreview:$("galleryCoverPreview"), coverSourcePicker:$("coverSourcePicker"),
+  coverSourcePreview:$("coverSourcePreview"), createGalleryCoverBtn:$("createGalleryCoverBtn"),
+  coverBuilderMessage:$("coverBuilderMessage"), galleryCoverState:$("galleryCoverState"),
+  saveMessage:$("saveMessage"), editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"), resetBtn:$("resetBtn")
 };
 
 let products = [];
@@ -23,12 +25,18 @@ let existingImages = [];
 let pendingFiles = [];
 let existingCoverImage = null;
 let pendingCoverFile = null;
+let selectedCoverSource = null;
+let objectUrls = [];
 
 function money(v){
   if(v === null || v === undefined || v === "") return "Price on request";
   return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(v));
 }
 function escapeHtml(s=""){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+function localUrl(file){
+  const url=URL.createObjectURL(file); objectUrls.push(url); return url;
+}
+function clearObjectUrls(){ objectUrls.forEach(url=>URL.revokeObjectURL(url)); objectUrls=[]; }
 
 async function boot(){
   const { data:{ session } } = await supabase.auth.getSession();
@@ -85,11 +93,14 @@ function render(){
 els.searchInput.addEventListener("input",render); els.statusFilter.addEventListener("change",render);
 
 function clearForm(){
-  els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null;
+  clearObjectUrls();
+  els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null; selectedCoverSource=null;
   els.editorTitle.textContent="Add a piece"; els.deleteBtn.classList.add("hidden"); els.saveMessage.textContent="";
-  renderCover(); renderPhotos();
+  if(els.coverBuilderMessage)els.coverBuilderMessage.textContent="Add original photos, then choose one as the source.";
+  renderCoverBuilder(); renderCover(); renderPhotos();
 }
 function editPiece(id){
+  clearObjectUrls();
   const p=products.find(x=>x.id===id); if(!p)return;
   els.pieceId.value=p.id; els.inventoryNumber.value=p.inventory_number||""; els.status.value=p.status||"available";
   els.title.value=p.title||""; els.maker.value=p.maker||""; els.category.value=p.category||"Contemporary Studio Glass";
@@ -97,8 +108,12 @@ function editPiece(id){
   els.medium.value=p.medium||""; els.height.value=p.height||""; els.width.value=p.width||""; els.depth.value=p.depth||"";
   els.description.value=p.description||""; els.condition.value=p.condition||""; els.provenance.value=p.provenance||"";
   els.featured.checked=!!p.featured; els.newArrival.checked=!!p.new_arrival; els.inquireOnly.checked=!!p.inquire_only;
-  existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
-  renderCover(); renderPhotos();
+  existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null;
+  const savedSource=p.gallery_cover_source_image||existingImages[0]||null;
+  selectedCoverSource=savedSource?{type:"existing",url:savedSource}:null;
+  els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
+  if(els.coverBuilderMessage)els.coverBuilderMessage.textContent=selectedCoverSource?"Source photo selected and saved. Step 2 will generate the finished Olive cover from this image.":"Choose an original photo as the cover source.";
+  renderCoverBuilder(); renderCover(); renderPhotos();
 }
 els.newPieceBtn.addEventListener("click",clearForm); els.resetBtn.addEventListener("click",clearForm);
 
@@ -107,24 +122,74 @@ els.galleryCoverInput.addEventListener("change",()=>{
 });
 function renderCover(){
   if(!els.galleryCoverPreview)return;
-  const src=pendingCoverFile?URL.createObjectURL(pendingCoverFile):existingCoverImage;
+  const src=pendingCoverFile?localUrl(pendingCoverFile):existingCoverImage;
   els.galleryCoverPreview.innerHTML=src
     ? `<div class="gallery-cover-card"><img src="${escapeHtml(src)}" alt="Gallery cover preview"><div><strong>Public listing cover</strong><small>Original gallery photos remain untouched.</small></div><button type="button" id="removeGalleryCover">Remove</button></div>`
-    : `<div class="gallery-cover-empty"><span>OV</span><div><strong>No gallery cover yet</strong><small>The first original photo will be used until a polished cover is added.</small></div></div>`;
+    : `<div class="gallery-cover-empty"><span>OV</span><div><strong>No finished cover yet</strong><small>The first original photo will remain public until a finished cover is generated or uploaded.</small></div></div>`;
   const remove=$("removeGalleryCover");
   if(remove)remove.onclick=()=>{existingCoverImage=null;pendingCoverFile=null;renderCover();};
 }
 
+function coverSourceSrc(){
+  if(!selectedCoverSource)return null;
+  return selectedCoverSource.type==="pending" ? localUrl(selectedCoverSource.file) : selectedCoverSource.url;
+}
+function isSelectedExisting(url){ return selectedCoverSource?.type==="existing" && selectedCoverSource.url===url; }
+function isSelectedPending(file){ return selectedCoverSource?.type==="pending" && selectedCoverSource.file===file; }
+function renderCoverBuilder(){
+  if(!els.coverSourcePicker||!els.coverSourcePreview)return;
+  clearObjectUrls();
+  const cards=[];
+  existingImages.forEach((url,i)=>cards.push(`<button type="button" class="cover-source-card ${isSelectedExisting(url)?"selected":""}" data-cover-existing="${i}"><img src="${escapeHtml(url)}" alt="Original photo ${i+1}"><span>${isSelectedExisting(url)?"Selected":"Use photo"} ${i+1}</span></button>`));
+  pendingFiles.forEach((file,i)=>{const src=localUrl(file);cards.push(`<button type="button" class="cover-source-card ${isSelectedPending(file)?"selected":""}" data-cover-pending="${i}"><img src="${escapeHtml(src)}" alt="New original photo ${existingImages.length+i+1}"><span>${isSelectedPending(file)?"Selected":"Use photo"} ${existingImages.length+i+1}</span></button>`);});
+  els.coverSourcePicker.innerHTML=cards.join("")||`<div class="cover-source-empty">Add original photographs below to choose a Gallery Cover source.</div>`;
+  els.coverSourcePicker.querySelectorAll("[data-cover-existing]").forEach(btn=>btn.onclick=()=>{
+    selectedCoverSource={type:"existing",url:existingImages[Number(btn.dataset.coverExisting)]};
+    els.coverBuilderMessage.textContent="Source selected. Save the piece to remember this choice, or continue to Create Gallery Cover.";
+    renderCoverBuilder();
+  });
+  els.coverSourcePicker.querySelectorAll("[data-cover-pending]").forEach(btn=>btn.onclick=()=>{
+    selectedCoverSource={type:"pending",file:pendingFiles[Number(btn.dataset.coverPending)]};
+    els.coverBuilderMessage.textContent="New source selected. Save the piece to upload and remember this choice.";
+    renderCoverBuilder();
+  });
+  const src=coverSourceSrc();
+  els.coverSourcePreview.innerHTML=src
+    ? `<div class="cover-source-stage"><img src="${escapeHtml(src)}" alt="Selected source photo"><span>SOURCE PHOTO</span></div>`
+    : `<div class="cover-source-stage empty"><span>SELECT A SOURCE PHOTO</span></div>`;
+  els.createGalleryCoverBtn.disabled=!selectedCoverSource;
+  els.galleryCoverState.textContent=existingCoverImage||pendingCoverFile?"COVER READY":selectedCoverSource?"SOURCE READY":"STEP 1 READY";
+}
+
+els.createGalleryCoverBtn.addEventListener("click",()=>{
+  if(!selectedCoverSource){els.coverBuilderMessage.textContent="Choose an original source photo first.";return;}
+  els.coverBuilderMessage.textContent="Source is ready. Step 1 is complete for this piece. Step 2 will connect this button to the automatic Olive black-background generator.";
+  els.galleryCoverState.textContent="READY FOR STEP 2";
+});
+
 els.photoInput.addEventListener("change",()=>{
-  pendingFiles.push(...Array.from(els.photoInput.files||[])); els.photoInput.value=""; renderPhotos();
+  const added=Array.from(els.photoInput.files||[]);
+  pendingFiles.push(...added); els.photoInput.value="";
+  if(!selectedCoverSource && added[0]) selectedCoverSource={type:"pending",file:added[0]};
+  renderCoverBuilder(); renderPhotos();
 });
 function renderPhotos(){
   const cards=[];
   existingImages.forEach((url,i)=>cards.push(`<div class="photo-card"><img src="${escapeHtml(url)}"><button type="button" data-existing="${i}">×</button></div>`));
-  pendingFiles.forEach((f,i)=>cards.push(`<div class="photo-card"><img src="${URL.createObjectURL(f)}"><button type="button" data-pending="${i}">×</button></div>`));
+  pendingFiles.forEach((f,i)=>cards.push(`<div class="photo-card"><img src="${localUrl(f)}"><button type="button" data-pending="${i}">×</button></div>`));
   els.photoPreview.innerHTML=cards.join("");
-  els.photoPreview.querySelectorAll("[data-existing]").forEach(b=>b.onclick=()=>{existingImages.splice(Number(b.dataset.existing),1);renderPhotos();});
-  els.photoPreview.querySelectorAll("[data-pending]").forEach(b=>b.onclick=()=>{pendingFiles.splice(Number(b.dataset.pending),1);renderPhotos();});
+  els.photoPreview.querySelectorAll("[data-existing]").forEach(b=>b.onclick=()=>{
+    const url=existingImages[Number(b.dataset.existing)];
+    existingImages.splice(Number(b.dataset.existing),1);
+    if(isSelectedExisting(url)) selectedCoverSource=existingImages[0]?{type:"existing",url:existingImages[0]}:pendingFiles[0]?{type:"pending",file:pendingFiles[0]}:null;
+    renderCoverBuilder(); renderPhotos();
+  });
+  els.photoPreview.querySelectorAll("[data-pending]").forEach(b=>b.onclick=()=>{
+    const file=pendingFiles[Number(b.dataset.pending)];
+    pendingFiles.splice(Number(b.dataset.pending),1);
+    if(isSelectedPending(file)) selectedCoverSource=existingImages[0]?{type:"existing",url:existingImages[0]}:pendingFiles[0]?{type:"pending",file:pendingFiles[0]}:null;
+    renderCoverBuilder(); renderPhotos();
+  });
 }
 
 async function uploadCoverFile(productId){
@@ -138,16 +203,16 @@ async function uploadCoverFile(productId){
 }
 
 async function uploadFiles(productId){
-  const urls=[];
+  const uploads=[];
   for(const file of pendingFiles){
     const clean=(file.name||"image").replace(/[^a-zA-Z0-9._-]/g,"-");
     const path=`${productId}/${crypto.randomUUID()}-${clean}`;
     const { error } = await supabase.storage.from(PRODUCT_BUCKET).upload(path,file,{cacheControl:"3600",upsert:false});
     if(error) throw error;
     const { data } = supabase.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
-    urls.push(data.publicUrl);
+    uploads.push({file,url:data.publicUrl});
   }
-  return urls;
+  return uploads;
 }
 function formPayload(){
   return {
@@ -181,8 +246,18 @@ els.pieceForm.addEventListener("submit",async e=>{
       if(error) throw error; id=data.id; els.pieceId.value=id;
     }
     const newCoverUrl=await uploadCoverFile(id);
-    const newUrls=await uploadFiles(id);
-    const payload={...formPayload(),gallery_cover_image:newCoverUrl||existingCoverImage||null,images:[...existingImages,...newUrls]};
+    const uploaded=await uploadFiles(id);
+    const newUrls=uploaded.map(x=>x.url);
+    let sourceUrl=null;
+    if(selectedCoverSource?.type==="existing") sourceUrl=selectedCoverSource.url;
+    if(selectedCoverSource?.type==="pending") sourceUrl=uploaded.find(x=>x.file===selectedCoverSource.file)?.url||null;
+    if(!sourceUrl) sourceUrl=existingImages[0]||newUrls[0]||null;
+    const payload={
+      ...formPayload(),
+      gallery_cover_image:newCoverUrl||existingCoverImage||null,
+      gallery_cover_source_image:sourceUrl,
+      images:[...existingImages,...newUrls]
+    };
     const { error }=await supabase.from("products").update(payload).eq("id",id);
     if(error) throw error;
     els.saveMessage.textContent="Saved."; await loadProducts(); editPiece(id);

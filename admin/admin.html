@@ -129,19 +129,42 @@
             </div>
 
             <div class="photo-box gallery-cover-box">
-              <div>
-                <div class="eyebrow">GALLERY COVER</div>
-                <p class="muted">Upload the polished Olive dark-background cover here. This image is used only as the public listing thumbnail; the original photographs below stay unchanged inside the click-through gallery.</p>
+              <div class="gallery-cover-heading">
+                <div>
+                  <div class="eyebrow">GALLERY COVER BUILDER</div>
+                  <p class="muted">Choose one original listing photo as the source for the luxury Olive thumbnail. The original gallery images are never modified.</p>
+                </div>
+                <span id="galleryCoverState" class="gallery-cover-state">STEP 1 READY</span>
               </div>
-              <input id="galleryCoverInput" type="file" accept="image/*">
-              <div id="galleryCoverPreview" class="gallery-cover-preview"></div>
-              <p class="gallery-cover-note">If no cover is uploaded, the first original photograph is used automatically.</p>
+
+              <div class="cover-builder-step">
+                <div class="cover-step-title"><span>01</span><div><strong>Choose the source photo</strong><small>The selection is saved with the product, so the generator will know exactly which original to use.</small></div></div>
+                <div id="coverSourcePicker" class="cover-source-picker"></div>
+              </div>
+
+              <div class="cover-builder-step">
+                <div class="cover-step-title"><span>02</span><div><strong>Prepare Gallery Cover</strong><small>Step 2 will connect this button to the automatic black/olive background generator.</small></div></div>
+                <div class="cover-generator-layout">
+                  <div id="coverSourcePreview" class="cover-source-preview"></div>
+                  <div class="cover-generator-actions">
+                    <button id="createGalleryCoverBtn" class="primary" type="button">Create Gallery Cover</button>
+                    <p id="coverBuilderMessage" class="message cover-builder-message">Select a source image to prepare the cover workflow.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cover-builder-step finished-cover-step">
+                <div class="cover-step-title"><span>03</span><div><strong>Finished Gallery Cover</strong><small>Until Step 2 is connected, a finished cover can still be uploaded manually here.</small></div></div>
+                <input id="galleryCoverInput" type="file" accept="image/*">
+                <div id="galleryCoverPreview" class="gallery-cover-preview"></div>
+                <p class="gallery-cover-note">When a finished cover exists, the homepage, Collection and Inventory Manager automatically prefer it over the first original photo.</p>
+              </div>
             </div>
 
             <div class="photo-box">
               <div>
                 <div class="eyebrow">ORIGINAL PHOTOGRAPHS</div>
-                <p class="muted">Upload one or more original listing images. These stay in the product gallery and are never replaced by the Gallery Cover.</p>
+                <p class="muted">Upload one or more original listing images. These remain in the product gallery and are never replaced by the Gallery Cover.</p>
               </div>
               <input id="photoInput" type="file" accept="image/*" multiple>
               <div id="photoPreview" class="photo-preview"></div>
