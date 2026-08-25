@@ -50,3 +50,42 @@
     scale:1 !important;
   }
 }
+/* Homepage category additions */
+
+.category-grid .category-card:nth-child(2) .category-photo{
+  background:
+    radial-gradient(circle at 50% 42%,rgba(147,119,72,.16),transparent 55%),
+    url("./assets/products/iridescent-handled-vase.webp") center/contain no-repeat,
+    #0b0e0a !important;
+}
+
+.category-grid .category-card:nth-child(2) .category-photo > img{
+  opacity:0 !important;
+}
+
+.category-grid::after{
+  content:"05 · MARBLES & PAPERWEIGHTS";
+  box-sizing:border-box;
+  grid-column:1 / -1;
+  min-height:560px;
+  display:flex;
+  align-items:flex-end;
+  padding:30px;
+  border:1px solid rgba(216,203,168,.16);
+  background:
+    linear-gradient(180deg,transparent 35%,rgba(7,9,7,.92) 100%),
+    url("https://images.whatnot.com/fit-in/3840x0/listings%2F0-4b67ad0e-1626-4715-83a6-3a07bc483ba2-c5b73cab-d571-4cca-b0bc-673689cd5f34.jpeg")
+    center/cover no-repeat;
+  color:#f1eadc;
+  font-family:"Playfair Display",serif;
+  font-size:clamp(30px,4vw,54px);
+  text-shadow:0 3px 20px rgba(0,0,0,.72);
+}
+
+@media(max-width:620px){
+  .category-grid::after{
+    grid-column:auto;
+    min-height:520px;
+    padding:24px 20px;
+  }
+}
