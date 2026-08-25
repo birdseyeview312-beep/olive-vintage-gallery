@@ -472,3 +472,41 @@ body.lightbox-open{overflow:hidden}
 .product-lightbox-stage>img{
   object-fit:contain;
 }
+@media (min-width:621px){
+  .live-product-stage,
+  .featured-product .live-product-stage,
+  .collection-product-grid .live-product-stage{
+    padding:8px;
+  }
+
+  .live-product-stage>img,
+  .featured-product .live-product-stage>img,
+  .collection-product-grid .live-product-stage>img{
+    object-fit:contain;
+    object-position:center;
+    transform:scale(1);
+  }
+
+  .product-card:hover .live-product-stage>img{
+    transform:scale(1.012);
+  }
+}
+
+@media (max-width:620px){
+  .live-product-stage,
+  .featured-product .live-product-stage,
+  .collection-product-grid .live-product-stage{
+    padding:0;
+  }
+
+  .live-product-stage>img,
+  .featured-product .live-product-stage>img,
+  .collection-product-grid .live-product-stage>img{
+    object-fit:cover;
+    object-position:center;
+  }
+}
+
+.product-lightbox-stage>img{
+  object-fit:contain;
+}
