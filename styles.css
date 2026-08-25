@@ -422,5 +422,52 @@ body.lightbox-open{overflow:hidden}
   .awaiting-product-copy{bottom:15px}
   .awaiting-product-copy strong{font-size:8px}
   .awaiting-product-copy small{font-size:6px}
-  .awaiting-product-ring{width:31%}
+  .awaiting-product-ring{width:31%
+.live-product-stage,
+.featured-product .live-product-stage{
+  padding:0;
+  overflow:hidden;
+}
+
+.live-product-stage>img,
+.featured-product .live-product-stage>img{
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
+  object-fit:cover;
+  object-position:center center;
+  transform:scale(1.002);
+}
+
+.product-card:hover .live-product-stage>img{
+  transform:scale(1.035);
+}
+
+.collection-product-grid .live-product-stage{
+  padding:0;
+}
+
+.collection-product-grid .live-product-stage>img{
+  object-fit:cover;
+  object-position:center center;
+}
+
+@media(max-width:620px){
+  .live-product-stage,
+  .featured-product .live-product-stage,
+  .collection-product-grid .live-product-stage{
+    padding:0;
+  }
+
+  .live-product-stage>img,
+  .featured-product .live-product-stage>img,
+  .collection-product-grid .live-product-stage>img{
+    object-fit:cover;
+    object-position:center center;
+  }
+}
+
+.product-lightbox-stage>img{
+  object-fit:contain;
 }
