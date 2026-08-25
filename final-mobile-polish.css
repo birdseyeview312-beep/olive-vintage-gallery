@@ -1,0 +1,90 @@
+/* Olive Vintage Gallery — final mobile presentation polish
+   Isolated after styles.css so desktop and existing gallery behavior remain intact. */
+
+@media (max-width: 620px) {
+  /* Hero fold: bring the artwork into view sooner without disturbing the headline. */
+  .hero {
+    gap: 20px;
+    padding-bottom: 68px;
+  }
+
+  .hero-collection-art {
+    margin-top: -8px;
+  }
+
+  .hero-object-main {
+    top: 5%;
+    height: 80%;
+  }
+
+  .hero-object-main .hero-object-image img {
+    object-position: center 42%;
+  }
+
+  /* The gallery statement should flow into the three values a little faster. */
+  .manifesto-copy .curatorial-rail {
+    margin-top: 26px;
+  }
+
+  /* Homepage acquisitions: always show the complete artwork on phones. */
+  .new-arrivals .product-image,
+  .new-arrivals .featured-product .product-image {
+    aspect-ratio: 1 / 1;
+  }
+
+  .new-arrivals .live-product-stage,
+  .new-arrivals .featured-product .live-product-stage {
+    padding: 6px;
+  }
+
+  .new-arrivals .live-product-stage > img,
+  .new-arrivals .featured-product .live-product-stage > img {
+    object-fit: contain;
+    object-position: center;
+    transform: scale(1);
+  }
+
+  .new-arrivals .product-card:hover .live-product-stage > img {
+    transform: scale(1.008);
+  }
+
+  /* Photo count stays readable over both pale and dark marketplace photos. */
+  .product-image-number {
+    right: 11px;
+    bottom: 10px;
+    min-height: 27px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px;
+    border: 1px solid rgba(241, 234, 220, .16);
+    border-radius: 999px;
+    background: rgba(10, 13, 9, .70);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, .16);
+    color: #f1eadc;
+    font-family: "DM Sans", system-ui, sans-serif;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: .13em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  /* Preserve the Collection page's complete-object presentation. */
+  .collection-product-grid .live-product-stage {
+    padding: 6px;
+  }
+
+  .collection-product-grid .live-product-stage > img {
+    object-fit: contain;
+    object-position: center;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-arrivals .live-product-stage > img {
+    transition: none !important;
+  }
+}

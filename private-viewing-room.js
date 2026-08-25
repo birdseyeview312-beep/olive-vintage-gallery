@@ -332,7 +332,7 @@ function renderSpotlight(p) {
   const canBuy = p.status === "available" && !p.inquire_only && Number(p.price) > 0;
   els.spotlightBuy.classList.toggle("hidden", !canBuy);
   els.spotlightInquire.classList.toggle("hidden", canBuy);
-  els.spotlightInquire.href = `mailto:hello@olivevintage.store?subject=${encodeURIComponent(`Private viewing inquiry — ${p.title || "Artwork"}`)}`;
+  els.spotlightInquire.href = `mailto:Olivejewelvintage@gmail.com?subject=${encodeURIComponent(`Private viewing inquiry — ${p.title || "Artwork"}`)}`;
 }
 
 async function spotlightSelected() {

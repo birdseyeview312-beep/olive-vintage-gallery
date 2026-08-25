@@ -94,7 +94,7 @@ function productCard(p, index = 0) {
   const canBuyNow = checkoutEnabled && !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
   const action = canBuyNow
     ? `<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`
-    : `<a class="product-inquire" href="mailto:hello@olivevintage.store?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
+    : `<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `
     <article class="${cardClass}" data-product-id="${esc(p.id || "")}">
       ${image ? `<button class="product-image live-product-image product-gallery-trigger" type="button" data-gallery-product="${esc(p.id)}" aria-label="View ${p.images?.length > 1 ? `all ${p.images.length} photos` : "larger photo"} of ${esc(p.title)}">
