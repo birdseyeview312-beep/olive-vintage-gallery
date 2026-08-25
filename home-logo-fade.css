@@ -1,0 +1,62 @@
+/* Olive Vintage Gallery — v26 homepage Olive watermark
+   Decorative homepage-only emblem that disappears as the visitor scrolls. */
+
+.hero{
+  isolation:isolate;
+}
+
+.home-olive-watermark{
+  --home-logo-progress:0;
+  position:absolute;
+  inset:0;
+  z-index:0;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:calc(.18 * (1 - var(--home-logo-progress)));
+  transform:
+    translate3d(0, calc(-34px * var(--home-logo-progress)), 0)
+    scale(calc(1 - (.06 * var(--home-logo-progress))));
+  transition:opacity 80ms linear;
+}
+
+.home-olive-watermark img{
+  width:clamp(340px, 42vw, 720px);
+  aspect-ratio:1;
+  object-fit:cover;
+  border-radius:50%;
+  opacity:.62;
+  filter:
+    saturate(.72)
+    brightness(.82)
+    contrast(1.02);
+  mix-blend-mode:screen;
+  mask-image:radial-gradient(circle at center, #000 0 44%, rgba(0,0,0,.82) 58%, transparent 76%);
+  -webkit-mask-image:radial-gradient(circle at center, #000 0 44%, rgba(0,0,0,.82) 58%, transparent 76%);
+}
+
+.hero > *:not(.home-olive-watermark){
+  position:relative;
+  z-index:1;
+}
+
+/* Keep the mark atmospheric rather than dominant on smaller screens. */
+@media (max-width:700px){
+  .home-olive-watermark{
+    opacity:calc(.11 * (1 - var(--home-logo-progress)));
+  }
+
+  .home-olive-watermark img{
+    width:min(82vw, 430px);
+    opacity:.52;
+  }
+}
+
+/* Motion/accessibility: show it statically, then let normal page content scroll. */
+@media (prefers-reduced-motion:reduce){
+  .home-olive-watermark{
+    transform:none!important;
+    transition:none!important;
+  }
+}

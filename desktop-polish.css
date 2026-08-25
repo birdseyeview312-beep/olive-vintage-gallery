@@ -1,0 +1,61 @@
+/* Olive Vintage Gallery — v25 final desktop polish
+   Small desktop-only refinements after visual QA. */
+
+@media (min-width: 621px){
+
+  /* Fixed-header anchor safety. */
+  html{
+    scroll-padding-top:112px;
+  }
+
+  #collection,
+  #new,
+  #story,
+  #contact{
+    scroll-margin-top:112px;
+  }
+
+  /* Give the full Collection page a cleaner opening under the fixed header. */
+  .collection-page{
+    padding-top:142px !important;
+  }
+
+  .collection-page-head{
+    margin-bottom:42px !important;
+    padding-bottom:38px !important;
+  }
+
+  .collection-controls{
+    margin-bottom:22px;
+  }
+
+  /* Keep the collection grid crisp and evenly spaced. */
+  .collection-product-grid{
+    gap:18px !important;
+  }
+
+  .collection-product-grid .product-card{
+    min-width:0;
+  }
+
+  .collection-product-grid .product-info h3{
+    line-height:1.02;
+  }
+
+  /* The wide featured New Arrivals card was cropping tall glass too aggressively.
+     A taller frame preserves the full-bleed look while showing more of the object. */
+  #productGrid .featured-product .product-image{
+    aspect-ratio:3 / 2 !important;
+    height:auto !important;
+    min-height:0 !important;
+  }
+
+  #productGrid .featured-product .live-product-stage{
+    height:100% !important;
+  }
+
+  #productGrid .featured-product .live-product-stage > img{
+    object-position:center 48% !important;
+    transform:scale(1) !important;
+  }
+}
