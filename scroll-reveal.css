@@ -1,11 +1,11 @@
-/* Olive Vintage Gallery — v21 refined directional scroll reveal
-   Subtle, performance-conscious motion for public gallery pages. */
+/* Olive Vintage Gallery — v22 more dramatic directional scroll reveal
+   Stronger editorial motion while preserving a luxury gallery feel. */
 
 :root{
-  --ovg-reveal-distance:44px;
-  --ovg-reveal-rise:10px;
-  --ovg-reveal-duration:980ms;
-  --ovg-reveal-ease:cubic-bezier(.18,.72,.22,1);
+  --ovg-reveal-distance:72px;
+  --ovg-reveal-rise:16px;
+  --ovg-reveal-duration:1120ms;
+  --ovg-reveal-ease:cubic-bezier(.16,.78,.18,1);
 }
 
 html,body{overflow-x:clip}
@@ -13,11 +13,15 @@ html,body{overflow-x:clip}
 .ovg-scroll-reveal{
   --ovg-reveal-x:calc(var(--ovg-reveal-distance) * -1);
   opacity:0;
-  transform:translate3d(var(--ovg-reveal-x),var(--ovg-reveal-rise),0);
+  filter:blur(5px);
+  transform:
+    translate3d(var(--ovg-reveal-x),var(--ovg-reveal-rise),0)
+    scale(.985);
   transition:
-    opacity 760ms ease var(--ovg-reveal-delay,0ms),
-    transform var(--ovg-reveal-duration) var(--ovg-reveal-ease) var(--ovg-reveal-delay,0ms);
-  will-change:transform,opacity;
+    opacity 820ms ease var(--ovg-reveal-delay,0ms),
+    transform var(--ovg-reveal-duration) var(--ovg-reveal-ease) var(--ovg-reveal-delay,0ms),
+    filter 900ms ease var(--ovg-reveal-delay,0ms);
+  will-change:transform,opacity,filter;
   backface-visibility:hidden;
 }
 
@@ -31,10 +35,11 @@ html,body{overflow-x:clip}
 
 .ovg-scroll-reveal.ovg-in-view{
   opacity:1;
-  transform:translate3d(0,0,0);
+  filter:blur(0);
+  transform:translate3d(0,0,0) scale(1);
 }
 
-/* Cards get a slightly tighter travel so grids feel refined rather than theatrical. */
+/* Cards travel less than major editorial sections, but still feel deliberate. */
 .product-card.ovg-scroll-reveal,
 .category-card.ovg-scroll-reveal,
 .bidder-card.ovg-scroll-reveal,
@@ -42,22 +47,40 @@ html,body{overflow-x:clip}
 .pv-feature-grid article.ovg-scroll-reveal,
 .lot-card.ovg-scroll-reveal,
 .auction-lot-card.ovg-scroll-reveal{
-  --ovg-reveal-distance:30px;
-  --ovg-reveal-rise:13px;
+  --ovg-reveal-distance:46px;
+  --ovg-reveal-rise:18px;
 }
 
-/* Preserve hover transforms after the reveal is complete. */
+/* Give large visual blocks a slightly more cinematic entrance. */
+.signature-image.ovg-scroll-reveal,
+.live-auction-promo-card.ovg-scroll-reveal,
+.pv-hero-art.ovg-scroll-reveal,
+.auction-hero-status.ovg-scroll-reveal,
+.auction-experience .stream-panel.ovg-scroll-reveal,
+.auction-experience .current-lot-panel.ovg-scroll-reveal{
+  --ovg-reveal-distance:88px;
+}
+
+/* Preserve hover motion after reveal completes. */
 .product-card.ovg-scroll-reveal.ovg-in-view:hover{
-  transform:translateY(-8px);
+  transform:translateY(-8px) scale(1);
 }
 
-/* Smaller, faster motion on phones so scrolling remains crisp. */
+/* More visible motion on mobile, but still restrained enough for smooth scrolling. */
 @media (max-width:700px){
   :root{
-    --ovg-reveal-distance:20px;
-    --ovg-reveal-rise:7px;
-    --ovg-reveal-duration:760ms;
+    --ovg-reveal-distance:34px;
+    --ovg-reveal-rise:10px;
+    --ovg-reveal-duration:880ms;
   }
+
+  .ovg-scroll-reveal{
+    filter:blur(3px);
+    transform:
+      translate3d(var(--ovg-reveal-x),var(--ovg-reveal-rise),0)
+      scale(.99);
+  }
+
   .product-card.ovg-scroll-reveal,
   .category-card.ovg-scroll-reveal,
   .bidder-card.ovg-scroll-reveal,
@@ -65,16 +88,26 @@ html,body{overflow-x:clip}
   .pv-feature-grid article.ovg-scroll-reveal,
   .lot-card.ovg-scroll-reveal,
   .auction-lot-card.ovg-scroll-reveal{
-    --ovg-reveal-distance:16px;
-    --ovg-reveal-rise:8px;
+    --ovg-reveal-distance:26px;
+    --ovg-reveal-rise:10px;
+  }
+
+  .signature-image.ovg-scroll-reveal,
+  .live-auction-promo-card.ovg-scroll-reveal,
+  .pv-hero-art.ovg-scroll-reveal,
+  .auction-hero-status.ovg-scroll-reveal,
+  .auction-experience .stream-panel.ovg-scroll-reveal,
+  .auction-experience .current-lot-panel.ovg-scroll-reveal{
+    --ovg-reveal-distance:42px;
   }
 }
 
-/* Accessibility: no hidden content or motion for Reduce Motion users. */
+/* Accessibility: never hide or animate content when Reduce Motion is enabled. */
 @media (prefers-reduced-motion:reduce){
   .ovg-scroll-reveal,
   .ovg-scroll-reveal.ovg-in-view{
     opacity:1!important;
+    filter:none!important;
     transform:none!important;
     transition:none!important;
     will-change:auto!important;
