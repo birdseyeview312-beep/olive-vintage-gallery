@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Private Viewings — Olive Vintage Gallery</title>
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./private-viewings.css">
+</head>
+<body>
+  <header class="topbar pv-admin-topbar">
+    <a class="pv-admin-brand" href="./dashboard.html"><span class="eyebrow">OLIVE VINTAGE GALLERY</span><h1>Private Viewings</h1></a>
+    <div class="top-actions"><a class="ghost" href="../private-viewing.html">Customer Page</a><a class="ghost" href="./dashboard.html">Dashboard</a><span id="sessionEmail" class="muted"></span><button id="signOutBtn" class="ghost">Sign out</button></div>
+  </header>
+
+  <main class="shell pv-admin-shell">
+    <section id="accessDenied" class="panel pv-access hidden"><div class="eyebrow">OWNER ACCESS REQUIRED</div><h2>Sign in through the owner dashboard.</h2><p class="muted">Private viewing invitations and customer requests are owner-only.</p><a class="primary pv-inline-button" href="./dashboard.html">Owner Dashboard</a></section>
+
+    <div id="app" class="hidden">
+      <section class="panel pv-admin-hero">
+        <div><div class="eyebrow">PRIVATE COLLECTOR EXPERIENCE</div><h2>Bring one collector into the gallery live.</h2><p class="muted">Review appointment requests, create a private invitation, enter the room from your phone, spotlight live inventory and let the collector buy during the call.</p></div>
+        <div class="pv-admin-live"><i></i><span>1 : 1</span><strong>Private WebRTC</strong><small>Owner-controlled rooms</small></div>
+      </section>
+
+      <section id="stats" class="stats"></section>
+
+      <section class="pv-admin-grid">
+        <section class="panel pv-admin-panel">
+          <div class="panel-head"><div><div class="eyebrow">APPOINTMENT REQUESTS</div><h2>Collector requests</h2></div><button id="refreshBtn" class="ghost" type="button">Refresh</button></div>
+          <div id="requestList" class="pv-request-list"><p class="muted">Loading requests…</p></div>
+        </section>
+
+        <section class="panel pv-admin-panel pv-create-panel">
+          <div class="panel-head"><div><div class="eyebrow">CREATE INVITATION</div><h2>Schedule a private room</h2></div></div>
+          <form id="sessionForm" class="stack">
+            <input id="requestId" type="hidden">
+            <label>Session title<input id="title" value="Private Gallery Viewing" required></label>
+            <div class="grid two"><label>Collector name<input id="customerName" required></label><label>Email<input id="customerEmail" type="email" required></label></div>
+            <div class="grid two"><label>Phone<input id="customerPhone" type="tel"></label><label>Duration<select id="duration"><option value="20">20 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select></label></div>
+            <label>Scheduled date & time<input id="scheduledAt" type="datetime-local"></label>
+            <label>Owner notes<textarea id="notes" rows="4" placeholder="Pieces to prepare, collector interests, shipping questions, etc."></textarea></label>
+            <div class="form-actions"><button id="createBtn" class="primary" type="submit">Create Private Invitation</button><button id="clearBtn" class="ghost" type="button">Clear</button></div>
+            <p id="formMessage" class="message" role="status"></p>
+          </form>
+          <div id="inviteBox" class="pv-invite-box hidden">
+            <div><span>PRIVATE INVITATION CREATED</span><strong id="inviteName"></strong><small>This raw invitation token is never stored in the database. Copy the link now or regenerate it later.</small></div>
+            <textarea id="inviteUrl" rows="3" readonly></textarea>
+            <div class="form-actions"><button id="copyInviteBtn" class="primary" type="button">Copy Invitation Link</button><a id="hostRoomLink" class="ghost pv-button-link" href="#">Enter Owner Room →</a></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel pv-admin-panel pv-sessions-panel">
+        <div class="panel-head"><div><div class="eyebrow">PRIVATE ROOMS</div><h2>Upcoming & recent sessions</h2></div><div class="pv-filter"><button class="ghost active" data-filter="open" type="button">Open</button><button class="ghost" data-filter="all" type="button">All</button></div></div>
+        <div id="sessionList" class="pv-session-list"><p class="muted">Loading sessions…</p></div>
+      </section>
+
+      <section class="panel pv-turn-note">
+        <div><div class="eyebrow">VIDEO RELIABILITY</div><h2>Direct WebRTC is enabled.</h2><p>Most one-to-one calls can connect using the built-in secure direct WebRTC path. For maximum reliability across restrictive corporate Wi-Fi and some cellular networks, add a dedicated TURN relay provider before advertising the feature broadly.</p></div><span id="turnBadge">TURN relay · not connected yet</span>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="./private-viewings.js"></script>
+</body>
+</html>

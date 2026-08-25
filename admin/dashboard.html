@@ -25,7 +25,7 @@
     <section id="loginPanel" class="panel login-panel owner-login">
       <div class="eyebrow">PRIVATE OWNER ACCESS</div>
       <h2>Sign in to Olive Vintage</h2>
-      <p class="muted">Inventory, auctions, live video, payments, winners, and owner settings are protected here.</p>
+      <p class="muted">Inventory, auctions, live video, private viewings, payments, winners, and owner settings are protected here.</p>
       <form id="loginForm" class="stack">
         <label>Email<input id="loginEmail" type="email" required autocomplete="email"></label>
         <label>Password<input id="loginPassword" type="password" required autocomplete="current-password"></label>
@@ -42,7 +42,7 @@
         <div>
           <div class="eyebrow">OWNER CONTROL CENTER</div>
           <h2>Run the gallery from one place.</h2>
-          <p class="muted">Manage the collection, live auctions, broadcast connections, payments and winning bidders without editing website code.</p>
+          <p class="muted">Manage the collection, live auctions, private one-to-one gallery viewings, broadcast connections, payments and winning bidders without editing website code.</p>
         </div>
         <div class="hero-status">
           <span class="status-dot"></span>
@@ -54,62 +54,33 @@
 
       <section class="manager-grid">
         <a class="manager-card panel" href="./admin.html">
-          <div class="card-icon">01</div>
-          <div class="eyebrow">COLLECTION</div>
-          <h2>Inventory Manager</h2>
-          <p>Products, prices, status, descriptions, featured pieces and full image sets.</p>
-          <div class="card-status"><span id="inventoryCardStatus">Loading inventory…</span><strong>Open →</strong></div>
+          <div class="card-icon">01</div><div class="eyebrow">COLLECTION</div><h2>Inventory Manager</h2><p>Products, prices, status, descriptions, featured pieces and full image sets.</p><div class="card-status"><span id="inventoryCardStatus">Loading inventory…</span><strong>Open →</strong></div>
         </a>
-
         <a class="manager-card panel" href="./auctions.html">
-          <div class="card-icon">02</div>
-          <div class="eyebrow">LIVE SALES</div>
-          <h2>Auction Manager</h2>
-          <p>Create events and lots, control bidding, publish auctions, approve bidders and close winners.</p>
-          <div class="card-status"><span id="auctionCardStatus">Loading auctions…</span><strong>Open →</strong></div>
+          <div class="card-icon">02</div><div class="eyebrow">LIVE SALES</div><h2>Auction Manager</h2><p>Create events and lots, control bidding, publish auctions, approve bidders and close winners.</p><div class="card-status"><span id="auctionCardStatus">Loading auctions…</span><strong>Open →</strong></div>
         </a>
-
         <a class="manager-card panel" href="./video.html">
-          <div class="card-icon">03</div>
-          <div class="eyebrow">BROADCAST</div>
-          <h2>Live Video</h2>
-          <p>Connect Mux, test the API and prepare owner-only broadcast credentials for auction streams.</p>
-          <div class="card-status"><span id="videoCardStatus">Checking Mux…</span><strong>Open →</strong></div>
+          <div class="card-icon">03</div><div class="eyebrow">BROADCAST</div><h2>Live Video</h2><p>Connect Mux, test the API and prepare owner-only broadcast credentials for auction streams.</p><div class="card-status"><span id="videoCardStatus">Checking Mux…</span><strong>Open →</strong></div>
         </a>
-
+        <a class="manager-card panel" href="./private-viewings.html">
+          <div class="card-icon">04</div><div class="eyebrow">PRIVATE GALLERY</div><h2>Private Viewings</h2><p>Review collector requests, create invitation-only 1-on-1 rooms, enter from your phone and spotlight live inventory.</p><div class="card-status"><span id="privateViewingCardStatus">Loading private viewings…</span><strong>Open →</strong></div>
+        </a>
         <a class="manager-card panel" href="./payments.html">
-          <div class="card-icon">04</div>
-          <div class="eyebrow">CHECKOUT</div>
-          <h2>Payments</h2>
-          <p>Connect or replace PayPal, switch Sandbox/Live, test the connection and disconnect securely.</p>
-          <div class="card-status"><span id="paymentCardStatus">Checking PayPal…</span><strong>Open →</strong></div>
+          <div class="card-icon">05</div><div class="eyebrow">CHECKOUT</div><h2>Payments</h2><p>Connect or replace PayPal, switch Sandbox/Live, test the connection and disconnect securely.</p><div class="card-status"><span id="paymentCardStatus">Checking PayPal…</span><strong>Open →</strong></div>
         </a>
-
         <a class="manager-card panel" href="./orders.html">
-          <div class="card-icon">05</div>
-          <div class="eyebrow">WINNERS</div>
-          <h2>Orders & Winners</h2>
-          <p>Review sold auction lots, winning amounts and private winner contact details for fulfillment.</p>
-          <div class="card-status"><span id="ordersCardStatus">Loading winners…</span><strong>Open →</strong></div>
+          <div class="card-icon">06</div><div class="eyebrow">WINNERS</div><h2>Orders & Winners</h2><p>Review sold auction lots, winning amounts and private winner contact details for fulfillment.</p><div class="card-status"><span id="ordersCardStatus">Loading winners…</span><strong>Open →</strong></div>
         </a>
-
         <a class="manager-card panel" href="./settings.html">
-          <div class="card-icon">06</div>
-          <div class="eyebrow">OWNER ACCOUNT</div>
-          <h2>Settings & Security</h2>
-          <p>Review owner access, change the owner password and jump to secure service connections.</p>
-          <div class="card-status"><span>Owner-only controls</span><strong>Open →</strong></div>
+          <div class="card-icon">07</div><div class="eyebrow">OWNER ACCOUNT</div><h2>Settings & Security</h2><p>Review owner access, change the owner password and jump to secure service connections.</p><div class="card-status"><span>Owner-only controls</span><strong>Open →</strong></div>
         </a>
       </section>
 
       <section class="panel dashboard-note">
-        <div class="eyebrow">SECURITY MODEL</div>
-        <h2>Customers never see this dashboard.</h2>
-        <p>Normal shopper and bidder accounts are separated from the owner role. Payment and live-video secrets stay on the secure backend and are never returned to the browser after saving.</p>
+        <div class="eyebrow">SECURITY MODEL</div><h2>Customers never see this dashboard.</h2><p>Normal shopper and bidder accounts are separated from the owner role. Payment, broadcast and private-viewing controls stay protected behind the owner account.</p>
       </section>
     </section>
   </main>
-
   <script type="module" src="./dashboard.js"></script>
 </body>
 </html>
