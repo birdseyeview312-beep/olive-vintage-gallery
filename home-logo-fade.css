@@ -1,5 +1,6 @@
-/* Olive Vintage Gallery — v26 homepage Olive watermark
-   Decorative homepage-only emblem that disappears as the visitor scrolls. */
+/* Olive Vintage Gallery — v27 homepage watermark layout correction
+   Keeps the Olive emblem behind the hero without changing the original hero layout,
+   then lifts the visible hero composition slightly on desktop. */
 
 .hero{
   isolation:isolate;
@@ -27,21 +28,35 @@
   object-fit:cover;
   border-radius:50%;
   opacity:.62;
-  filter:
-    saturate(.72)
-    brightness(.82)
-    contrast(1.02);
+  filter:saturate(.72) brightness(.82) contrast(1.02);
   mix-blend-mode:screen;
   mask-image:radial-gradient(circle at center, #000 0 44%, rgba(0,0,0,.82) 58%, transparent 76%);
   -webkit-mask-image:radial-gradient(circle at center, #000 0 44%, rgba(0,0,0,.82) 58%, transparent 76%);
 }
 
-.hero > *:not(.home-olive-watermark){
-  position:relative;
-  z-index:1;
+/* Preserve every hero child's original positioning.
+   v26 accidentally forced all hero children to position:relative, which
+   pulled absolute layers into document flow and pushed the composition down. */
+.hero-copy,
+.hero-art,
+.scroll-cue{
+  z-index:2;
 }
 
-/* Keep the mark atmospheric rather than dominant on smaller screens. */
+@media (min-width:1100px){
+  .hero-copy,
+  .hero-art{
+    translate:0 -42px;
+  }
+}
+
+@media (min-width:701px) and (max-width:1099px){
+  .hero-copy,
+  .hero-art{
+    translate:0 -24px;
+  }
+}
+
 @media (max-width:700px){
   .home-olive-watermark{
     opacity:calc(.11 * (1 - var(--home-logo-progress)));
@@ -53,10 +68,14 @@
   }
 }
 
-/* Motion/accessibility: show it statically, then let normal page content scroll. */
 @media (prefers-reduced-motion:reduce){
   .home-olive-watermark{
     transform:none!important;
     transition:none!important;
+  }
+
+  .hero-copy,
+  .hero-art{
+    translate:none!important;
   }
 }
