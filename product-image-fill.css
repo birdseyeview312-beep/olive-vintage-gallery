@@ -1,0 +1,46 @@
+/* Olive Vintage Gallery — v23 desktop product image fill
+   Desktop-only: fill the product-photo frame edge-to-edge.
+   Mobile keeps the existing uncropped/contained presentation. */
+
+@media (min-width: 621px){
+
+  /* Homepage New Arrivals + full Collection cards */
+  #productGrid .product-image,
+  .collection-product-grid .product-image{
+    position:relative;
+    overflow:hidden;
+    background:#11130f;
+  }
+
+  #productGrid .live-product-stage,
+  .collection-product-grid .live-product-stage{
+    width:100% !important;
+    height:100% !important;
+    min-width:100%;
+    min-height:100%;
+    padding:0 !important;
+    margin:0 !important;
+    overflow:hidden;
+    display:block;
+    background:#11130f;
+  }
+
+  #productGrid .live-product-stage > img,
+  .collection-product-grid .live-product-stage > img{
+    display:block;
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+    margin:0 !important;
+    object-fit:cover !important;
+    object-position:center center !important;
+    transform:scale(1.01);
+  }
+
+  /* The featured two-column card gets the same full-bleed treatment. */
+  #productGrid .featured-product .live-product-stage > img{
+    object-fit:cover !important;
+    object-position:center center !important;
+  }
+}
