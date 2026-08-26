@@ -29,7 +29,7 @@ function checkoutNotice(message, type = "") {
 async function beginBuyNow(productId, button){
   const original=button.innerHTML; button.disabled=true; button.innerHTML="Opening secure checkout…";
   try{
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/paypal-checkout`,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({action:"create",product_id:productId})});
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/square-checkout`,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({action:"create",product_id:productId})});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||!data.approve_url) throw new Error(data.error||"Secure checkout is temporarily unavailable.");
     window.location.assign(data.approve_url);

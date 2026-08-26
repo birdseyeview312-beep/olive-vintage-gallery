@@ -171,7 +171,7 @@ async function beginBuyNow(productId, button) {
   button.disabled = true;
   button.innerHTML = "Opening secure checkout…";
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/paypal-checkout`, {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/square-checkout`, {
       method: "POST",
       headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({ action: "create", product_id: productId })
