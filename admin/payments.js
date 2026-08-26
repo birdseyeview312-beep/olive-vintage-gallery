@@ -40,6 +40,7 @@ function renderStatus() {
   e.appIdHint.textContent = paymentStatus.application_id ? `●●●●●●${String(paymentStatus.application_id).slice(-6)}` : "—";
   e.locationHint.textContent = paymentStatus.location_id ? `●●●●●●${String(paymentStatus.location_id).slice(-6)}` : "—";
   setMode(paymentStatus.mode);
+  e.accessToken.required = !configured;
   if (configured) {
     e.appId.value = "";
     e.locationId.value = "";
@@ -122,13 +123,12 @@ e.squareForm.onsubmit = async ev => {
   const webhookSignature = e.webhookSignature.value.trim();
   const mode = e.squareForm.querySelector('input[name="squareMode"]:checked')?.value || "sandbox";
 
-  // When already configured, access_token is optional; location_id is always required
-  const needsToken = !paymentStatus.configured;
-  if (!applicationId || !locationId || (needsToken && !accessToken)) {
+  // Location ID is always required; Access Token only required for first connection
+  if (!locationId || (!paymentStatus.configured && !accessToken)) {
     setMessage(
       paymentStatus.configured
-        ? "Enter the Application ID and Location ID (Access Token optional to keep existing)."
-        : "Enter the Square Application ID, Location ID, and Access Token.",
+        ? "Location ID is required (Access Token optional to keep existing)."
+        : "Enter the Square Location ID and Access Token.",
       "error"
     );
     return;
