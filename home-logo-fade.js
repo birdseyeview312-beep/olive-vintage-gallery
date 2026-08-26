@@ -1,6 +1,17 @@
 (() => {
   "use strict";
 
+  /* Add a second collection link below the homepage listings */
+  const productGrid = document.getElementById("productGrid");
+  if (productGrid && !document.querySelector(".home-show-all-listings")) {
+    const wrap = document.createElement("div");
+    wrap.className = "home-show-all-listings";
+    wrap.style.cssText = "display:flex;justify-content:center;margin-top:40px;";
+    wrap.innerHTML = '<a class="button text" href="./collection.html">Show all listings</a>';
+    productGrid.insertAdjacentElement("afterend", wrap);
+  }
+
+  /* Existing homepage Olive watermark fade */
   const mark = document.querySelector(".home-olive-watermark");
   if (!mark) return;
 
