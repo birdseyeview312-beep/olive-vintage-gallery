@@ -15,33 +15,36 @@ function showError(message) {
   e.spinner.className = "checkout-spinner error";
   e.eyebrow.textContent = "CHECKOUT NEEDS ATTENTION";
   e.title.textContent = "We couldn't finish the confirmation.";
-  e.message.textContent = message || "Please contact Olive Vintage Gallery and we will help verify the PayPal transaction.";
+  e.message.textContent = message || "Please contact Olive Vintage Gallery and we will help verify the Square transaction.";
   e.contactGallery.classList.remove("hidden");
   e.returnGallery.classList.remove("hidden");
 }
 
-async function capture(orderId) {
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/paypal-checkout`, {
-    method: "POST",
-    headers: { apikey: SUPABASE_ANON_KEY, "Content-Type":"application/json" },
-    body: JSON.stringify({ action:"capture", order_id:orderId })
-  });
-  const data = await response.json().catch(()=>({}));
-  if (!response.ok || !data.completed) throw new Error(data.error || "PayPal confirmation is still pending.");
-  return data;
-}
-
 async function boot() {
   const params = new URLSearchParams(location.search);
-  const token = params.get("token");
-  if (!token) { showError("The PayPal order reference is missing. If you completed a payment, contact the gallery so we can verify it."); return; }
+  const provider = params.get("provider");
+  const orderId = params.get("order");
+
+  if (provider !== "square" || !orderId) {
+    showError("The order reference is missing. If you completed a payment, contact the gallery so we can verify it.");
+    return;
+  }
+
+  e.message.textContent = "Please keep this page open while Square confirms your payment with Olive Vintage Gallery.";
+
   try {
-    const data = await capture(token);
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/square-checkout`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "capture", order_id: orderId })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.completed) throw new Error(data.error || "Square confirmation is still pending.");
     e.spinner.className = "checkout-spinner done";
     e.eyebrow.textContent = "ACQUISITION CONFIRMED";
     e.title.textContent = "Thank you. This piece is yours.";
-    e.message.textContent = "Your payment has been confirmed and the artwork has been marked sold. Olive Vintage Gallery will follow up using the contact information on your PayPal order for fulfillment and shipping.";
-    e.receipt.innerHTML = `<div><span>Artwork</span><strong>${esc(data.title || "Olive Vintage Gallery artwork")}</strong></div><div><span>Paid</span><strong>${esc(money(data.amount,data.currency||"USD"))}</strong></div><div><span>Order</span><strong>${esc(String(data.order_id||token).slice(-12))}</strong></div>`;
+    e.message.textContent = "Your payment has been confirmed and the artwork has been marked sold. Olive Vintage Gallery will follow up using the contact information on your Square order for fulfillment and shipping.";
+    e.receipt.innerHTML = `<div><span>Artwork</span><strong>${esc(data.title || "Olive Vintage Gallery artwork")}</strong></div><div><span>Paid</span><strong>${esc(money(data.amount, data.currency || "USD"))}</strong></div><div><span>Order</span><strong>${esc(String(data.order_id || orderId).slice(-12))}</strong></div>`;
     e.receipt.classList.remove("hidden");
     e.returnGallery.classList.remove("hidden");
     e.contactGallery.classList.remove("hidden");

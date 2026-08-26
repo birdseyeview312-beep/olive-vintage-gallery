@@ -31,42 +31,60 @@
       <div class="settings-grid">
         <section class="panel payment-panel">
           <div class="panel-head">
-            <div><div class="eyebrow">PAYMENTS</div><h2>PayPal Checkout</h2></div>
+            <div><div class="eyebrow">PAYMENTS</div><h2>Square Checkout</h2></div>
             <span id="statusPill" class="connection-pill">Not connected</span>
           </div>
 
-          <p class="intro">Connect the PayPal Business account that should receive Olive Vintage payments. Credentials are sent directly to the secure backend and stored encrypted; the Client Secret is never shown again after saving.</p>
+          <p class="intro">Connect the Square account that should receive Olive Vintage payments. Credentials are sent directly to the secure backend and stored encrypted; the Access Token and Webhook Signature Key are never shown again after saving.</p>
 
           <div id="connectedSummary" class="connected-summary hidden">
             <div><span>Connection</span><strong id="connectionText">Connected</strong></div>
             <div><span>Environment</span><strong id="savedMode">Sandbox</strong></div>
-            <div><span>Client ID</span><strong id="clientHint">••••••</strong></div>
+            <div><span>Application ID</span><strong id="appIdHint">••••••</strong></div>
+            <div><span>Location ID</span><strong id="locationHint">••••••</strong></div>
           </div>
 
-          <form id="paypalForm" class="payment-form" autocomplete="off">
+          <form id="squareForm" class="payment-form" autocomplete="off">
             <div class="mode-picker">
-              <label class="mode-option"><input type="radio" name="paypalMode" value="sandbox" checked><span><strong>Sandbox</strong><small>Test payments. No real money moves.</small></span></label>
-              <label class="mode-option"><input type="radio" name="paypalMode" value="live"><span><strong>Live</strong><small>Real customer payments.</small></span></label>
+              <label class="mode-option"><input type="radio" name="squareMode" value="sandbox" checked><span><strong>Sandbox</strong><small>Test payments. No real money moves.</small></span></label>
+              <label class="mode-option"><input type="radio" name="squareMode" value="production"><span><strong>Production</strong><small>Real customer payments.</small></span></label>
             </div>
 
-            <label>PayPal Client ID
-              <input id="clientId" type="text" required spellcheck="false" autocomplete="off" placeholder="Paste Client ID from PayPal Apps & Credentials">
+            <label>Square Application ID
+              <input id="appId" type="text" required spellcheck="false" autocomplete="off" placeholder="Paste Application ID from Square Developer Console">
             </label>
 
-            <label>PayPal Client Secret
+            <label>Square Location ID
+              <input id="locationId" type="text" required spellcheck="false" autocomplete="off" placeholder="Paste Location ID from Square Developer Console">
+            </label>
+
+            <label>Square Access Token
               <div class="secret-field">
-                <input id="clientSecret" type="password" required spellcheck="false" autocomplete="new-password" placeholder="Paste Client Secret — it will not be displayed again">
-                <button id="toggleSecret" type="button" class="ghost compact">Show</button>
+                <input id="accessToken" type="password" required spellcheck="false" autocomplete="new-password" placeholder="Paste Access Token — it will not be displayed again">
+                <button id="toggleAccessToken" type="button" class="ghost compact">Show</button>
+              </div>
+            </label>
+
+            <label>Square Webhook Signature Key
+              <div class="secret-field">
+                <input id="webhookSignatureKey" type="password" spellcheck="false" autocomplete="new-password" placeholder="Paste Webhook Signature Key — it will not be displayed again">
+                <button id="toggleWebhookKey" type="button" class="ghost compact">Show</button>
               </div>
             </label>
 
             <div class="security-note">
               <strong>Encrypted backend storage</strong>
-              <p>The secret is stored in Supabase Vault, not inside the website files or browser storage. Re-enter a new secret any time to replace it.</p>
+              <p>Secrets are stored in Supabase Vault, not inside the website files or browser storage. Re-enter new values any time to replace them.</p>
+            </div>
+
+            <div class="webhook-url-block">
+              <strong>Square Webhook URL</strong>
+              <p>Add this URL in your Square Developer Console under Webhooks:</p>
+              <code id="webhookUrlDisplay">https://hasewamqjectpfxxwspo.supabase.co/functions/v1/square-webhook</code>
             </div>
 
             <div class="form-actions payment-actions">
-              <button class="primary" type="submit">Save PayPal Connection</button>
+              <button class="primary" type="submit">Save Square Connection</button>
               <button id="testBtn" class="ghost" type="button">Test Connection</button>
               <button id="disconnectBtn" class="ghost danger hidden" type="button">Disconnect</button>
             </div>
@@ -80,13 +98,14 @@
           <ol>
             <li>Sign in to the private Gallery Manager.</li>
             <li>Open <strong>Owner Settings → Payments</strong>.</li>
-            <li>Choose Sandbox while testing, or Live when ready.</li>
-            <li>Paste the PayPal Client ID and Client Secret.</li>
+            <li>Choose Sandbox while testing, or Production when ready.</li>
+            <li>Paste the Square Application ID, Location ID, and Access Token.</li>
+            <li>Optionally paste the Webhook Signature Key.</li>
             <li>Save, then press <strong>Test Connection</strong>.</li>
           </ol>
           <div class="handoff-callout">
-            <strong>No PayPal information is required at website delivery.</strong>
-            <p>The next owner can connect or replace the PayPal account without editing code.</p>
+            <strong>No Square information is required at website delivery.</strong>
+            <p>The next owner can connect or replace the Square account without editing code.</p>
           </div>
         </aside>
       </div>
