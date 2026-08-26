@@ -20,6 +20,17 @@ function showError(message) {
   e.returnGallery.classList.remove("hidden");
 }
 
+async function checkStatus(orderId) {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/square-checkout`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "status", order_id: orderId })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Square confirmation failed.");
+  return data;
+}
+
 async function boot() {
   const params = new URLSearchParams(location.search);
   const provider = params.get("provider");
@@ -33,13 +44,23 @@ async function boot() {
   e.message.textContent = "Please keep this page open while Square confirms your payment with Olive Vintage Gallery.";
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/square-checkout`, {
-      method: "POST",
-      headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "capture", order_id: orderId })
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.completed) throw new Error(data.error || "Square confirmation is still pending.");
+    let data = await checkStatus(orderId);
+
+    // If payment is still pending, retry a few times before giving up
+    if (!data.completed && data.pending) {
+      const maxRetries = 4;
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      for (let i = 0; i < maxRetries; i++) {
+        await delay(2500);
+        data = await checkStatus(orderId);
+        if (data.completed) break;
+      }
+    }
+
+    if (!data.completed) {
+      throw new Error(data.error || "Square payment confirmation is still pending. Please contact the gallery.");
+    }
+
     e.spinner.className = "checkout-spinner done";
     e.eyebrow.textContent = "ACQUISITION CONFIRMED";
     e.title.textContent = "Thank you. This piece is yours.";

@@ -47,7 +47,7 @@
           <form id="squareForm" class="payment-form" autocomplete="off">
             <div class="mode-picker">
               <label class="mode-option"><input type="radio" name="squareMode" value="sandbox" checked><span><strong>Sandbox</strong><small>Test payments. No real money moves.</small></span></label>
-              <label class="mode-option"><input type="radio" name="squareMode" value="production"><span><strong>Production</strong><small>Real customer payments.</small></span></label>
+              <label class="mode-option"><input type="radio" name="squareMode" value="live"><span><strong>Live</strong><small>Real customer payments.</small></span></label>
             </div>
 
             <label>Square Application ID
@@ -67,8 +67,8 @@
 
             <label>Square Webhook Signature Key
               <div class="secret-field">
-                <input id="webhookSignatureKey" type="password" spellcheck="false" autocomplete="new-password" placeholder="Paste Webhook Signature Key — it will not be displayed again">
-                <button id="toggleWebhookKey" type="button" class="ghost compact">Show</button>
+                <input id="webhookSignature" type="password" spellcheck="false" autocomplete="new-password" placeholder="Paste Webhook Signature Key — it will not be displayed again">
+                <button id="toggleWebhookSignature" type="button" class="ghost compact">Show</button>
               </div>
             </label>
 
@@ -98,7 +98,7 @@
           <ol>
             <li>Sign in to the private Gallery Manager.</li>
             <li>Open <strong>Owner Settings → Payments</strong>.</li>
-            <li>Choose Sandbox while testing, or Production when ready.</li>
+            <li>Choose Sandbox while testing, or Live when ready.</li>
             <li>Paste the Square Application ID, Location ID, and Access Token.</li>
             <li>Optionally paste the Webhook Signature Key.</li>
             <li>Save, then press <strong>Test Connection</strong>.</li>

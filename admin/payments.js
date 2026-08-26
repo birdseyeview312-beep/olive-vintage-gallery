@@ -9,11 +9,13 @@ const e = {
   appIdHint: $("appIdHint"), locationHint: $("locationHint"),
   squareForm: $("squareForm"), appId: $("appId"), locationId: $("locationId"),
   accessToken: $("accessToken"), toggleAccessToken: $("toggleAccessToken"),
-  webhookSignatureKey: $("webhookSignatureKey"), toggleWebhookKey: $("toggleWebhookKey"),
+  webhookSignature: $("webhookSignature"), toggleWebhookSignature: $("toggleWebhookSignature"),
   testBtn: $("testBtn"), disconnectBtn: $("disconnectBtn"), saveMessage: $("saveMessage")
 };
 let session = null;
-let paymentStatus = { configured:false, mode:"sandbox", app_id_hint:null, location_id_hint:null };
+// API returns: configured, enabled, mode ("sandbox"|"live"), application_id, location_id,
+//              access_token_hint, webhook_configured
+let paymentStatus = { configured: false, mode: "sandbox", application_id: null, location_id: null };
 const isAdmin = () => session?.user?.app_metadata?.olive_role === "admin";
 
 function setMessage(text, type="") {
@@ -24,7 +26,7 @@ function setBusy(busy) {
   [...e.squareForm.querySelectorAll("button,input")].forEach(el => el.disabled = busy);
 }
 function setMode(mode) {
-  const radio = e.squareForm.querySelector(`input[name="squareMode"][value="${mode === "production" ? "production" : "sandbox"}"]`);
+  const radio = e.squareForm.querySelector(`input[name="squareMode"][value="${mode === "live" ? "live" : "sandbox"}"]`);
   if (radio) radio.checked = true;
 }
 function renderStatus() {
@@ -34,28 +36,33 @@ function renderStatus() {
   e.connectedSummary.classList.toggle("hidden", !configured);
   e.disconnectBtn.classList.toggle("hidden", !configured);
   e.connectionText.textContent = configured ? "Connected" : "Not connected";
-  e.savedMode.textContent = paymentStatus.mode === "production" ? "Production" : "Sandbox";
-  e.appIdHint.textContent = paymentStatus.app_id_hint ? `••••••${paymentStatus.app_id_hint}` : "—";
-  e.locationHint.textContent = paymentStatus.location_id_hint ? `••••••${paymentStatus.location_id_hint}` : "—";
+  e.savedMode.textContent = paymentStatus.mode === "live" ? "Live" : "Sandbox";
+  e.appIdHint.textContent = paymentStatus.application_id ? `●●●●●●${String(paymentStatus.application_id).slice(-6)}` : "—";
+  e.locationHint.textContent = paymentStatus.location_id ? `●●●●●●${String(paymentStatus.location_id).slice(-6)}` : "—";
   setMode(paymentStatus.mode);
   if (configured) {
     e.appId.value = "";
     e.locationId.value = "";
     e.accessToken.value = "";
-    e.webhookSignatureKey.value = "";
+    e.webhookSignature.value = "";
     e.appId.placeholder = "Enter a new Application ID only when replacing the connection";
-    e.locationId.placeholder = "Enter a new Location ID only when replacing the connection";
-    e.accessToken.placeholder = "Enter a new Access Token only when replacing the connection";
-    e.webhookSignatureKey.placeholder = "Enter a new Webhook Signature Key only when replacing";
+    e.locationId.placeholder = "Required — enter Location ID";
+    e.accessToken.placeholder = "Leave blank to keep the saved Access Token";
+    e.webhookSignature.placeholder = "Leave blank to keep the saved Webhook Signature Key";
+  } else {
+    e.appId.placeholder = "Paste Application ID from Square Developer Console";
+    e.locationId.placeholder = "Paste Location ID from Square Developer Console";
+    e.accessToken.placeholder = "Paste Access Token — it will not be displayed again";
+    e.webhookSignature.placeholder = "Paste Webhook Signature Key — it will not be displayed again";
   }
 }
 async function callSettings(method="GET", body=null) {
-  const { data:{ session: current } } = await supabase.auth.getSession();
+  const { data: { session: current } } = await supabase.auth.getSession();
   if (!current?.access_token) throw new Error("Owner sign-in has expired. Sign in again.");
   const response = await fetch(`${SUPABASE_URL}/functions/v1/square-settings`, {
     method,
     headers: {
-      Authorization: `******
+            Authorization: `Bearer ${current.access_token}`,
       apikey: SUPABASE_ANON_KEY,
       "Content-Type": "application/json"
     },
@@ -84,7 +91,7 @@ function renderAccess() {
   if (session && !ok) e.accessMessage.textContent = "This signed-in account does not have Olive Vintage owner access.";
 }
 async function boot() {
-  const { data:{ session:s } } = await supabase.auth.getSession();
+  const { data: { session: s } } = await supabase.auth.getSession();
   session = s;
   renderAccess();
   if (isAdmin()) await loadStatus();
@@ -101,28 +108,37 @@ e.toggleAccessToken.onclick = () => {
   e.accessToken.type = visible ? "password" : "text";
   e.toggleAccessToken.textContent = visible ? "Show" : "Hide";
 };
-e.toggleWebhookKey.onclick = () => {
-  const visible = e.webhookSignatureKey.type === "text";
-  e.webhookSignatureKey.type = visible ? "password" : "text";
-  e.toggleWebhookKey.textContent = visible ? "Show" : "Hide";
+e.toggleWebhookSignature.onclick = () => {
+  const visible = e.webhookSignature.type === "text";
+  e.webhookSignature.type = visible ? "password" : "text";
+  e.toggleWebhookSignature.textContent = visible ? "Show" : "Hide";
 };
 
 e.squareForm.onsubmit = async ev => {
   ev.preventDefault();
-  const appId = e.appId.value.trim();
+  const applicationId = e.appId.value.trim();
   const locationId = e.locationId.value.trim();
   const accessToken = e.accessToken.value.trim();
-  const webhookSignatureKey = e.webhookSignatureKey.value.trim();
+  const webhookSignature = e.webhookSignature.value.trim();
   const mode = e.squareForm.querySelector('input[name="squareMode"]:checked')?.value || "sandbox";
-  if (!appId || !locationId || !accessToken) {
-    setMessage(paymentStatus.configured ? "To replace the Square connection, enter the Application ID, Location ID, and Access Token." : "Enter the Square Application ID, Location ID, and Access Token.", "error");
+
+  // When already configured, access_token is optional; location_id is always required
+  const needsToken = !paymentStatus.configured;
+  if (!applicationId || !locationId || (needsToken && !accessToken)) {
+    setMessage(
+      paymentStatus.configured
+        ? "Enter the Application ID and Location ID (Access Token optional to keep existing)."
+        : "Enter the Square Application ID, Location ID, and Access Token.",
+      "error"
+    );
     return;
   }
-  if (mode === "production" && !confirm("Switch Square to Production mode? Real customer payments will use this connection once checkout is enabled.")) return;
+  if (mode === "live" && !confirm("Switch Square to Live mode? Real customer payments will use this connection once checkout is enabled.")) return;
   setBusy(true); setMessage("Encrypting and saving Square credentials…");
   try {
-    const body = { app_id:appId, location_id:locationId, access_token:accessToken, mode };
-    if (webhookSignatureKey) body.webhook_signature_key = webhookSignatureKey;
+    const body = { application_id: applicationId, location_id: locationId, mode };
+    if (accessToken) body.access_token = accessToken;
+    if (webhookSignature) body.webhook_signature = webhookSignature;
     paymentStatus = await callSettings("POST", body);
     renderStatus();
     setMessage("Square credentials saved securely. Use Test Connection to verify them.", "success");
@@ -134,8 +150,8 @@ e.squareForm.onsubmit = async ev => {
 e.testBtn.onclick = async () => {
   setBusy(true); setMessage("Testing directly with Square…");
   try {
-    const result = await callSettings("POST", { action:"test" });
-    setMessage(`Square connection verified in ${result.mode === "production" ? "Production" : "Sandbox"} mode.`, "success");
+    const result = await callSettings("POST", { action: "test" });
+    setMessage(`Square connection verified in ${result.mode === "live" ? "Live" : "Sandbox"} mode.`, "success");
   } catch (error) {
     setMessage(error.message, "error");
   } finally { setBusy(false); }
