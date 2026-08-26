@@ -114,3 +114,14 @@
     no-repeat,
     no-repeat !important;
 }
+/* American Art Glass image replacement */
+
+.category-grid .category-card:nth-child(3) .category-photo{
+  background:
+    url("./assets/products/american-art-glass-purple-vase.jpg")
+    center/cover no-repeat !important;
+}
+
+.category-grid .category-card:nth-child(3) .category-photo > img{
+  opacity:0 !important;
+}
