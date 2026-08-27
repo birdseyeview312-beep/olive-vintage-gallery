@@ -1,11 +1,10 @@
 import { supabase } from "./supabase-client.js";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const $ = id => document.getElementById(id);
 const e = {
   accessPanel: $("accessPanel"), accessMessage: $("accessMessage"), auctionApp: $("auctionApp"), sessionEmail: $("sessionEmail"), signOutBtn: $("signOutBtn"),
   eventList: $("eventList"), newEventBtn: $("newEventBtn"), eventForm: $("eventForm"), eventId: $("eventId"), eventEditorTitle: $("eventEditorTitle"), eventTitle: $("eventTitle"), eventSlug: $("eventSlug"), eventSubtitle: $("eventSubtitle"), eventStatus: $("eventStatus"), eventDescription: $("eventDescription"), eventStarts: $("eventStarts"), eventEnds: $("eventEnds"), eventStream: $("eventStream"), eventHeroImage: $("eventHeroImage"), eventSoftClose: $("eventSoftClose"), eventPublished: $("eventPublished"), eventRegistrationOpen: $("eventRegistrationOpen"), eventApproval: $("eventApproval"), eventSaveMessage: $("eventSaveMessage"), deleteEventBtn: $("deleteEventBtn"),
-  liveVideoPanel: $("liveVideoPanel"), liveVideoStreamPill: $("liveVideoStreamPill"), liveVideoCreateBtn: $("liveVideoCreateBtn"), liveVideoRefreshBtn: $("liveVideoRefreshBtn"), liveVideoMessage: $("liveVideoMessage"),
+  liveVideoPanel: $("liveVideoPanel"), liveVideoStreamPill: $("liveVideoStreamPill"), liveVideoMessage: $("liveVideoMessage"),
   lotWorkspace: $("lotWorkspace"), lotList: $("lotList"), lotCount: $("lotCount"), newLotBtn: $("newLotBtn"), lotForm: $("lotForm"), lotId: $("lotId"), lotProduct: $("lotProduct"), lotNumber: $("lotNumber"), lotTitle: $("lotTitle"), lotMaker: $("lotMaker"), lotDescription: $("lotDescription"), lotStartingBid: $("lotStartingBid"), lotIncrement: $("lotIncrement"), lotBuyNow: $("lotBuyNow"), lotStatus: $("lotStatus"), lotOpens: $("lotOpens"), lotCloses: $("lotCloses"), lotImageStrip: $("lotImageStrip"), lotCurrentBid: $("lotCurrentBid"), lotBidCount: $("lotBidCount"), lotLeader: $("lotLeader"), winningBidPanel: $("winningBidPanel"), deleteLotBtn: $("deleteLotBtn"), lotSaveMessage: $("lotSaveMessage"),
   bidderWorkspace: $("bidderWorkspace"), bidderList: $("bidderList"), bidderCount: $("bidderCount")
 };
@@ -19,31 +18,16 @@ const admin = () => session?.user?.app_metadata?.olive_role === "admin";
 function msg(el, t, err = false) { if (!el) return; el.textContent = t || ""; el.style.color = err ? "#d58a83" : ""; }
 function slugify(s) { return String(s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); }
 
-async function callLiveVideo(body) {
-  const { data: { session: s } } = await supabase.auth.getSession();
-  if (!s?.access_token) throw new Error("Owner sign-in has expired. Sign in again.");
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/cloudflare-realtime`, {
-    method: "POST",
-    headers: { Authorization: "Bearer " + s.access_token, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.error || "Cloudflare Realtime request failed.");
-  return data;
-}
-function setLiveVideoBusy(busy) { [e.liveVideoCreateBtn, e.liveVideoRefreshBtn].forEach(b => { if (b) b.disabled = busy; }); }
 function hasLiveVideoStream(eventRow) { return !!eventRow?.stream_embed_url; }
 function renderLiveVideoPanel() {
   if (!e.liveVideoPanel) return;
   const saved = !!selectedEvent?.id;
   const created = hasLiveVideoStream(selectedEvent);
   e.liveVideoPanel.classList.toggle("disabled-panel", !saved);
-  e.liveVideoCreateBtn.classList.toggle("hidden", !saved || created);
-  e.liveVideoRefreshBtn.classList.toggle("hidden", !created);
   e.liveVideoStreamPill.className = "connection-pill";
-  e.liveVideoStreamPill.textContent = !saved ? "Save first" : created ? "Broadcast ready" : "Not created";
+  e.liveVideoStreamPill.textContent = !saved ? "Save first" : created ? "Playback ready" : "Player URL needed";
   if (created) e.liveVideoStreamPill.classList.add("connected");
-  msg(e.liveVideoMessage, !saved ? "Save this auction before creating its live-video broadcast." : created ? "Cloudflare Realtime playback is attached to this auction." : "Create a Cloudflare Realtime broadcast when you are ready to stream.");
+  msg(e.liveVideoMessage, !saved ? "Save this auction before adding live playback." : created ? "Cloudflare Stream playback is attached to this auction." : "Paste the Cloudflare Stream player URL above, then save the auction.");
 }
 
 async function boot() { const { data: { session: s } } = await supabase.auth.getSession(); session = s; renderAccess(); supabase.auth.onAuthStateChange(async (_x, s2) => { session = s2; renderAccess(); if (admin()) await loadAll(); }); if (admin()) await loadAll(); }
@@ -58,45 +42,6 @@ function clearEvent() { selectedEvent = null; e.eventForm.reset(); e.eventId.val
 e.newEventBtn.onclick = clearEvent; e.eventTitle.addEventListener("blur", () => { if (!e.eventSlug.value) e.eventSlug.value = slugify(e.eventTitle.value); });
 e.eventForm.onsubmit = async ev => { ev.preventDefault(); msg(e.eventSaveMessage, "Saving…"); const payload = { title: e.eventTitle.value.trim(), slug: e.eventSlug.value.trim(), subtitle: e.eventSubtitle.value.trim() || null, description: e.eventDescription.value.trim() || null, status: e.eventStatus.value, starts_at: iso(e.eventStarts.value), ends_at: iso(e.eventEnds.value), stream_embed_url: e.eventStream.value.trim() || null, hero_image: e.eventHeroImage.value.trim() || null, soft_close_seconds: Number(e.eventSoftClose.value || 15), published: e.eventPublished.checked, registration_open: e.eventRegistrationOpen.checked, require_approval: e.eventApproval.checked }; let res; if (e.eventId.value) res = await supabase.from("auction_events").update(payload).eq("id", e.eventId.value).select().single(); else res = await supabase.from("auction_events").insert(payload).select().single(); if (res.error) { msg(e.eventSaveMessage, res.error.message, true); return; } selectedEvent = res.data; msg(e.eventSaveMessage, "Saved."); await loadEvents(); await loadEventChildren(); };
 e.deleteEventBtn.onclick = async () => { if (!selectedEvent || !confirm("Delete this auction and all of its lots, registrations, and bids?")) return; const { error } = await supabase.from("auction_events").delete().eq("id", selectedEvent.id); if (error) { msg(e.eventSaveMessage, error.message, true); return; } selectedEvent = null; await loadEvents(); e.lotWorkspace.classList.add("hidden"); e.bidderWorkspace.classList.add("hidden"); renderLiveVideoPanel(); };
-
-if (e.liveVideoCreateBtn) e.liveVideoCreateBtn.onclick = async () => {
-  if (!selectedEvent?.id) return;
-  setLiveVideoBusy(true);
-  msg(e.liveVideoMessage, "Creating Cloudflare Realtime broadcast…");
-  try {
-    const data = await callLiveVideo({ action: "create_stream", auction_id: selectedEvent.id });
-    const playerUrl = data.player_url || data.embed_url || data.stream_embed_url || "";
-    if (!playerUrl) throw new Error("Cloudflare Realtime did not return a playback URL.");
-    selectedEvent.stream_embed_url = playerUrl;
-    e.eventStream.value = playerUrl;
-    e.liveVideoStreamPill.textContent = "Broadcast ready";
-    e.liveVideoStreamPill.classList.add("connected");
-    e.liveVideoCreateBtn.classList.add("hidden");
-    e.liveVideoRefreshBtn.classList.remove("hidden");
-    msg(e.liveVideoMessage, "Broadcast created and attached to this auction.");
-    await loadEvents();
-  } catch (err) {
-    msg(e.liveVideoMessage, err.message, true);
-  } finally {
-    setLiveVideoBusy(false);
-  }
-};
-if (e.liveVideoRefreshBtn) e.liveVideoRefreshBtn.onclick = async () => {
-  if (!selectedEvent?.id) return;
-  setLiveVideoBusy(true);
-  msg(e.liveVideoMessage, "Checking live-video signal…");
-  try {
-    const data = await callLiveVideo({ action: "stream_status", auction_id: selectedEvent.id });
-    const status = data.status || "unknown";
-    e.liveVideoStreamPill.textContent = status === "active" ? "LIVE SIGNAL" : status.toUpperCase();
-    e.liveVideoStreamPill.classList.toggle("live-signal", status === "active");
-    msg(e.liveVideoMessage, status === "active" ? "Cloudflare Realtime is receiving your live broadcast." : `Cloudflare stream status: ${status}. Start your broadcaster when ready.`);
-  } catch (err) {
-    msg(e.liveVideoMessage, err.message, true);
-  } finally {
-    setLiveVideoBusy(false);
-  }
-};
 
 async function loadEventChildren() { if (!selectedEvent) return; const [l, r] = await Promise.all([supabase.from("auction_lots").select("*").eq("auction_id", selectedEvent.id).order("lot_number"), supabase.from("auction_registrations").select("*").eq("auction_id", selectedEvent.id).order("created_at")]); lots = l.data || []; registrations = r.data || []; if (selectedLot) selectedLot = lots.find(x => x.id === selectedLot.id) || null; renderLots(); renderRegistrations(); }
 function renderLots() { e.lotCount.textContent = `${lots.length} lot${lots.length === 1 ? "" : "s"}`; e.lotList.innerHTML = lots.map(l => `<button class="lot-admin-row ${selectedLot?.id === l.id ? "active" : ""}" data-lot="${l.id}">${l.images?.[0] ? `<img class="lot-admin-thumb" src="${esc(l.images[0])}" alt="">` : '<div class="lot-admin-thumb"></div>'}<div><h3>Lot ${l.lot_number} · ${esc(l.title)}</h3><p>${money(l.current_bid ?? l.starting_bid)} · ${l.bid_count} bids</p></div><span class="status-${l.status}">${esc(l.status)}</span></button>`).join("") || '<p class="muted">No lots yet.</p>'; e.lotList.querySelectorAll("[data-lot]").forEach(b => b.onclick = () => { selectedLot = lots.find(x => x.id === b.dataset.lot); fillLot(selectedLot); renderLots(); }); }

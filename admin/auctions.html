@@ -41,18 +41,17 @@
             <div class="grid two"><label>Subtitle<input id="eventSubtitle"></label><label>Status<select id="eventStatus"><option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option><option value="cancelled">Cancelled</option></select></label></div>
             <label>Description<textarea id="eventDescription" rows="3"></textarea></label>
             <div class="grid two"><label>Starts<input id="eventStarts" type="datetime-local"></label><label>Ends<input id="eventEnds" type="datetime-local"></label></div>
-            <label>Live video embed URL<input id="eventStream" type="url" placeholder="Automatically filled by Cloudflare Realtime, or paste a supported embed URL"></label>
+            <label>Live video embed URL<input id="eventStream" type="url" placeholder="Paste the Cloudflare Stream player URL"></label>
 
             <section id="liveVideoPanel" class="live-video-panel">
               <div class="live-video-panel-head">
-                <div><div class="eyebrow">CLOUDFLARE REALTIME</div><h3>Broadcast setup</h3></div>
+                <div><div class="eyebrow">CLOUDFLARE STREAM</div><h3>Live auction playback</h3></div>
                 <span id="liveVideoStreamPill" class="connection-pill">Not created</span>
               </div>
-              <p class="muted live-video-intro">Create a Cloudflare Realtime broadcast for this auction. The public playback URL is attached automatically to the auction stream field.</p>
+              <p class="muted live-video-intro">Create and operate the live input in Cloudflare Stream, then paste its public player URL in the field above. Stream keys stay private in Cloudflare and your broadcasting software.</p>
               <div class="live-video-actions">
-                <button id="liveVideoCreateBtn" class="primary" type="button">Create Broadcast</button>
-                <button id="liveVideoRefreshBtn" class="ghost hidden" type="button">Check Signal</button>
-                <a class="ghost live-video-settings-link" href="./video.html">Live Video Settings</a>
+                <a class="primary live-video-settings-link" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">Open Cloudflare Stream</a>
+                <a class="ghost live-video-settings-link" href="./video.html">Private Realtime Settings</a>
               </div>
               <p id="liveVideoMessage" class="message"></p>
             </section>
