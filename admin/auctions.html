@@ -41,33 +41,20 @@
             <div class="grid two"><label>Subtitle<input id="eventSubtitle"></label><label>Status<select id="eventStatus"><option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="ended">Ended</option><option value="cancelled">Cancelled</option></select></label></div>
             <label>Description<textarea id="eventDescription" rows="3"></textarea></label>
             <div class="grid two"><label>Starts<input id="eventStarts" type="datetime-local"></label><label>Ends<input id="eventEnds" type="datetime-local"></label></div>
-            <label>Live video embed URL<input id="eventStream" type="url" placeholder="Automatically filled by Mux, or paste a supported embed URL"></label>
+            <label>Live video embed URL<input id="eventStream" type="url" placeholder="Automatically filled by Cloudflare Realtime, or paste a supported embed URL"></label>
 
-            <section id="muxPanel" class="mux-broadcast-panel">
-              <div class="mux-panel-head">
-                <div><div class="eyebrow">MUX LIVE VIDEO</div><h3>Broadcast setup</h3></div>
-                <span id="muxStreamPill" class="connection-pill">Not created</span>
+            <section id="liveVideoPanel" class="live-video-panel">
+              <div class="live-video-panel-head">
+                <div><div class="eyebrow">CLOUDFLARE REALTIME</div><h3>Broadcast setup</h3></div>
+                <span id="liveVideoStreamPill" class="connection-pill">Not created</span>
               </div>
-              <p class="muted mux-intro">Create a low-latency Mux broadcast for this auction. The safe player URL is attached automatically; the private stream key is available only here to the signed-in owner.</p>
-              <div class="mux-actions">
-                <button id="muxCreateBtn" class="primary" type="button">Create Mux Broadcast</button>
-                <button id="muxDetailsBtn" class="ghost hidden" type="button">Show Broadcast Details</button>
-                <button id="muxRefreshBtn" class="ghost hidden" type="button">Check Signal</button>
-                <a class="ghost mux-settings-link" href="./video.html">Live Video Settings</a>
+              <p class="muted live-video-intro">Create a Cloudflare Realtime broadcast for this auction. The public playback URL is attached automatically to the auction stream field.</p>
+              <div class="live-video-actions">
+                <button id="liveVideoCreateBtn" class="primary" type="button">Create Broadcast</button>
+                <button id="liveVideoRefreshBtn" class="ghost hidden" type="button">Check Signal</button>
+                <a class="ghost live-video-settings-link" href="./video.html">Live Video Settings</a>
               </div>
-              <p id="muxMessage" class="message"></p>
-              <div id="muxDetails" class="mux-details hidden">
-                <label>RTMPS Server
-                  <div class="mux-copy-row"><input id="muxRtmps" readonly><button id="muxCopyServer" class="ghost compact" type="button">Copy</button></div>
-                </label>
-                <label>Private Stream Key
-                  <div class="mux-copy-row"><input id="muxStreamKey" type="password" readonly><button id="muxToggleKey" class="ghost compact" type="button">Show</button><button id="muxCopyKey" class="ghost compact" type="button">Copy</button></div>
-                </label>
-                <label>Public Mux Player URL
-                  <div class="mux-copy-row"><input id="muxPlayerUrl" readonly><button id="muxCopyPlayer" class="ghost compact" type="button">Copy</button></div>
-                </label>
-                <div class="mux-key-warning"><strong>Keep the Stream Key private.</strong> Anyone with it can broadcast into this auction's video feed.</div>
-              </div>
+              <p id="liveVideoMessage" class="message"></p>
             </section>
             <div class="grid two"><label>Hero image URL<input id="eventHeroImage" type="url"></label><label>Soft close (seconds)<input id="eventSoftClose" type="number" min="5" max="60" value="15"></label></div>
             <div class="flags">
