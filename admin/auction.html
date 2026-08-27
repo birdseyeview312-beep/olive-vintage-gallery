@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Olive Vintage Live Auctions — curated art glass and singular objects offered live from Olive Vintage Gallery.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://www.olivevintage.store/auction.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Olive Vintage Gallery">
+  <meta property="og:title" content="Live Auctions — Olive Vintage Gallery">
+  <meta property="og:description" content="Selected art glass offered live with real-time bidding from Olive Vintage Gallery.">
+  <meta property="og:url" content="https://www.olivevintage.store/auction.html">
+  <meta property="og:image" content="https://www.olivevintage.store/assets/products/blue-bird-glass-sculpture.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0b0d0a">
+  <title>Live Auctions — Olive Vintage Gallery</title>
+  <link rel="icon" href="./assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./auction.css">
+  <link rel="stylesheet" href="./scroll-reveal.css">
+</head>
+<body class="auction-page">
+  <header class="site-header scrolled auction-header">
+    <a class="brand" href="./index.html" aria-label="Olive Vintage Gallery home">
+      <span class="brand-image-wrap"><img src="./assets/olive-brand.jpg" alt=""></span>
+      <span class="brand-text"><strong>OLIVE VINTAGE</strong><span>GALLERY</span></span>
+    </a>
+    <button id="menuBtn" class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav id="nav" class="nav">
+      <a href="./index.html#collection">Collection</a>
+      <a class="active" href="./auction.html">Live Auctions</a>
+      <a href="./index.html#story">Our Story</a>
+      <a href="./index.html#contact">Contact</a>
+      <a class="nav-cta" href="./admin/admin.html">Gallery Manager</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="auction-hero">
+      <div class="auction-hero-glow"></div>
+      <div class="auction-hero-copy">
+        <p class="eyebrow">OLIVE VINTAGE · LIVE</p>
+        <h1>The gallery,<br><em>offered live.</em></h1>
+        <p>Once or twice each month, selected objects move from the gallery floor to a live auction room built for Olive Vintage collectors.</p>
+        <div class="auction-hero-actions">
+          <a class="button primary" href="#live-room">Enter the Auction Room</a>
+          <a class="button text" href="#how-it-works">How bidding works</a>
+        </div>
+      </div>
+      <div class="auction-hero-status" aria-live="polite">
+        <div class="live-orb"><span></span></div>
+        <p id="eventKicker">NEXT AUCTION</p>
+        <h2 id="eventHeroTitle">A new live auction is being curated.</h2>
+        <div id="eventHeroDate" class="auction-date">Dates announced here first.</div>
+        <div id="heroCountdown" class="hero-countdown" hidden></div>
+      </div>
+    </section>
+
+    <section id="live-room" class="live-room-shell">
+      <div class="auction-room-head">
+        <div>
+          <p class="eyebrow" id="roomEyebrow">LIVE AUCTION ROOM</p>
+          <h2 id="roomTitle">Olive Vintage Live</h2>
+        </div>
+        <div class="room-status" id="roomStatus"><span></span> NOT LIVE</div>
+      </div>
+
+      <div id="noAuctionState" class="auction-empty-state">
+        <div class="auction-empty-mark">OV</div>
+        <p class="eyebrow">PRIVATE PREVIEW IN PREPARATION</p>
+        <h3>The next catalog is being assembled.</h3>
+        <p>When the auction is announced, every lot, photograph, opening bid and registration link will appear here.</p>
+      </div>
+
+      <div id="auctionExperience" class="auction-experience hidden">
+        <div class="stream-panel">
+          <div id="streamStage" class="stream-stage">
+            <div class="stream-placeholder">
+              <img src="./assets/olive-brand.jpg" alt="Olive Vintage Gallery">
+              <p>LIVE VIDEO</p>
+              <span id="streamMessage">Broadcast begins when the auction goes live.</span>
+            </div>
+          </div>
+          <div class="stream-footer">
+            <div><span class="signal-dot"></span><strong id="streamStatus">PREVIEW</strong></div>
+            <span id="eventDateLine">Date to be announced</span>
+          </div>
+        </div>
+
+        <aside class="current-lot-panel">
+          <div class="lot-topline"><span id="currentLotNumber">LOT —</span><span id="lotClock">—:—</span></div>
+          <div id="currentLotImage" class="current-lot-image"><div class="lot-image-placeholder">Lot preview</div></div>
+          <div class="current-lot-copy">
+            <p class="eyebrow" id="currentLotMaker">OLIVE VINTAGE GALLERY</p>
+            <h3 id="currentLotTitle">Select a lot to preview</h3>
+            <p id="currentLotDescription" class="lot-description"></p>
+            <div class="bid-ledger">
+              <div><span>CURRENT BID</span><strong id="currentBid">—</strong></div>
+              <div><span>BIDS</span><strong id="bidCount">0</strong></div>
+            </div>
+            <p id="leadingBidder" class="leading-bidder"></p>
+
+            <form id="bidForm" class="bid-form">
+              <label for="bidAmount">Your bid</label>
+              <div class="bid-input-wrap"><span>$</span><input id="bidAmount" type="number" min="0" step="0.01" inputmode="decimal" disabled></div>
+              <button id="bidButton" class="button primary bid-button" type="submit" disabled>Register to Bid</button>
+              <p id="bidMessage" class="auction-message" aria-live="polite"></p>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="auction-account section-pad">
+      <div class="section-head">
+        <div><p class="eyebrow">BIDDER ACCESS</p><h2>One account. Your paddle.</h2></div>
+        <p class="section-note">Sign in by email, register for the announced auction, then bid from any phone, tablet or computer.</p>
+      </div>
+      <div class="bidder-grid">
+        <div class="bidder-card" id="signedOutCard">
+          <span class="card-number">01</span>
+          <h3>Sign in securely</h3>
+          <p>Enter your email and we’ll send a secure sign-in link. No bidder password is required.</p>
+          <form id="magicLinkForm" class="auction-form">
+            <label>Email address<input id="bidderEmail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+            <button type="submit" class="button primary">Send Sign-In Link</button>
+            <p id="authMessage" class="auction-message"></p>
+          </form>
+        </div>
+
+        <div class="bidder-card hidden" id="signedInCard">
+          <span class="card-number">01</span>
+          <h3>You’re signed in</h3>
+          <p id="signedInEmail"></p>
+          <button id="signOutAuction" class="button text" type="button">Sign out</button>
+        </div>
+
+        <div class="bidder-card" id="registrationCard">
+          <span class="card-number">02</span>
+          <h3>Register your paddle</h3>
+          <p id="registrationIntro">Registration opens when an auction is announced.</p>
+          <form id="registrationForm" class="auction-form hidden">
+            <label>Bidder display name<input id="displayName" maxlength="30" minlength="2" required placeholder="Collector 312"></label>
+            <label class="auction-check"><input id="acceptTerms" type="checkbox" required><span>I agree to the <a href="./auction-terms.html" target="_blank" rel="noopener">Olive Vintage Auction Terms</a> and understand winning bids create a payment obligation.</span></label>
+            <button id="registerButton" class="button primary" type="submit">Register to Bid</button>
+            <p id="registrationMessage" class="auction-message"></p>
+          </form>
+          <div id="registrationStatus" class="registration-status hidden"></div>
+        </div>
+
+        <div class="bidder-card">
+          <span class="card-number">03</span>
+          <h3>Win &amp; checkout</h3>
+          <p>Winning bidders receive secure checkout instructions after the lot closes. Payment methods and shipping terms are confirmed with each published auction before bidding opens.</p>
+          <span class="secure-note">PAYMENT · SHIPPING · CONFIRMATION</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="catalog" class="auction-catalog section-pad">
+      <div class="section-head">
+        <div><p class="eyebrow">AUCTION CATALOG</p><h2>Lots in the room.</h2></div>
+        <p class="section-note" id="catalogNote">The catalog will appear as soon as the first auction is published.</p>
+      </div>
+      <div id="lotGrid" class="lot-grid"><div class="catalog-placeholder">No published lots yet.</div></div>
+    </section>
+
+    <section id="how-it-works" class="auction-how section-pad">
+      <div class="section-number">LIVE</div>
+      <div>
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2>Fast bidding.<br><em>Gallery-level control.</em></h2>
+        <div class="auction-steps">
+          <article><span>01</span><h3>Preview</h3><p>Review the full catalog and every available photograph before the event.</p></article>
+          <article><span>02</span><h3>Register</h3><p>Sign in by email and activate your bidder paddle for that specific auction.</p></article>
+          <article><span>03</span><h3>Bid live</h3><p>The server validates every bid in order. Late bids automatically extend the lot to prevent sniping.</p></article>
+          <article><span>04</span><h3>Checkout</h3><p>Winning lots move to secure payment and are immediately protected from double-selling.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>OLIVE VINTAGE GALLERY</strong><span>Contemporary · Vintage · Antique · Studio Art Glass</span></div>
+    <div><a href="./index.html">Gallery</a><a href="./auction-terms.html">Auction Terms</a><a href="mailto:Olivejewelvintage@gmail.com">Contact</a></div>
+    <p>© <span id="year"></span> Olive Vintage Gallery</p>
+  </footer>
+
+  <script defer src="./scroll-reveal.js"></script>
+
+  <script type="module" src="./auction.js"></script>
+</body>
+</html>
