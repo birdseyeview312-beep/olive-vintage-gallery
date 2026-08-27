@@ -349,7 +349,7 @@ async function beginBuyNow() {
   els.spotlightBuy.disabled = true;
   els.spotlightBuy.textContent = "Opening checkout…";
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/paypal-checkout`, {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/square-checkout`, {
       method: "POST",
       headers: { apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({ action: "create", product_id: currentSpotlight.id }),

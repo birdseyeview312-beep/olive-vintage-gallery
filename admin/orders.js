@@ -8,15 +8,15 @@ function money(v){return new Intl.NumberFormat("en-US",{style:"currency",currenc
 function when(v){return v?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(v)):"—";}
 
 async function loadWebOrders(){
-  const {data,error}=await supabase.from("web_orders").select("id,product_id,paypal_order_id,status,fulfillment_status,amount,currency,buyer_email,buyer_name,paid_at,created_at,products(title,inventory_number)").order("created_at",{ascending:false});
+  const {data,error}=await supabase.from("web_orders").select("id,product_id,status,fulfillment_status,amount,currency,buyer_email,buyer_name,paid_at,created_at,products(title,inventory_number)").order("created_at",{ascending:false});
   if(error){e.webOrdersList.innerHTML=`<p class="message">${esc(error.message)}</p>`;return;}
   const rows=data||[];e.webOrderCount.textContent=rows.filter(x=>x.status==="paid").length;
-  if(!rows.length){e.webOrdersList.innerHTML='<div class="empty-state"><div class="eyebrow">NO WEB ORDERS YET</div><h2>Buy Now orders will appear here.</h2><p>When a customer completes PayPal checkout, the artwork is marked sold and the order is added automatically.</p></div>';return;}
+  if(!rows.length){e.webOrdersList.innerHTML='<div class="empty-state"><div class="eyebrow">NO WEB ORDERS YET</div><h2>Buy Now orders will appear here.</h2><p>When a customer completes Square checkout, the artwork is marked sold and the order is added automatically.</p></div>';return;}
   e.webOrdersList.innerHTML=`<div class="order-row header"><span>Order</span><span>Artwork / Buyer</span><span>Amount</span><span>Payment</span><span>Fulfillment</span></div>`+rows.map(o=>{
     const product=Array.isArray(o.products)?o.products[0]:o.products;
-    const orderRef=(o.paypal_order_id||o.id||"").slice(-10);
+    const orderRef=(o.id||"").slice(-10);
     const options=["unfulfilled","processing","shipped","completed"].map(v=>`<option value="${v}" ${o.fulfillment_status===v?"selected":""}>${v[0].toUpperCase()+v.slice(1)}</option>`).join("");
-    return `<div class="order-row"><strong>${esc(orderRef)}</strong><div><strong>${esc(product?.title||"Gallery artwork")}</strong><div class="order-subline">${esc(product?.inventory_number||"")} ${o.buyer_name?`· ${esc(o.buyer_name)}`:""}</div><div class="buyer-email optional-col">${esc(o.buyer_email||"Buyer email available in PayPal")}</div></div><div class="amount">${money(o.amount)}</div><div class="optional-col"><span class="status-chip ${o.status}">${esc(o.status)}</span><div class="order-subline">${esc(when(o.paid_at||o.created_at))}</div></div><div class="optional-col">${o.status==="paid"?`<select class="fulfillment-select" data-order="${o.id}">${options}</select>`:`<span class="muted">${esc(o.fulfillment_status)}</span>`}</div></div>`;
+    return `<div class="order-row"><strong>${esc(orderRef)}</strong><div><strong>${esc(product?.title||"Gallery artwork")}</strong><div class="order-subline">${esc(product?.inventory_number||"")} ${o.buyer_name?`· ${esc(o.buyer_name)}`:""}</div><div class="buyer-email optional-col">${esc(o.buyer_email||"Buyer email captured at checkout")}</div></div><div class="amount">${money(o.amount)}</div><div class="optional-col"><span class="status-chip ${o.status}">${esc(o.status)}</span><div class="order-subline">${esc(when(o.paid_at||o.created_at))}</div></div><div class="optional-col">${o.status==="paid"?`<select class="fulfillment-select" data-order="${o.id}">${options}</select>`:`<span class="muted">${esc(o.fulfillment_status)}</span>`}</div></div>`;
   }).join("");
   e.webOrdersList.querySelectorAll("[data-order]").forEach(select=>select.onchange=async()=>{
     select.disabled=true;

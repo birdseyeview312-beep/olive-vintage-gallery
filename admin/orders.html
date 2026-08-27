@@ -13,7 +13,7 @@
       <div class="panel orders-intro"><div><div class="eyebrow">FULFILLMENT</div><h2>Sales in one place</h2><p class="muted">Website Buy Now orders and sold auction lots. Buyer details remain in this private owner view.</p></div><div class="order-counts"><div class="winner-count"><span>Web orders</span><strong id="webOrderCount">0</strong></div><div class="winner-count"><span>Auction wins</span><strong id="winnerCount">0</strong></div></div></div>
 
       <section class="orders-section">
-        <div class="section-heading"><div><div class="eyebrow">WEBSITE CHECKOUT</div><h2>Buy Now orders</h2></div><p>PayPal-confirmed website acquisitions appear here automatically.</p></div>
+        <div class="section-heading"><div><div class="eyebrow">WEBSITE CHECKOUT</div><h2>Buy Now orders</h2></div><p>Square-confirmed website acquisitions appear here automatically.</p></div>
         <div class="panel table-panel"><div id="webOrdersList" class="orders-list"><p class="muted">Loading website orders…</p></div></div>
       </section>
 
@@ -22,7 +22,7 @@
         <div class="panel table-panel"><div id="auctionOrdersList" class="orders-list"><p class="muted">Loading winner records…</p></div></div>
       </section>
 
-      <div class="panel checkout-note"><strong>Payments stay server-side.</strong><p>PayPal credentials and capture calls are handled by Supabase Edge Functions. This dashboard never receives the saved PayPal secret or customer card credentials.</p></div>
+      <div class="panel checkout-note"><strong>Payments stay server-side.</strong><p>Square credentials and checkout confirmations are handled by Supabase Edge Functions. This dashboard never receives saved payment secrets or customer card credentials.</p></div>
     </section>
   </main>
   <script type="module" src="./orders.js"></script>
