@@ -18,10 +18,10 @@ Production-ready static website build for **www.olivevintage.store**.
 - Anti-sniping soft close (default: 15 seconds)
 - Auction lot catalog and photo galleries
 - Private `/admin/auctions.html` Auction Manager
-- Private `/admin/payments.html` owner-controlled PayPal settings
+- Private `/admin/payments.html` owner-controlled Square settings
 - Private `/admin/video.html` owner-controlled Cloudflare Realtime live-video settings
 - Public **Buy Now** buttons for available, priced products
-- Secure PayPal approval/capture flow through the `paypal-checkout` Edge Function
+- Secure Square checkout flow through the `square-checkout` Edge Function
 - Automatic short reservation during checkout and sold status after capture
 - Private website order tracking and fulfillment status in `/admin/orders.html`
 - One-button Cloudflare Realtime broadcast creation from Auction Manager
@@ -45,15 +45,15 @@ Bid validation runs in the database inside a locked transaction. The client cann
 1. In Supabase Auth URL Configuration, set the production Site URL to `https://www.olivevintage.store` and allow `https://www.olivevintage.store/auction.html` for passwordless sign-in redirects.
 2. In Auction Manager, set the event date/time, add lots, confirm every lot's photos, and choose whether bidder approval is required.
 3. Add a supported live video embed URL (YouTube, Vimeo, or Cloudflare playback/embed URL).
-4. Connect PayPal Business credentials in Owner Settings → Payments and test them before enabling priced products for Buy Now.
+4. Connect Square credentials in Owner Settings → Payments and test them before enabling priced products for Buy Now.
 5. Keep the event unpublished until the catalog, terms, video, payment flow, and shipping policy are ready.
 
 ## Deployment
 
 This remains a static site and can be deployed through the existing GitHub → Vercel setup. Upload/commit the contents of this build over the current project, preserving the file structure.
 
-## Owner-controlled PayPal setup
-The delivered site contains no PayPal Client ID or Client Secret. After handoff, an Olive Vintage administrator can open `admin/payments.html` (Owner Settings → Payments), choose Sandbox or Live, and enter their PayPal credentials. The browser sends those credentials to the authenticated `paypal-settings` Supabase Edge Function; the function verifies owner/admin access and stores the credentials encrypted in Supabase Vault. The Client Secret is never returned to the browser after saving. The owner can test the connection directly against PayPal or disconnect/replace it without editing website code.
+## Owner-controlled Square setup
+The delivered site contains no Square access credentials. After handoff, an Olive Vintage administrator can open `admin/payments.html` (Owner Settings → Payments), choose Sandbox or Live, and enter their Square credentials. The browser sends those credentials to the authenticated `square-settings` Supabase Edge Function; the function verifies owner/admin access and stores the credentials encrypted in Supabase Vault. Secrets are never returned to the browser after saving. The owner can test the connection directly against Square or disconnect/replace it without editing website code.
 
 ## Owner-controlled live video (Cloudflare Realtime)
 The delivered site contains no Cloudflare App ID, App Token, or stream key. After handoff, an Olive Vintage administrator can open `admin/video.html` (Owner Settings → Live Video) and enter a Cloudflare Realtime App ID and App Token. The App Token is encrypted in Supabase Vault and never returned to the browser after saving.
@@ -78,17 +78,17 @@ Broadcast credentials remain in encrypted Vault storage and are not kept in the 
 - Public navigation no longer exposes the manager; a discreet **Owner Login** link lives in the footer.
 - `/admin/dashboard.html` is the single owner entry point and includes its own secure sign-in form.
 - Dashboard links to Inventory, Auctions, Live Video, Payments, Orders & Winners, and Settings & Security.
-- Orders & Winners surfaces website PayPal orders plus sold auction lots, winning amounts, bidder aliases, and private buyer/winner contact information available to the owner.
-- Website Buy Now checkout is now wired server-side. Auction-winner payment collection can reuse the same secure PayPal foundation in the next checkout layer.
+- Orders & Winners surfaces website Square orders plus sold auction lots, winning amounts, bidder aliases, and private buyer/winner contact information available to the owner.
+- Website Buy Now checkout is now wired server-side. Auction-winner payment collection can reuse the same secure checkout foundation in the next checkout layer.
 - Settings & Security lets the signed-in owner change their own password and manage service connections.
 
 
 ## V5 Website Buy Now checkout
 - `web_orders` is installed in the live Supabase database with admin-only RLS.
-- `paypal-checkout` is deployed as a public checkout Edge Function. It accepts only an artwork ID or PayPal order ID; prices are always re-read and validated server-side.
+- `square-checkout` is deployed as a public checkout Edge Function. It accepts only an artwork ID or checkout order ID; prices are always re-read and validated server-side.
 - Starting checkout reserves an available artwork for 12 minutes to reduce double-selling. Expired reservations are released automatically the next time checkout/order cleanup runs.
-- PayPal credentials are read only from encrypted Vault storage through service-role-only RPCs.
-- Successful capture marks the order paid and the product sold. Customer card/PayPal credentials are never stored by Olive Vintage Gallery.
+- Square credentials are read only from encrypted Vault storage through service-role-only RPCs.
+- Successful checkout confirmation marks the order paid and the product sold. Customer card credentials are never stored by Olive Vintage Gallery.
 - `checkout-success.html` confirms the capture and returns the buyer to the gallery.
 - The owner can track paid website orders and set fulfillment to Unfulfilled, Processing, Shipped, or Completed.
 
