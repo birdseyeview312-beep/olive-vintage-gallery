@@ -1,5 +1,5 @@
 import { supabase } from "./supabase-client.js";
-import { SUPABASE_URL } from "./config.js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const $ = id => document.getElementById(id);
 const e = {
@@ -22,9 +22,9 @@ function slugify(s) { return String(s || "").toLowerCase().trim().replace(/[^a-z
 async function callLiveVideo(body) {
   const { data: { session: s } } = await supabase.auth.getSession();
   if (!s?.access_token) throw new Error("Owner sign-in has expired. Sign in again.");
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/cloudflare-settings`, {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/cloudflare-realtime`, {
     method: "POST",
-    headers: { Authorization: "Bearer " + s.access_token, "Content-Type": "application/json" },
+    headers: { Authorization: "Bearer " + s.access_token, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
   const data = await response.json().catch(() => ({}));
@@ -32,7 +32,7 @@ async function callLiveVideo(body) {
   return data;
 }
 function setLiveVideoBusy(busy) { [e.liveVideoCreateBtn, e.liveVideoRefreshBtn].forEach(b => { if (b) b.disabled = busy; }); }
-function hasLiveVideoStream(eventRow) { return !!(eventRow?.stream_embed_url || eventRow?.cloudflare_stream_id); }
+function hasLiveVideoStream(eventRow) { return !!eventRow?.stream_embed_url; }
 function renderLiveVideoPanel() {
   if (!e.liveVideoPanel) return;
   const saved = !!selectedEvent?.id;
@@ -66,12 +66,9 @@ if (e.liveVideoCreateBtn) e.liveVideoCreateBtn.onclick = async () => {
   try {
     const data = await callLiveVideo({ action: "create_stream", auction_id: selectedEvent.id });
     const playerUrl = data.player_url || data.embed_url || data.stream_embed_url || "";
-    if (playerUrl) {
-      selectedEvent.stream_embed_url = playerUrl;
-      e.eventStream.value = playerUrl;
-      await supabase.from("auction_events").update({ stream_embed_url: playerUrl }).eq("id", selectedEvent.id);
-    }
-    selectedEvent.cloudflare_stream_id = data.stream_id || selectedEvent.cloudflare_stream_id || null;
+    if (!playerUrl) throw new Error("Cloudflare Realtime did not return a playback URL.");
+    selectedEvent.stream_embed_url = playerUrl;
+    e.eventStream.value = playerUrl;
     e.liveVideoStreamPill.textContent = "Broadcast ready";
     e.liveVideoStreamPill.classList.add("connected");
     e.liveVideoCreateBtn.classList.add("hidden");

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase-client.js";
-import { SUPABASE_URL } from "./config.js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const $ = id => document.getElementById(id);
 const e = {
@@ -37,7 +37,7 @@ async function callCF(method = "GET", body = null) {
   if (!s?.access_token) throw new Error("Owner sign-in has expired. Sign in again.");
   const response = await fetch(`${SUPABASE_URL}/functions/v1/cloudflare-settings`, {
     method,
-    headers: { Authorization: "Bearer " + s.access_token, "Content-Type": "application/json" },
+    headers: { Authorization: "Bearer " + s.access_token, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined
   });
   const data = await response.json().catch(() => ({}));
