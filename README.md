@@ -19,12 +19,12 @@ Production-ready static website build for **www.olivevintage.store**.
 - Auction lot catalog and photo galleries
 - Private `/admin/auctions.html` Auction Manager
 - Private `/admin/payments.html` owner-controlled PayPal settings
-- Private `/admin/video.html` owner-controlled Mux live-video settings
+- Private `/admin/video.html` owner-controlled Cloudflare Realtime live-video settings
 - Public **Buy Now** buttons for available, priced products
 - Secure PayPal approval/capture flow through the `paypal-checkout` Edge Function
 - Automatic short reservation during checkout and sold status after capture
 - Private website order tracking and fulfillment status in `/admin/orders.html`
-- One-button Mux broadcast creation from Auction Manager
+- One-button Cloudflare Realtime broadcast creation from Auction Manager
 - Existing `/admin/admin.html` Gallery Manager, now restricted to the Olive admin role
 
 ## Live Supabase backend
@@ -44,7 +44,7 @@ Bid validation runs in the database inside a locked transaction. The client cann
 
 1. In Supabase Auth URL Configuration, set the production Site URL to `https://www.olivevintage.store` and allow `https://www.olivevintage.store/auction.html` for passwordless sign-in redirects.
 2. In Auction Manager, set the event date/time, add lots, confirm every lot's photos, and choose whether bidder approval is required.
-3. Add a supported live video embed URL (YouTube, Vimeo, or Mux player/embed URL).
+3. Add a supported live video embed URL (YouTube, Vimeo, or Cloudflare playback/embed URL).
 4. Connect PayPal Business credentials in Owner Settings → Payments and test them before enabling priced products for Buy Now.
 5. Keep the event unpublished until the catalog, terms, video, payment flow, and shipping policy are ready.
 
@@ -55,24 +55,22 @@ This remains a static site and can be deployed through the existing GitHub → V
 ## Owner-controlled PayPal setup
 The delivered site contains no PayPal Client ID or Client Secret. After handoff, an Olive Vintage administrator can open `admin/payments.html` (Owner Settings → Payments), choose Sandbox or Live, and enter their PayPal credentials. The browser sends those credentials to the authenticated `paypal-settings` Supabase Edge Function; the function verifies owner/admin access and stores the credentials encrypted in Supabase Vault. The Client Secret is never returned to the browser after saving. The owner can test the connection directly against PayPal or disconnect/replace it without editing website code.
 
-## Owner-controlled live video (Mux)
-The delivered site contains no Mux Token ID, Token Secret, or stream key. After handoff, an Olive Vintage administrator can open `admin/video.html` (Owner Settings → Live Video) and enter a Mux Access Token with **Mux Video Read + Write** permission. The Token Secret is encrypted in Supabase Vault and never returned to the browser after saving.
+## Owner-controlled live video (Cloudflare Realtime)
+The delivered site contains no Cloudflare App ID, App Token, or stream key. After handoff, an Olive Vintage administrator can open `admin/video.html` (Owner Settings → Live Video) and enter a Cloudflare Realtime App ID and App Token. The App Token is encrypted in Supabase Vault and never returned to the browser after saving.
 
-Inside `admin/auctions.html`, each saved auction now has a **Mux Live Video** panel. The owner can:
+Inside `admin/auctions.html`, each saved auction now has a **Cloudflare Realtime** panel. The owner can:
 
-- create a low-latency Mux broadcast for that auction,
-- automatically attach the Mux Player URL to the public auction room,
-- retrieve the owner-only RTMPS server and stream key for OBS or a compatible broadcaster,
-- copy the broadcaster values,
-- check whether Mux is receiving an active signal.
+- create a low-latency Cloudflare Realtime broadcast for that auction,
+- automatically attach the Cloudflare playback URL to the public auction room,
+- check whether Cloudflare is receiving an active signal.
 
-The stream key is stored in encrypted Vault storage and is not kept in the public `auction_events` table. The public site receives only the safe playback URL. Bids and countdowns remain server-authoritative in Supabase and do not depend on video timing.
+Broadcast credentials remain in encrypted Vault storage and are not kept in the public `auction_events` table. The public site receives only the safe playback URL. Bids and countdowns remain server-authoritative in Supabase and do not depend on video timing.
 
 ### Going live
-1. Connect Mux in **Owner Settings → Live Video**.
-2. In **Auction Manager**, save/select the auction and press **Create Mux Broadcast**.
-3. In OBS or a compatible mobile broadcaster, use the RTMPS server and Stream Key shown in the private manager.
-4. Start the broadcaster, then press **Check Signal**. When Mux reports `active`, the public auction player is live.
+1. Connect Cloudflare Realtime in **Owner Settings → Live Video**.
+2. In **Auction Manager**, save/select the auction and press **Create Broadcast**.
+3. Start your broadcaster and stream to the configured Cloudflare Realtime input.
+4. Press **Check Signal**. When Cloudflare reports `active`, the public auction player is live.
 5. Keep the auction bidding clock in Supabase as the source of truth; do not close lots based on what is heard in the video feed.
 
 

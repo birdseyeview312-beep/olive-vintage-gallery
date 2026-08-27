@@ -30,46 +30,6 @@
     <section id="videoApp" class="hidden">
       <div class="settings-grid">
         <div class="providers-col">
-        <section class="panel video-panel">
-          <div class="panel-head">
-            <div><div class="eyebrow">LIVE VIDEO</div><h2>Mux Broadcast Connection</h2></div>
-            <span id="statusPill" class="connection-pill">Not connected</span>
-          </div>
-
-          <p class="intro">Connect the Mux account used for Olive Vintage live auctions. The Token Secret is sent only to the secure backend and stored encrypted in Supabase Vault. It is never placed in the website code or returned to the browser after saving.</p>
-
-          <div id="connectedSummary" class="connected-summary hidden">
-            <div><span>Connection</span><strong>Connected</strong></div>
-            <div><span>Provider</span><strong>Mux Video</strong></div>
-            <div><span>Token ID</span><strong id="tokenHint">••••••</strong></div>
-          </div>
-
-          <form id="muxForm" class="video-form" autocomplete="off">
-            <label>Mux Token ID
-              <input id="tokenId" type="text" required spellcheck="false" autocomplete="off" placeholder="Paste the Mux Access Token ID">
-            </label>
-
-            <label>Mux Token Secret
-              <div class="secret-field">
-                <input id="tokenSecret" type="password" required spellcheck="false" autocomplete="new-password" placeholder="Paste Token Secret — it will not be displayed again">
-                <button id="toggleSecret" type="button" class="ghost compact">Show</button>
-              </div>
-            </label>
-
-            <div class="security-note">
-              <strong>Use Mux Video Read + Write permissions</strong>
-              <p>The owner creates an Access Token in Mux, then pastes its Token ID and Token Secret here. The secret remains encrypted on the backend.</p>
-            </div>
-
-            <div class="form-actions video-actions">
-              <button class="primary" type="submit">Save Mux Connection</button>
-              <button id="testBtn" class="ghost" type="button">Test Connection</button>
-              <button id="disconnectBtn" class="ghost danger hidden" type="button">Disconnect</button>
-            </div>
-            <p id="saveMessage" class="message" role="status"></p>
-          </form>
-        </section>
-
         <section class="panel video-panel cf-panel">
           <div class="panel-head">
             <div><div class="eyebrow">CLOUDFLARE REALTIME</div><h2>Cloudflare Realtime Connection</h2></div>
@@ -116,11 +76,11 @@
           <div class="eyebrow">HOW LIVE AUCTIONS WORK</div>
           <h2>One setup, then one-button broadcasts</h2>
           <ol>
-            <li>Owner connects Mux here one time.</li>
+            <li>Owner connects Cloudflare Realtime here one time.</li>
             <li>Open <strong>Auction Manager</strong>.</li>
-            <li>Select an auction and press <strong>Create Mux Broadcast</strong>.</li>
-            <li>Copy the RTMPS server and private stream key into OBS or a compatible mobile broadcaster.</li>
-            <li>Start streaming. The Mux player is already attached to that auction page.</li>
+            <li>Select an auction and press <strong>Create Broadcast</strong>.</li>
+            <li>Start streaming from your broadcaster.</li>
+            <li>The Cloudflare playback URL is attached to the auction page automatically.</li>
           </ol>
           <div class="handoff-callout">
             <strong>Bidding never depends on video timing.</strong>

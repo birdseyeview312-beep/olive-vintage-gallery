@@ -140,7 +140,7 @@ function safeEmbed(url){
   if(!url) return null;
   try{
     const u=new URL(url);
-    const allowed=["youtube.com","www.youtube.com","youtu.be","player.vimeo.com","stream.mux.com","player.mux.com"];
+    const allowed=["youtube.com","www.youtube.com","youtu.be","player.vimeo.com"];
     return allowed.some(host=>u.hostname===host||u.hostname.endsWith(`.${host}`))?u.href:null;
   }catch{return null;}
 }
