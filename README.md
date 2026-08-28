@@ -140,3 +140,18 @@ The public collection now paginates through Supabase in 10-row batches until no 
 - Replaces blank white no-photo cards with a dark gallery placeholder.
 - Clearly labels that original imagery is being recovered.
 - Never substitutes unrelated or stock imagery.
+
+## v14 Cloudflare photo polish pipeline
+- Added a secure server-only `POST /api/polish-photo` endpoint for owner image polishing.
+- Endpoint requires an authenticated Olive admin bearer token and rejects non-admin sessions.
+- Source image is background-removed with Cloudflare AI (`@cf/bria/background-removal`), then composited to either black or white automatically for stronger subject contrast.
+- The polished result is uploaded to Cloudflare Images; original product photos remain stored as-is in Supabase storage/gallery arrays.
+- Inventory Manager now supports:
+  - **Auto-polish new uploads** (future upload workflow)
+  - **Polish this piece** for one existing record at a time (test rollout, no bulk inventory pass)
+
+### Required Vercel environment variables for photo polish
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN` (Images write + Workers AI run permissions)
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
