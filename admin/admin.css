@@ -41,6 +41,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--olive)} textarea{resi
 /* v17 — dedicated luxury gallery cover workflow */
 .gallery-cover-box{border-style:solid;background:linear-gradient(145deg,rgba(181,189,143,.08),rgba(0,0,0,.08));}
 .gallery-cover-preview{margin-top:12px}.gallery-cover-note{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.polish-check{margin:12px 0 4px;display:flex;font-size:11px;line-height:1.45}
+.polish-note{margin-top:8px}
 .gallery-cover-card,.gallery-cover-empty{display:grid;grid-template-columns:112px 1fr auto;gap:14px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#11140e}
 .gallery-cover-card img{width:112px;height:112px;object-fit:contain;border-radius:11px;background:#080a07;border:1px solid #34392b}
 .gallery-cover-card strong,.gallery-cover-empty strong{display:block;font:18px Georgia,serif;color:var(--text);margin-bottom:4px}

@@ -194,6 +194,7 @@
                 <div class="eyebrow">GALLERY COVER</div>
                 <p class="muted">Upload the polished Olive dark-background cover here. This image is used only as the public listing thumbnail; the original photographs below stay unchanged inside the click-through gallery.</p>
               </div>
+              <label class="check polish-check"><input id="autoPolishUploads" type="checkbox" checked> Auto-polish new uploads with secure Cloudflare AI (keeps originals unchanged)</label>
               <input id="galleryCoverInput" type="file" accept="image/*">
               <div id="galleryCoverPreview" class="gallery-cover-preview"></div>
               <p class="gallery-cover-note">If no cover is uploaded, the first original photograph is used automatically.</p>
@@ -210,9 +211,11 @@
 
             <div class="form-actions">
               <button type="submit" class="primary">Save Piece</button>
+              <button type="button" id="polishPieceBtn" class="ghost">Polish this piece</button>
               <button type="button" id="resetBtn" class="ghost">Clear</button>
               <span id="saveMessage" class="message"></span>
             </div>
+            <p class="muted polish-note">Existing inventory polish is intentionally one piece at a time for test rollout.</p>
           </form>
         </section>
       </div>

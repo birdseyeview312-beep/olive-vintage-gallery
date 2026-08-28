@@ -1,0 +1,12 @@
+{
+  "name": "olive-vintage-gallery",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Olive Vintage Gallery",
+  "scripts": {
+    "test": "echo \"No automated tests configured\""
+  },
+  "dependencies": {
+    "jimp": "^1.6.1"
+  }
+}
