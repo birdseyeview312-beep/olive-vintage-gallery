@@ -117,7 +117,67 @@
               <label>Width<input id="width" placeholder="7.8 in"></label>
               <label>Depth<input id="depth" placeholder="3.9 in"></label>
             </div>
+<div class="photo-box">
+  <div>
+    <div class="eyebrow">PACKED SHIPPING</div>
+    <p class="muted">
+      Enter the packed box measurements, not the artwork dimensions.
+      These values are used for live carrier rates.
+    </p>
+  </div>
 
+  <div class="grid two">
+    <label>
+      Packed weight (lb)
+      <input id="shippingWeightLb"
+             type="number"
+             min="0"
+             step="0.01"
+             placeholder="11.5">
+    </label>
+
+    <label>
+      Shipping data source
+      <input id="shippingSource"
+             type="text"
+             value="Not set"
+             disabled>
+    </label>
+  </div>
+
+  <div class="grid three">
+    <label>
+      Box length (in)
+      <input id="shippingLength"
+             type="number"
+             min="0"
+             step="0.1"
+             placeholder="18">
+    </label>
+
+    <label>
+      Box width (in)
+      <input id="shippingWidth"
+             type="number"
+             min="0"
+             step="0.1"
+             placeholder="14">
+    </label>
+
+    <label>
+      Box height (in)
+      <input id="shippingHeight"
+             type="number"
+             min="0"
+             step="0.1"
+             placeholder="14">
+    </label>
+  </div>
+
+  <p id="shippingReadyNote" class="message">
+    Shipping data needed.
+  </p>
+</div>
             <label>Description<textarea id="description" rows="5" placeholder="Describe form, color, technique, history, and visual character."></textarea></label>
             <label>Condition<textarea id="condition" rows="3" placeholder="Excellent vintage condition; note any wear, chips, scratches, restoration, etc."></textarea></label>
             <label>Provenance<textarea id="provenance" rows="3" placeholder="Collection history, labels, exhibition history, documentation..."></textarea></label>
