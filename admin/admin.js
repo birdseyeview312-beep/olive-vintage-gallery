@@ -11,6 +11,9 @@ const els = {
   inventoryNumber:$("inventoryNumber"), status:$("status"), title:$("title"), maker:$("maker"),
   category:$("category"), price:$("price"), datePeriod:$("datePeriod"), origin:$("origin"),
   medium:$("medium"), height:$("height"), width:$("width"), depth:$("depth"),
+shippingWeightLb:$("shippingWeightLb"), shippingLength:$("shippingLength"),
+shippingWidth:$("shippingWidth"), shippingHeight:$("shippingHeight"),
+shippingSource:$("shippingSource"), shippingReadyNote:$("shippingReadyNote"),,
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
   featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
@@ -94,7 +97,21 @@ function editPiece(id){
   els.pieceId.value=p.id; els.inventoryNumber.value=p.inventory_number||""; els.status.value=p.status||"available";
   els.title.value=p.title||""; els.maker.value=p.maker||""; els.category.value=p.category||"Contemporary Studio Glass";
   els.price.value=p.price ?? ""; els.datePeriod.value=p.date_period||""; els.origin.value=p.origin||"";
-  els.medium.value=p.medium||""; els.height.value=p.height||""; els.width.value=p.width||""; els.depth.value=p.depth||"";
+  els.medium.value=p.medium||""; els.height.value=p.height||""; els.width.value=p.width||""; els.depth.value=p.depth||"";els.shippingWeightLb.value=p.shipping_weight_oz ? Number(p.shipping_weight_oz)/16 : "";
+els.shippingLength.value=p.shipping_length_in ?? "";
+els.shippingWidth.value=p.shipping_width_in ?? "";
+els.shippingHeight.value=p.shipping_height_in ?? "";
+els.shippingSource.value=p.shipping_package_source || "Not set";
+
+const shippingReady=[
+  p.shipping_weight_oz,
+  p.shipping_length_in,
+  p.shipping_width_in,
+  p.shipping_height_in
+].every(v=>Number(v)>0);
+
+els.shippingReadyNote.textContent=
+  shippingReady ? "Shipping ready." : "Shipping data needed.";
   els.description.value=p.description||""; els.condition.value=p.condition||""; els.provenance.value=p.provenance||"";
   els.featured.checked=!!p.featured; els.newArrival.checked=!!p.new_arrival; els.inquireOnly.checked=!!p.inquire_only;
   existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
@@ -163,6 +180,11 @@ function formPayload(){
     height:els.height.value.trim()||null,
     width:els.width.value.trim()||null,
     depth:els.depth.value.trim()||null,
+    shipping_weight_oz:els.shippingWeightLb.value===""?null:Number(els.shippingWeightLb.value)*16,
+shipping_length_in:els.shippingLength.value===""?null:Number(els.shippingLength.value),
+shipping_width_in:els.shippingWidth.value===""?null:Number(els.shippingWidth.value),
+shipping_height_in:els.shippingHeight.value===""?null:Number(els.shippingHeight.value),
+shipping_package_source:[els.shippingWeightLb.value,els.shippingLength.value,els.shippingWidth.value,els.shippingHeight.value].some(Boolean)?"manual":null,
     description:els.description.value.trim()||null,
     condition:els.condition.value.trim()||null,
     provenance:els.provenance.value.trim()||null,
