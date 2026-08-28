@@ -13,7 +13,7 @@ const els = {
   medium:$("medium"), height:$("height"), width:$("width"), depth:$("depth"),
 shippingWeightLb:$("shippingWeightLb"), shippingLength:$("shippingLength"),
 shippingWidth:$("shippingWidth"), shippingHeight:$("shippingHeight"),
-shippingSource:$("shippingSource"), shippingReadyNote:$("shippingReadyNote"),,
+shippingSource:$("shippingSource"), shippingReadyNote:$("shippingReadyNote"),
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
   featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
