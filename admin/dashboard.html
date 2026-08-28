@@ -88,7 +88,301 @@
   </div>
         </a>
       </section>
+<section id="marketplaceSyncCenter" class="panel marketplace-sync-center">
+  <div class="sync-center-head">
+    <div>
+      <div class="eyebrow">MARKETPLACE SYNC CENTER</div>
+      <h2>eBay · Whatnot · Olive</h2>
+      <p class="muted">Live marketplace status, automatic Olive imports and sale actions that still need attention.</p>
+    </div>
 
+    <a class="ghost sync-vendoo-button"
+       href="https://web.vendoo.co/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Open Vendoo →
+    </a>
+  </div>
+
+  <div id="marketplaceSyncStatus" class="sync-status-grid">
+    <div class="sync-box">
+      <span>VENDOO</span>
+      <strong id="syncVendoo">Checking…</strong>
+      <small>eBay + Whatnot bridge</small>
+    </div>
+
+    <div class="sync-box">
+      <span>EBAY</span>
+      <strong id="syncEbay">Checking…</strong>
+      <small id="syncEbayCount">Marketplace connection</small>
+    </div>
+
+    <div class="sync-box">
+      <span>WHATNOT</span>
+      <strong id="syncWhatnot">Checking…</strong>
+      <small id="syncWhatnotCount">Connected through Vendoo</small>
+    </div>
+
+    <div class="sync-box">
+      <span>OLIVE IMPORT</span>
+      <strong id="syncImporter">Checking…</strong>
+      <small id="syncImporterRun">Every 10 minutes</small>
+    </div>
+  </div>
+
+  <div class="sync-actions-head">
+    <div>
+      <div class="eyebrow">SALE PROTECTION</div>
+      <h3>Items needing Vendoo attention</h3>
+    </div>
+    <strong id="syncPendingCount">0 pending</strong>
+  </div>
+
+  <div id="syncSaleActions" class="sync-sale-actions">
+    <p class="muted">Checking for pending sale actions…</p>
+  </div>
+</section>
+
+<style>
+.marketplace-sync-center{
+  margin-top:18px;
+  padding:26px 28px;
+}
+.sync-center-head,
+.sync-actions-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:center;
+}
+.sync-center-head h2{
+  margin:.35rem 0 .45rem;
+  font-size:30px;
+}
+.sync-center-head p{
+  margin:0;
+}
+.sync-vendoo-button{
+  text-decoration:none;
+  white-space:nowrap;
+}
+.sync-status-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:22px;
+}
+.sync-box{
+  border:1px solid var(--line);
+  background:#13160f;
+  border-radius:14px;
+  padding:17px 18px;
+}
+.sync-box span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:.15em;
+}
+.sync-box strong{
+  display:block;
+  margin-top:7px;
+  font-size:17px;
+  color:var(--olive2);
+}
+.sync-box small{
+  display:block;
+  color:var(--muted);
+  margin-top:6px;
+  line-height:1.4;
+}
+.sync-actions-head{
+  margin-top:26px;
+  padding-top:22px;
+  border-top:1px solid var(--line);
+}
+.sync-actions-head h3{
+  margin:.35rem 0 0;
+}
+.sync-sale-actions{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.sync-sale-item{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:center;
+  border:1px solid var(--line);
+  background:#13160f;
+  border-radius:13px;
+  padding:15px 16px;
+}
+.sync-sale-item strong,
+.sync-sale-item small{
+  display:block;
+}
+.sync-sale-item small{
+  color:var(--muted);
+  margin-top:5px;
+}
+.sync-sale-item button{
+  flex:0 0 auto;
+}
+.sync-ok{
+  color:var(--olive2);
+}
+.sync-warning{
+  color:#e1c489;
+}
+.sync-error{
+  color:#df9b9b;
+}
+@media(max-width:900px){
+  .sync-status-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .sync-center-head,
+  .sync-actions-head,
+  .sync-sale-item{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .sync-status-grid{grid-template-columns:1fr}
+}
+</style>
+
+<script type="module">
+import { supabase } from "./supabase-client.js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+
+const sync$ = id => document.getElementById(id);
+
+function syncDate(value){
+  if(!value) return "Not yet";
+  try{
+    return new Date(value).toLocaleString();
+  }catch{
+    return value;
+  }
+}
+
+async function marketplaceApi(method="GET",body){
+  const {data:{session}} = await supabase.auth.getSession();
+  if(!session?.access_token) throw new Error("Owner session expired");
+
+  const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/marketplace-status`,
+    {
+      method,
+      headers:{
+        Authorization:`Bearer ${session.access_token}`,
+        apikey:SUPABASE_ANON_KEY,
+        "Content-Type":"application/json"
+      },
+      body:body ? JSON.stringify(body) : undefined
+    }
+  );
+
+  const data = await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data?.error || "Marketplace status failed");
+  return data;
+}
+
+async function loadMarketplaceSync(){
+  try{
+    const s = await marketplaceApi();
+
+    sync$("syncVendoo").textContent = "Ready";
+    sync$("syncVendoo").className = "sync-ok";
+
+    sync$("syncEbay").textContent =
+      s.ebay?.connected ? "Connected" : "Waiting for API approval";
+    sync$("syncEbay").className =
+      s.ebay?.connected ? "sync-ok" : "sync-warning";
+    sync$("syncEbayCount").textContent =
+      `${s.ebay?.active_listings || 0} tracked active listing(s)`;
+
+    sync$("syncWhatnot").textContent = "Connected through Vendoo";
+    sync$("syncWhatnot").className = "sync-ok";
+    sync$("syncWhatnotCount").textContent =
+      `${s.whatnot?.active_listings || 0} tracked active listing(s)`;
+
+    sync$("syncImporter").textContent =
+      s.importer?.enabled ? "Running" : "Disabled";
+    sync$("syncImporter").className =
+      s.importer?.enabled ? "sync-ok" : "sync-error";
+
+    sync$("syncImporterRun").textContent =
+      `Every ${s.importer?.cadence_minutes || 10} min · Last check: ${syncDate(s.importer?.last_run)}`;
+
+    const actions = s.pending_sale_actions || [];
+    sync$("syncPendingCount").textContent =
+      `${actions.length} pending`;
+
+    if(!actions.length){
+      sync$("syncSaleActions").innerHTML =
+        `<div class="sync-sale-item">
+          <div>
+            <strong class="sync-ok">No action required</strong>
+            <small>There are no Olive sales waiting for Vendoo cleanup.</small>
+          </div>
+        </div>`;
+      return;
+    }
+
+    sync$("syncSaleActions").innerHTML = actions.map(a => `
+      <div class="sync-sale-item">
+        <div>
+          <strong>${a.title}</strong>
+          <small>
+            ${a.inventory_number ? `Inventory ${a.inventory_number} · ` : ""}
+            eBay: ${a.ebay_state} · Vendoo: mark sold
+          </small>
+          ${a.last_error ? `<small class="sync-error">${a.last_error}</small>` : ""}
+        </div>
+        <div>
+          <a class="ghost"
+             href="https://web.vendoo.co/"
+             target="_blank"
+             rel="noopener noreferrer">Open Vendoo →</a>
+          <button class="ghost"
+                  data-resolve-vendoo="${a.id}"
+                  type="button">
+            Mark handled
+          </button>
+        </div>
+      </div>
+    `).join("");
+
+    document.querySelectorAll("[data-resolve-vendoo]").forEach(button=>{
+      button.addEventListener("click",async()=>{
+        button.disabled=true;
+        button.textContent="Saving…";
+        try{
+          await marketplaceApi("POST",{
+            action:"resolve_vendoo",
+            id:button.dataset.resolveVendoo
+          });
+          await loadMarketplaceSync();
+        }catch(error){
+          button.disabled=false;
+          button.textContent="Mark handled";
+          alert(error?.message || "Unable to update sale action");
+        }
+      });
+    });
+
+  }catch(error){
+    sync$("syncSaleActions").innerHTML =
+      `<p class="sync-error">${error?.message || "Unable to load marketplace status."}</p>`;
+  }
+}
+
+loadMarketplaceSync();
+setInterval(loadMarketplaceSync,60000);
+</script>
       <section class="panel dashboard-note">
         <div class="eyebrow">SECURITY MODEL</div><h2>Customers never see this dashboard.</h2><p>Normal shopper and bidder accounts are separated from the owner role. Payment, broadcast and private-viewing controls stay protected behind the owner account.</p>
       </section>
