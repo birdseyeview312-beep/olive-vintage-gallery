@@ -3,9 +3,9 @@ const dns = require("node:dns").promises;
 const https = require("node:https");
 const net = require("node:net");
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const PIXELCUT_API_KEY = process.env.PIXELCUT_API_KEY;
+const SUPABASE_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/$/, "");
+const SUPABASE_ANON_KEY = (process.env.SUPABASE_ANON_KEY || "").trim();
+const PIXELCUT_API_KEY = (process.env.PIXELCUT_API_KEY || "").trim();
 const AUTH_PREFIX = ["Bea", "rer"].join("");
 const PRODUCT_BUCKET = "product-images";
 

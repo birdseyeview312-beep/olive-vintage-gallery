@@ -212,7 +212,7 @@ test("Pixelcut receives correct request and errors are readable without API key 
   const pixelcutBuffer = await pngWithColor(0x010101ff);
   mockSourceImageDownload(sourceBuffer);
 
-  process.env.PIXELCUT_API_KEY = "super-secret-key";
+  process.env.PIXELCUT_API_KEY = " \n super-secret-key \t";
   const handler = loadHandler();
   const calls = [];
 
