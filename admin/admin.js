@@ -41,11 +41,11 @@ function saveMessage(text, type = ""){
 function renderPolishButton(){
   if(!els.polishPieceBtn)return;
   const hasPiece = !!els.pieceId.value;
-  const hasSource = !!existingImages[0];
-  els.polishPieceBtn.disabled = !hasPiece || !hasSource;
-  if(!hasPiece) els.polishPieceBtn.textContent = "Polish this piece (save first)";
-  else if(!hasSource) els.polishPieceBtn.textContent = "Polish this piece (add a photo first)";
-  else els.polishPieceBtn.textContent = "Polish this piece";
+  const count = existingImages.length;
+  els.polishPieceBtn.disabled = !hasPiece || !count;
+  if(!hasPiece) els.polishPieceBtn.textContent = "Polish all photos (save first)";
+  else if(!count) els.polishPieceBtn.textContent = "Polish all photos (add a photo first)";
+  else els.polishPieceBtn.textContent = count === 1 ? "Polish 1 photo" : `Polish all ${count} photos`;
 }
 
 async function callPhotoPolish({ sourceImageUrl, productId, title, background = "auto" }){
@@ -254,19 +254,27 @@ els.deleteBtn.addEventListener("click",async()=>{
 });
 els.polishPieceBtn?.addEventListener("click",async()=>{
   const id=els.pieceId.value;
-  const source=(existingImages[0]||"").trim();
   if(!id){ saveMessage("Save this piece first, then polish it.", "error"); return; }
-  if(!source){ saveMessage("Add at least one original photograph before polishing.", "error"); return; }
+  if(!existingImages.length){ saveMessage("Add at least one original photograph before polishing.", "error"); return; }
   els.polishPieceBtn.disabled=true;
-  saveMessage("Polishing this piece securely with Pixelcut…");
+  const total=existingImages.length;
+  saveMessage(`Polishing ${total} photo${total===1?"":"s"} securely with Pixelcut…`);
   try{
-    const polished=await callPhotoPolish({ sourceImageUrl:source, productId:id, title:els.title.value.trim(), background:"auto" });
+    const polishedUrls=[];
+    let chosenBackground="auto";
+    for(let i=0;i<existingImages.length;i++){
+      saveMessage(`Polishing photo ${i+1} of ${total} securely with Pixelcut…`);
+      const result=await callPhotoPolish({ sourceImageUrl:existingImages[i].trim(), productId:id, title:els.title.value.trim(), background:i===0?"auto":chosenBackground });
+      polishedUrls.push(result.polishedImageUrl);
+      if(i===0) chosenBackground=result.background;
+    }
     const { error }=await supabase.from("products").update({
-      gallery_cover_image:polished.polishedImageUrl,
+      gallery_cover_image:polishedUrls[0],
+      images:polishedUrls,
       updated_at:new Date().toISOString()
     }).eq("id",id);
     if(error) throw error;
-    saveMessage(`Polished successfully on a ${polished.background} background. Originals were left unchanged.`, "success");
+    saveMessage(`Polished ${total} photo${total===1?"":"s"} successfully on a ${chosenBackground} background. Originals were left unchanged.`, "success");
     await loadProducts();
     editPiece(id);
   }catch(err){
