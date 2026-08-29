@@ -51,3 +51,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--olive)} textarea{resi
 .gallery-cover-card button{border:1px solid #4c543c;background:transparent;color:var(--text);border-radius:999px;padding:8px 12px}
 .gallery-cover-empty span{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid #4c543c;color:var(--olive2);font:20px Georgia,serif;margin:auto}
 @media(max-width:640px){.gallery-cover-card,.gallery-cover-empty{grid-template-columns:82px 1fr}.gallery-cover-card img{width:82px;height:82px}.gallery-cover-card button{grid-column:1/-1;justify-self:start}}
+
+.item-statuses{display:grid;gap:6px;justify-items:end}
+.status.shipping-missing{max-width:112px;text-align:center;white-space:normal;border-color:#8f6745;color:#e2b785;background:rgba(143,103,69,.12)}
