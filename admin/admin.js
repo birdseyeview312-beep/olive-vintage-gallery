@@ -19,7 +19,7 @@ shippingSource:$("shippingSource"), shippingReadyNote:$("shippingReadyNote"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
   galleryCoverPreview:$("galleryCoverPreview"),
   saveMessage:$("saveMessage"), editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"),
-  polishPieceBtn:$("polishPieceBtn"), resetBtn:$("resetBtn")
+  polishBackground:$("polishBackground"), polishPieceBtn:$("polishPieceBtn"), resetBtn:$("resetBtn")
 };
 
 let products = [];
@@ -120,12 +120,14 @@ els.searchInput.addEventListener("input",render); els.statusFilter.addEventListe
 
 function clearForm(){
   els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null;
+  els.polishBackground.value="auto";
   els.editorTitle.textContent="Add a piece"; els.deleteBtn.classList.add("hidden"); saveMessage("");
   renderCover(); renderPhotos();
   renderPolishButton();
 }
 function editPiece(id){
   const p=products.find(x=>x.id===id); if(!p)return;
+  els.polishBackground.value="auto";
   els.pieceId.value=p.id; els.inventoryNumber.value=p.inventory_number||""; els.status.value=p.status||"available";
   els.title.value=p.title||""; els.maker.value=p.maker||""; els.category.value=p.category||"Contemporary Studio Glass";
   els.price.value=p.price ?? ""; els.datePeriod.value=p.date_period||""; els.origin.value=p.origin||"";
@@ -261,12 +263,13 @@ els.polishPieceBtn?.addEventListener("click",async()=>{
   saveMessage(`Polishing ${total} photo${total===1?"":"s"} securely with Pixelcut…`);
   try{
     const polishedUrls=[];
-    let chosenBackground="auto";
+    const requestedBackground=els.polishBackground.value||"auto";
+    let chosenBackground=requestedBackground;
     for(let i=0;i<existingImages.length;i++){
       saveMessage(`Polishing photo ${i+1} of ${total} securely with Pixelcut…`);
-      const result=await callPhotoPolish({ sourceImageUrl:existingImages[i].trim(), productId:id, title:els.title.value.trim(), background:i===0?"auto":chosenBackground });
+      const result=await callPhotoPolish({ sourceImageUrl:existingImages[i].trim(), productId:id, title:els.title.value.trim(), background:chosenBackground });
       polishedUrls.push(result.polishedImageUrl);
-      if(i===0) chosenBackground=result.background;
+      if(i===0&&requestedBackground==="auto") chosenBackground=result.background;
     }
     const { error }=await supabase.from("products").update({
       gallery_cover_image:polishedUrls[0],
