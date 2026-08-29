@@ -105,7 +105,7 @@ beforeEach(() => {
     ...originalEnv,
     SUPABASE_URL: "https://supabase.example",
     SUPABASE_ANON_KEY: "anon-key",
-    PIXELCUT_API_KEY: "pixelcut-key"
+    PIXELCUT_API_KEY: "sk_pixelcut-key"
   };
 });
 
@@ -212,7 +212,7 @@ test("Pixelcut receives correct request and errors are readable without API key 
   const pixelcutBuffer = await pngWithColor(0x010101ff);
   mockSourceImageDownload(sourceBuffer);
 
-  process.env.PIXELCUT_API_KEY = " \n super-secret-key \t";
+  process.env.PIXELCUT_API_KEY = " \n sk_super-secret-key \t";
   const handler = loadHandler();
   const calls = [];
 
@@ -241,7 +241,7 @@ test("Pixelcut receives correct request and errors are readable without API key 
   const pixelcutCall = calls.find((c) => c.url === "https://api.developer.pixelcut.ai/v1/remove-background");
   assert.ok(pixelcutCall);
   assert.equal(pixelcutCall.options.method, "POST");
-  assert.equal(pixelcutCall.options.headers["X-API-Key"], "super-secret-key");
+  assert.equal(pixelcutCall.options.headers["X-API-Key"], "sk_super-secret-key");
   assert.equal(pixelcutCall.options.headers["Content-Type"], "application/json");
   assert.equal(pixelcutCall.options.headers.Accept, "application/json");
   assert.deepEqual(JSON.parse(pixelcutCall.options.body), {
