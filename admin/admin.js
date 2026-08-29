@@ -37,6 +37,14 @@ function saveMessage(text, type = ""){
   els.saveMessage.textContent = text || "";
   els.saveMessage.className = `message ${type}`.trim();
 }
+function isShippingReady(product){
+  return [
+    product?.shipping_weight_oz,
+    product?.shipping_length_in,
+    product?.shipping_width_in,
+    product?.shipping_height_in
+  ].every(value => Number(value) > 0);
+}
 
 function renderPolishButton(){
   if(!els.polishPieceBtn)return;
@@ -100,20 +108,25 @@ function render(){
   const q=els.searchInput.value.trim().toLowerCase(), sf=els.statusFilter.value;
   const filtered=products.filter(p=>{
     const hay=[p.title,p.maker,p.category,p.inventory_number,p.origin].join(" ").toLowerCase();
-    return (!q||hay.includes(q)) && (!sf||p.status===sf);
+    const matchesStatus = !sf
+      || (sf === "__shipping_missing" ? p.status === "available" && !isShippingReady(p) : p.status === sf);
+    return (!q||hay.includes(q)) && matchesStatus;
   });
   els.resultCount.textContent=`${filtered.length} piece${filtered.length===1?"":"s"}`;
   els.inventoryList.innerHTML=filtered.map(p=>`
     <button class="item" data-id="${p.id}" type="button">
       ${(p.gallery_cover_image || p.images?.[0]) ? `<img class="thumb" src="${escapeHtml(p.gallery_cover_image || p.images[0])}" alt="">` : `<div class="thumb"></div>`}
       <div><h3>${escapeHtml(p.title)}</h3><p>${escapeHtml(p.maker||"Unknown maker")} · ${money(p.price)}</p><p>${escapeHtml(p.inventory_number)}</p></div>
-      <span class="status">${escapeHtml(p.status)}</span>
+      <div class="item-statuses">
+        <span class="status">${escapeHtml(p.status)}</span>
+        ${p.status === "available" && !isShippingReady(p) ? '<span class="status shipping-missing">Needs shipping info</span>' : ""}
+      </div>
     </button>`).join("") || `<p class="muted">No matching pieces.</p>`;
   els.inventoryList.querySelectorAll(".item").forEach(b=>b.addEventListener("click",()=>editPiece(b.dataset.id)));
   const counts = {available:0,reserved:0,sold:0,draft:0};
   products.forEach(p=>counts[p.status]=(counts[p.status]||0)+1);
   els.stats.innerHTML=[
-    ["Total pieces",products.length],["Available",counts.available],["Sold",counts.sold],["Featured",products.filter(p=>p.featured).length]
+    ["Total pieces",products.length],["Available",counts.available],["Needs shipping info",products.filter(p=>p.status==="available"&&!isShippingReady(p)).length],["Sold",counts.sold]
   ].map(([a,b])=>`<div class="stat"><span class="muted">${a}</span><strong>${b}</strong></div>`).join("");
 }
 els.searchInput.addEventListener("input",render); els.statusFilter.addEventListener("change",render);
@@ -137,12 +150,7 @@ els.shippingWidth.value=p.shipping_width_in ?? "";
 els.shippingHeight.value=p.shipping_height_in ?? "";
 els.shippingSource.value=p.shipping_package_source || "Not set";
 
-const shippingReady=[
-  p.shipping_weight_oz,
-  p.shipping_length_in,
-  p.shipping_width_in,
-  p.shipping_height_in
-].every(v=>Number(v)>0);
+const shippingReady=isShippingReady(p);
 
 els.shippingReadyNote.textContent=
   shippingReady ? "Shipping ready." : "Shipping data needed.";
