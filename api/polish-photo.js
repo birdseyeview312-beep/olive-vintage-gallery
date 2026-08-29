@@ -24,6 +24,11 @@ function createHttpError(status, message) {
   return error;
 }
 
+function getTransportErrorCode(error) {
+  const raw = error?.cause?.code || error?.code || error?.name || "UNKNOWN";
+  return String(raw).replace(/[^A-Z0-9_-]/gi, "").slice(0, 48) || "UNKNOWN";
+}
+
 function isPrivateIpv4(ip) {
   return (
     ip === "0.0.0.0" ||
@@ -229,7 +234,13 @@ async function runBackgroundRemoval(sourceImageUrl) {
     if (error?.name === "AbortError") {
       throw createHttpError(504, "Pixelcut request timed out.");
     }
-    throw createHttpError(502, "Pixelcut request failed.");
+    const transportCode = getTransportErrorCode(error);
+    console.error("Pixelcut transport failure", {
+      code: transportCode,
+      message: String(error?.message || "").slice(0, 200),
+      cause: String(error?.cause?.message || "").slice(0, 200)
+    });
+    throw createHttpError(502, `Pixelcut request failed (${transportCode}).`);
   } finally {
     clearTimeout(timeout);
   }
