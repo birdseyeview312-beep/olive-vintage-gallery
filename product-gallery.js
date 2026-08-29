@@ -69,9 +69,12 @@ function ensureLightbox() {
     <div class="product-lightbox-backdrop" data-lightbox-close></div>
     <section class="product-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Product photo gallery">
       <div class="product-lightbox-bar">
-        <div>
+        <div class="product-lightbox-heading">
           <p class="eyebrow">PRODUCT GALLERY</p>
-          <strong id="lightboxTitle"></strong>
+          <div class="product-lightbox-title-row">
+            <strong id="lightboxTitle"></strong>
+            <span class="product-lightbox-count" id="lightboxCount" aria-live="polite"></span>
+          </div>
         </div>
         <button class="product-lightbox-close" type="button" data-lightbox-close aria-label="Close photo gallery">×</button>
       </div>
@@ -79,7 +82,6 @@ function ensureLightbox() {
         <button class="product-lightbox-nav prev" type="button" data-lightbox-prev aria-label="Previous photo">‹</button>
         <img id="lightboxImage" alt="">
         <button class="product-lightbox-nav next" type="button" data-lightbox-next aria-label="Next photo">›</button>
-        <span class="product-lightbox-count" id="lightboxCount"></span>
       </div>
       <div class="product-lightbox-thumbs" id="lightboxThumbs" aria-label="Product photo thumbnails"></div>
     </section>`;

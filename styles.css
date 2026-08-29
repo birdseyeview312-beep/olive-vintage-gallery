@@ -352,12 +352,13 @@ body.lightbox-open{overflow:hidden}
 .product-lightbox-dialog{position:relative;z-index:1;width:min(1180px,96vw);max-height:94vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#0b0e0a;border:1px solid rgba(207,173,103,.22);box-shadow:0 40px 120px rgba(0,0,0,.72);overflow:hidden}
 .product-lightbox-bar{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:16px 18px;border-bottom:1px solid var(--line)}
 .product-lightbox-bar .eyebrow{margin:0 0 4px}.product-lightbox-bar strong{font:500 20px/1.2 "Playfair Display",serif;color:#ede4d3}
+.product-lightbox-heading{min-width:0}.product-lightbox-title-row{display:flex;align-items:center;gap:12px;min-width:0}.product-lightbox-title-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .product-lightbox-close{appearance:none;border:1px solid rgba(207,173,103,.22);background:#11150f;color:#eee4cf;width:42px;height:42px;border-radius:50%;font-size:27px;line-height:1;cursor:pointer}
 .product-lightbox-stage{position:relative;display:grid;place-items:center;min-height:0;background:radial-gradient(circle at 50% 45%,#f6f7f7,#dfe4e6 62%,#c8d0d3);overflow:hidden}
 .product-lightbox-stage>img{width:100%;height:100%;max-height:72vh;object-fit:contain;padding:18px}
 .product-lightbox-nav{position:absolute;z-index:2;top:50%;transform:translateY(-50%);appearance:none;border:1px solid rgba(255,255,255,.35);background:rgba(8,10,7,.64);color:#f4ead3;width:48px;height:48px;border-radius:50%;font-size:35px;line-height:1;cursor:pointer;backdrop-filter:blur(8px)}
 .product-lightbox-nav.prev{left:15px}.product-lightbox-nav.next{right:15px}
-.product-lightbox-count{position:absolute;right:16px;bottom:14px;padding:7px 10px;border-radius:999px;background:rgba(8,10,7,.72);color:#eadfca;font-size:10px;letter-spacing:.13em}
+.product-lightbox-count{flex:0 0 auto;padding:6px 10px;border:1px solid rgba(207,173,103,.38);border-radius:999px;background:#171b12;color:#f0dfb8;font:600 10px/1 "DM Sans",sans-serif;letter-spacing:.13em;box-shadow:0 5px 18px rgba(0,0,0,.24)}
 .product-lightbox-thumbs{display:flex;gap:9px;overflow-x:auto;padding:12px 14px;border-top:1px solid var(--line);background:#0d100c;scrollbar-width:thin}
 .product-lightbox-thumb{appearance:none;flex:0 0 72px;height:58px;padding:3px;border:1px solid rgba(207,173,103,.18);background:#181c14;cursor:pointer;opacity:.62;transition:.2s}.product-lightbox-thumb.active{opacity:1;border-color:rgba(207,173,103,.7)}.product-lightbox-thumb img{width:100%;height:100%;object-fit:cover}
 
@@ -373,7 +374,7 @@ body.lightbox-open{overflow:hidden}
 
 @media(max-width:900px){.collection-product-grid{grid-template-columns:1fr 1fr}.collection-page-head{grid-template-columns:1fr}}
 @media(max-width:620px){
-  .product-lightbox{padding:0}.product-lightbox-dialog{width:100vw;height:100dvh;max-height:none;border:0}.product-lightbox-bar{padding:13px 14px}.product-lightbox-bar strong{font-size:16px}.product-lightbox-stage>img{max-height:none;padding:10px}.product-lightbox-nav{width:42px;height:42px;font-size:30px}.product-lightbox-nav.prev{left:8px}.product-lightbox-nav.next{right:8px}.product-lightbox-thumbs{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  .product-lightbox{padding:0}.product-lightbox-dialog{width:100vw;height:100dvh;max-height:none;border:0}.product-lightbox-bar{padding:13px 14px;gap:12px}.product-lightbox-bar strong{font-size:16px}.product-lightbox-title-row{gap:8px}.product-lightbox-count{padding:5px 8px;font-size:9px}.product-lightbox-stage>img{max-height:none;padding:10px}.product-lightbox-nav{width:42px;height:42px;font-size:30px}.product-lightbox-nav.prev{left:8px}.product-lightbox-nav.next{right:8px}.product-lightbox-thumbs{padding-bottom:max(12px,env(safe-area-inset-bottom))}
   .collection-page{padding-top:102px}.collection-page.section-pad{padding-left:5vw;padding-right:5vw}.collection-page-head{gap:18px;margin-bottom:24px}.collection-page-head h1{font-size:clamp(50px,14vw,68px)}.collection-product-grid{grid-template-columns:1fr}.collection-product-grid .product-image{aspect-ratio:3/2}.collection-product-grid .product-info h3{font-size:clamp(23px,6.8vw,30px)}
 }
 
