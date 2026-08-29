@@ -118,7 +118,14 @@ async function fetchImageBuffer(target) {
         path: `${target.url.pathname}${target.url.search}`,
         method: "GET",
         headers: { Accept: "image/*" },
-        lookup: (_hostname, _options, callback) => callback(null, target.address, target.family)
+        lookup: (_hostname, options, callback) => {
+          const record = { address: target.address, family: target.family };
+          if (options && options.all) {
+            callback(null, [record]);
+          } else {
+            callback(null, record.address, record.family);
+          }
+        }
       },
       (response) => {
         const status = response.statusCode || 0;

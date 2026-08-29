@@ -4,7 +4,7 @@
   "private": true,
   "description": "Olive Vintage Gallery",
   "scripts": {
-    "test": "echo \"No automated tests configured\""
+    "test": "node --test test/**/*.test.js"
   },
   "dependencies": {
     "jimp": "^1.6.1"
