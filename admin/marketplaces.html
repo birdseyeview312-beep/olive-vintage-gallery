@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Marketplace Settings — Olive Vintage Gallery</title>
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./marketplaces.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="market-brand" href="./dashboard.html">
+      <span class="eyebrow">OLIVE VINTAGE GALLERY</span>
+      <h1>Marketplace Settings</h1>
+    </a>
+    <div class="top-actions">
+      <a class="ghost" href="./dashboard.html">Dashboard</a>
+      <span id="sessionEmail" class="muted"></span>
+      <button id="signOutBtn" class="ghost hidden" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <main class="shell market-shell">
+    <section id="accessPanel" class="panel access-panel">
+      <div class="eyebrow">OWNER ACCESS</div>
+      <h2>Sign in from the Owner Dashboard</h2>
+      <p class="muted">Marketplace credentials can only be viewed or changed by the Olive owner account.</p>
+      <a class="primary button-link" href="./dashboard.html">Open Owner Dashboard</a>
+    </section>
+
+    <div id="marketplaceApp" class="hidden">
+      <section class="market-hero">
+        <div>
+          <div class="eyebrow">EBAY → OLIVE</div>
+          <h2>Automatic listing import</h2>
+          <p>Connect the eBay seller account once. Olive checks for active listings every 10 minutes and only publishes listings identified as glass or crystal.</p>
+        </div>
+        <div id="connectionBadge" class="status-badge waiting">Not connected</div>
+      </section>
+
+      <div class="market-grid">
+        <form id="ebayForm" class="panel market-panel">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow">CONNECTION</div>
+              <h3>eBay seller credentials</h3>
+            </div>
+            <span id="credentialHint" class="muted"></span>
+          </div>
+
+          <div class="field-grid">
+            <label>Environment
+              <select id="mode" name="mode">
+                <option value="live">Live</option>
+                <option value="sandbox">Sandbox / test</option>
+              </select>
+            </label>
+            <label>Marketplace
+              <select id="marketplaceId" name="marketplace_id">
+                <option value="EBAY_US">eBay United States</option>
+                <option value="EBAY_CA">eBay Canada</option>
+                <option value="EBAY_GB">eBay United Kingdom</option>
+              </select>
+            </label>
+          </div>
+
+          <label>Client ID (App ID)
+            <input id="clientId" name="client_id" autocomplete="off" placeholder="Paste the eBay Client ID">
+          </label>
+          <label>Client Secret (Cert ID)
+            <input id="clientSecret" name="client_secret" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved secret">
+          </label>
+          <label>Seller refresh token
+            <textarea id="refreshToken" name="refresh_token" rows="3" autocomplete="off" placeholder="Leave blank to keep the saved token"></textarea>
+          </label>
+
+          <details class="defaults">
+            <summary>Listing defaults and policies</summary>
+            <div class="field-grid details-grid">
+              <label>Category ID<input id="categoryId" name="category_id" inputmode="numeric"></label>
+              <label>Merchant location key<input id="locationKey" name="merchant_location_key"></label>
+              <label>Payment policy ID<input id="paymentPolicy" name="payment_policy_id"></label>
+              <label>Fulfillment policy ID<input id="fulfillmentPolicy" name="fulfillment_policy_id"></label>
+              <label>Return policy ID<input id="returnPolicy" name="return_policy_id"></label>
+              <label>Condition
+                <select id="condition" name="condition">
+                  <option value="USED_EXCELLENT">Used — excellent</option>
+                  <option value="USED_VERY_GOOD">Used — very good</option>
+                  <option value="USED_GOOD">Used — good</option>
+                  <option value="USED_ACCEPTABLE">Used — acceptable</option>
+                </select>
+              </label>
+            </div>
+          </details>
+
+          <div class="button-row">
+            <button id="saveBtn" class="primary" type="submit">Save connection</button>
+            <button id="testBtn" class="ghost" type="button">Test &amp; discover</button>
+            <button id="disconnectBtn" class="danger-link" type="button">Disconnect</button>
+          </div>
+        </form>
+
+        <aside class="stack">
+          <section class="panel guardrail-panel">
+            <div class="eyebrow">CATALOG GUARDRAIL</div>
+            <h3>Glass and crystal only</h3>
+            <p>New eBay items publish automatically only when the title, category, description, or material identifies glass or crystal and the listing includes a photo and price.</p>
+            <p>Anything uncertain or clearly non-glass is imported as a draft for review.</p>
+          </section>
+
+          <section class="panel import-panel">
+            <div class="eyebrow">SYNC CONTROL</div>
+            <h3>Run an import now</h3>
+            <p class="muted">Use this after adding or changing an eBay listing. The automatic check continues every 10 minutes.</p>
+            <button id="importBtn" class="primary wide" type="button">Import from eBay now</button>
+            <dl class="sync-stats">
+              <div><dt>Last run</dt><dd id="lastRun">Not yet</dd></div>
+              <div><dt>Last successful import</dt><dd id="lastSuccess">Not yet</dd></div>
+              <div><dt>Last result</dt><dd id="lastResult">Waiting for connection</dd></div>
+            </dl>
+          </section>
+        </aside>
+      </div>
+
+      <section id="notice" class="notice hidden" role="status" aria-live="polite"></section>
+    </div>
+  </main>
+
+  <script type="module" src="./marketplaces.js"></script>
+</body>
+</html>
