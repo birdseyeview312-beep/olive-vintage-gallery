@@ -5,16 +5,23 @@ const net = require("node:net");
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
+const PIXELCUT_API_KEY = process.env.PIXELCUT_API_KEY;
 const AUTH_PREFIX = ["Bea", "rer"].join("");
+const PRODUCT_BUCKET = "product-images";
 
 const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
+const MAX_PIXELCUT_BYTES = 10 * 1024 * 1024;
 
 function send(res, status, payload) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(payload));
+}
+
+function createHttpError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
 }
 
 function isPrivateIpv4(ip) {
@@ -44,10 +51,12 @@ async function resolveSafeImageTarget(value) {
   try {
     const url = new URL(value);
     if (url.protocol !== "https:") return false;
+    if (url.username || url.password) return false;
+    if (url.port && url.port !== "443") return false;
     const host = url.hostname.toLowerCase();
     const blockedHosts = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1"]);
     if (blockedHosts.has(host)) return false;
-    if (host.endsWith(".local") || host.endsWith(".internal")) return false;
+    if (host.endsWith(".local") || host.endsWith(".internal") || host.endsWith(".localhost")) return false;
 
     if (net.isIP(host) === 4) {
       if (isPrivateIpv4(host)) return false;
@@ -182,37 +191,69 @@ async function fetchImageBuffer(target) {
   });
 }
 
-async function runBackgroundRemoval(imageBuffer, sourceContentType) {
-  const inputImage = `data:${sourceContentType};base64,${imageBuffer.toString("base64")}`;
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/bria/background-removal`,
-    {
+function getPixelcutErrorMessage(status) {
+  if (status === 400 || status === 415 || status === 422) {
+    return "Pixelcut could not process the image URL. Use a valid public image.";
+  }
+  if (status === 401 || status === 403) {
+    return "Pixelcut authentication failed on the server.";
+  }
+  if (status === 402) {
+    return "Pixelcut credits are insufficient. Please recharge and try again.";
+  }
+  if (status === 429) {
+    return "Pixelcut rate limit reached. Please try again shortly.";
+  }
+  if (status >= 500) {
+    return "Pixelcut is temporarily unavailable. Please try again.";
+  }
+  return "Pixelcut returned an unexpected error.";
+}
+
+async function runBackgroundRemoval(sourceImageUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  let response;
+  try {
+    response = await fetch("https://api.developer.pixelcut.ai/v1/remove-background", {
       method: "POST",
       headers: {
-        Authorization: `${AUTH_PREFIX} ${CLOUDFLARE_API_TOKEN}`,
-        "Content-Type": "application/json"
+        "X-API-Key": PIXELCUT_API_KEY,
+        "Content-Type": "application/json",
+        Accept: "image/*"
       },
-      body: JSON.stringify({ image: inputImage })
+      body: JSON.stringify({ image_url: sourceImageUrl, format: "png" }),
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw createHttpError(504, "Pixelcut request timed out.");
     }
-  );
+    throw createHttpError(502, "Pixelcut request failed.");
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    throw createHttpError(502, getPixelcutErrorMessage(response.status));
+  }
 
   const contentType = (response.headers.get("content-type") || "").toLowerCase();
-  if (!response.ok) {
-    const err = await response.text().catch(() => "");
-    throw new Error(`Cloudflare background removal failed${err ? `: ${err.slice(0, 220)}` : "."}`);
+  if (!contentType.startsWith("image/")) {
+    throw createHttpError(502, "Pixelcut returned an unexpected response format.");
   }
 
-  if (contentType.includes("application/json")) {
-    const data = await response.json().catch(() => ({}));
-    const image = data?.result?.image || data?.result || data?.image;
-    if (!image || typeof image !== "string") {
-      throw new Error("Cloudflare AI did not return a valid image payload.");
-    }
-    const base64 = image.includes(",") ? image.split(",").pop() : image;
-    return Buffer.from(base64, "base64");
+  const contentLengthHeader = response.headers.get("content-length");
+  if (contentLengthHeader && Number(contentLengthHeader) > MAX_PIXELCUT_BYTES) {
+    throw createHttpError(502, "Pixelcut output is too large. Maximum allowed size is 10 MB.");
   }
 
-  return Buffer.from(await response.arrayBuffer());
+  const output = Buffer.from(await response.arrayBuffer());
+  if (output.length > MAX_PIXELCUT_BYTES) {
+    throw createHttpError(502, "Pixelcut output is too large. Maximum allowed size is 10 MB.");
+  }
+
+  return output;
 }
 
 function chooseBackgroundFromSubject(subjectImage) {
@@ -257,35 +298,27 @@ async function compositeOnBackground(subjectPngBuffer, forcedBackground = "auto"
   };
 }
 
-async function uploadToCloudflareImages(imageBuffer, productId, title, background) {
-  const safeTitle = String(title || "").trim().slice(0, 200) || null;
-  const form = new FormData();
-  form.append("file", new Blob([imageBuffer], { type: "image/png" }), "olive-polished.png");
-  form.append("metadata", JSON.stringify({
-    source: "olive-photo-polish",
-    product_id: productId || null,
-    title: safeTitle,
-    background,
-    polished_at: new Date().toISOString()
-  }));
+async function uploadToSupabaseStorage(imageBuffer, productId, authorizationHeader) {
+  const storagePath = `${productId}/gallery-covers/${crypto.randomUUID()}-olive-polished.png`;
+  const encodedPath = storagePath.split("/").map(encodeURIComponent).join("/");
+  const response = await fetch(`${SUPABASE_URL}/storage/v1/object/${PRODUCT_BUCKET}/${encodedPath}`, {
+    method: "POST",
+    headers: {
+      Authorization: authorizationHeader,
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "image/png",
+      "x-upsert": "false"
+    },
+    body: imageBuffer
+  });
 
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`,
-    {
-      method: "POST",
-      headers: { Authorization: `${AUTH_PREFIX} ${CLOUDFLARE_API_TOKEN}` },
-      body: form
-    }
-  );
-
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok || !data?.success || !data?.result?.variants?.length) {
-    throw new Error(data?.errors?.[0]?.message || "Cloudflare Images upload failed.");
+  if (!response.ok) {
+    throw createHttpError(502, "Supabase storage upload failed.");
   }
 
   return {
-    imageId: data.result.id,
-    polishedImageUrl: data.result.variants[0]
+    storagePath,
+    polishedImageUrl: `${SUPABASE_URL}/storage/v1/object/public/${PRODUCT_BUCKET}/${encodedPath}`
   };
 }
 
@@ -302,14 +335,23 @@ function parseBody(reqBody) {
   return {};
 }
 
+function sanitizeProductId(value) {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  return cleaned || "";
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return send(res, 405, { error: "Method not allowed." });
   }
 
-  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
-    return send(res, 500, { error: "Cloudflare image processing is not configured on the server." });
+  if (!PIXELCUT_API_KEY) {
+    return send(res, 500, { error: "Pixelcut image processing is not configured on the server." });
   }
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return send(res, 500, { error: "Supabase auth verification is not configured on the server." });
@@ -328,6 +370,7 @@ module.exports = async (req, res) => {
   }
 
   const sourceImageUrl = String(body.sourceImageUrl || "").trim();
+  const productId = sanitizeProductId(body.productId);
   const forcedBackground = String(body.background || "auto").toLowerCase();
 
   const safeTarget = sourceImageUrl ? await resolveSafeImageTarget(sourceImageUrl) : false;
@@ -338,20 +381,24 @@ module.exports = async (req, res) => {
   if (!["auto", "black", "white"].includes(forcedBackground)) {
     return send(res, 400, { error: "Background must be auto, black, or white." });
   }
+  if (!productId) {
+    return send(res, 400, { error: "Product ID is required for polished image storage." });
+  }
 
   try {
-    const { buffer: sourceBuffer, contentType } = await fetchImageBuffer(safeTarget);
-    const subjectPng = await runBackgroundRemoval(sourceBuffer, contentType);
+    const sourceImage = await fetchImageBuffer(safeTarget);
+    if (!sourceImage?.buffer?.length) throw createHttpError(400, "Source URL returned an empty image.");
+    const subjectPng = await runBackgroundRemoval(safeTarget.url.toString());
     const { outputBuffer, background } = await compositeOnBackground(subjectPng, forcedBackground);
-    const upload = await uploadToCloudflareImages(outputBuffer, body.productId, body.title, background);
+    const upload = await uploadToSupabaseStorage(outputBuffer, productId, req.headers.authorization || "");
 
     return send(res, 200, {
       success: true,
       background,
       polishedImageUrl: upload.polishedImageUrl,
-      cloudflareImageId: upload.imageId
+      storagePath: upload.storagePath
     });
   } catch (error) {
-    return send(res, 500, { error: error?.message || "Photo polish failed." });
+    return send(res, error?.status || 500, { error: error?.message || "Photo polish failed." });
   }
 };

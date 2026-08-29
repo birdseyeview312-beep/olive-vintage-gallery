@@ -17,7 +17,7 @@ shippingSource:$("shippingSource"), shippingReadyNote:$("shippingReadyNote"),
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
   featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
-  galleryCoverPreview:$("galleryCoverPreview"), autoPolishUploads:$("autoPolishUploads"),
+  galleryCoverPreview:$("galleryCoverPreview"),
   saveMessage:$("saveMessage"), editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"),
   polishPieceBtn:$("polishPieceBtn"), resetBtn:$("resetBtn")
 };
@@ -27,7 +27,6 @@ let existingImages = [];
 let pendingFiles = [];
 let existingCoverImage = null;
 let pendingCoverFile = null;
-const AUTO_POLISH_KEY = "olive_auto_polish_uploads";
 
 function money(v){
   if(v === null || v === undefined || v === "") return "Price on request";
@@ -38,16 +37,6 @@ function saveMessage(text, type = ""){
   els.saveMessage.textContent = text || "";
   els.saveMessage.className = `message ${type}`.trim();
 }
-
-function setAutoPolishPreference(value){
-  try{ localStorage.setItem(AUTO_POLISH_KEY, value ? "1" : "0"); }catch{}
-}
-function loadAutoPolishPreference(){
-  try{ return localStorage.getItem(AUTO_POLISH_KEY); }catch{ return null; }
-}
-const autoPolishPref=loadAutoPolishPreference();
-if(els.autoPolishUploads&&autoPolishPref!==null)els.autoPolishUploads.checked=autoPolishPref==="1";
-if(els.autoPolishUploads&&autoPolishPref===null)setAutoPolishPreference(!!els.autoPolishUploads.checked);
 
 function renderPolishButton(){
   if(!els.polishPieceBtn)return;
@@ -162,7 +151,6 @@ els.shippingReadyNote.textContent=
   renderPolishButton();
 }
 els.newPieceBtn.addEventListener("click",clearForm); els.resetBtn.addEventListener("click",clearForm);
-els.autoPolishUploads?.addEventListener("change",()=>setAutoPolishPreference(!!els.autoPolishUploads.checked));
 
 els.galleryCoverInput.addEventListener("change",()=>{
   pendingCoverFile=Array.from(els.galleryCoverInput.files||[])[0]||null; els.galleryCoverInput.value=""; renderCover();
@@ -250,23 +238,11 @@ els.pieceForm.addEventListener("submit",async e=>{
     }
     const newCoverUrl=await uploadCoverFile(id);
     const newUrls=await uploadFiles(id);
-    let polishedCoverUrl=newCoverUrl||existingCoverImage||null;
-    let polishSummary="";
-    const autoPolish=!!els.autoPolishUploads?.checked;
-    const sourceForPolish=(newUrls[0]||"").trim();
-    if(autoPolish&&!newCoverUrl&&sourceForPolish){
-      try{
-        const polished=await callPhotoPolish({ sourceImageUrl:sourceForPolish, productId:id, title:els.title.value.trim(), background:"auto" });
-        polishedCoverUrl=polished.polishedImageUrl;
-        polishSummary=` Cover polished on ${polished.background} background.`;
-      }catch(err){
-        polishSummary=` Automatic polish skipped: ${err.message||String(err)}`;
-      }
-    }
+    const polishedCoverUrl=newCoverUrl||existingCoverImage||null;
     const payload={...formPayload(),gallery_cover_image:polishedCoverUrl,images:[...existingImages,...newUrls]};
     const { error }=await supabase.from("products").update(payload).eq("id",id);
     if(error) throw error;
-    saveMessage(`Saved.${polishSummary}`, "success"); await loadProducts(); editPiece(id);
+    saveMessage("Saved.", "success"); await loadProducts(); editPiece(id);
   }catch(err){ saveMessage(err.message||String(err),"error"); }
 });
 els.deleteBtn.addEventListener("click",async()=>{
@@ -282,7 +258,7 @@ els.polishPieceBtn?.addEventListener("click",async()=>{
   if(!id){ saveMessage("Save this piece first, then polish it.", "error"); return; }
   if(!source){ saveMessage("Add at least one original photograph before polishing.", "error"); return; }
   els.polishPieceBtn.disabled=true;
-  saveMessage("Polishing this piece with secure Cloudflare AI…");
+  saveMessage("Polishing this piece securely with Pixelcut…");
   try{
     const polished=await callPhotoPolish({ sourceImageUrl:source, productId:id, title:els.title.value.trim(), background:"auto" });
     const { error }=await supabase.from("products").update({
