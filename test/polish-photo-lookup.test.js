@@ -63,7 +63,7 @@ function parsePayload(res) {
   return JSON.parse(res.payload || "{}");
 }
 
-function mockSourceImageDownload(buffer) {
+function mockSourceImageDownload(bufferOrFactory) {
   const https = require("node:https");
   https.request = (_options, callback) => {
     const req = new EventEmitter();
@@ -72,6 +72,7 @@ function mockSourceImageDownload(buffer) {
       if (error) process.nextTick(() => req.emit("error", error));
     };
     req.end = () => {
+      const buffer = typeof bufferOrFactory === "function" ? bufferOrFactory() : bufferOrFactory;
       const response = new EventEmitter();
       response.statusCode = 200;
       response.headers = {
@@ -129,8 +130,8 @@ test("blocks local/private/unsafe URLs and accepts public HTTPS URL", async () =
     if (String(url) === "https://api.developer.pixelcut.ai/v1/remove-background") {
       return makeFetchResponse({
         status: 200,
-        headers: { "content-type": "image/png", "content-length": String(pixelcutBuffer.length) },
-        bodyBuffer: pixelcutBuffer
+        headers: { "content-type": "application/json" },
+        json: { result_url: "https://93.184.216.34/result.png" }
       });
     }
     if (String(url).startsWith("https://supabase.example/storage/v1/object/product-images/")) {
@@ -165,10 +166,10 @@ test("auto background selects contrasting color and forced background is honored
   const sourceBuffer = await pngWithColor(0xffffffff);
   const brightSubject = await pngWithColor(0xfefefeff);
   const darkSubject = await pngWithColor(0x010101ff);
-  mockSourceImageDownload(sourceBuffer);
+  let currentPixelcutImage = brightSubject;
+  mockSourceImageDownload(() => currentPixelcutImage);
 
   const handler = loadHandler();
-  let currentPixelcutImage = brightSubject;
 
   global.fetch = async (url) => {
     if (String(url).includes("/auth/v1/user")) {
@@ -177,8 +178,8 @@ test("auto background selects contrasting color and forced background is honored
     if (String(url) === "https://api.developer.pixelcut.ai/v1/remove-background") {
       return makeFetchResponse({
         status: 200,
-        headers: { "content-type": "image/png", "content-length": String(currentPixelcutImage.length) },
-        bodyBuffer: currentPixelcutImage
+        headers: { "content-type": "application/json" },
+        json: { result_url: "https://93.184.216.34/result.png" }
       });
     }
     if (String(url).startsWith("https://supabase.example/storage/v1/object/product-images/")) {
@@ -223,8 +224,8 @@ test("Pixelcut receives correct request and errors are readable without API key 
     if (String(url) === "https://api.developer.pixelcut.ai/v1/remove-background") {
       return makeFetchResponse({
         status: 200,
-        headers: { "content-type": "image/png", "content-length": String(pixelcutBuffer.length) },
-        bodyBuffer: pixelcutBuffer
+        headers: { "content-type": "application/json" },
+        json: { result_url: "https://93.184.216.34/result.png" }
       });
     }
     if (String(url).startsWith("https://supabase.example/storage/v1/object/product-images/")) {
@@ -242,7 +243,7 @@ test("Pixelcut receives correct request and errors are readable without API key 
   assert.equal(pixelcutCall.options.method, "POST");
   assert.equal(pixelcutCall.options.headers["X-API-Key"], "super-secret-key");
   assert.equal(pixelcutCall.options.headers["Content-Type"], "application/json");
-  assert.equal(pixelcutCall.options.headers.Accept, "image/*");
+  assert.equal(pixelcutCall.options.headers.Accept, "application/json");
   assert.deepEqual(JSON.parse(pixelcutCall.options.body), {
     image_url: "https://93.184.216.34/image.png",
     format: "png"
@@ -287,8 +288,8 @@ test("owner-only full flow uploads to unique Supabase paths with owner token and
     if (String(url) === "https://api.developer.pixelcut.ai/v1/remove-background") {
       return makeFetchResponse({
         status: 200,
-        headers: { "content-type": "image/png", "content-length": String(pixelcutBuffer.length) },
-        bodyBuffer: pixelcutBuffer
+        headers: { "content-type": "application/json" },
+        json: { result_url: "https://93.184.216.34/result.png" }
       });
     }
     if (String(url).startsWith("https://supabase.example/storage/v1/object/product-images/")) {
