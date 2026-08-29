@@ -57,6 +57,12 @@ const money = value => {
   }).format(Number(value));
 };
 
+const isShippingReady = product => [
+  product?.shipping_weight_oz,
+  product?.shipping_length_in,
+  product?.shipping_width_in,
+  product?.shipping_height_in
+].every(value => Number(value) > 0);
 
 let checkoutEnabled = false;
 
@@ -91,7 +97,7 @@ function productCard(p, index = 0) {
   const makerLine = [p.maker, p.date_period].filter(Boolean).join(" · ") || "Olive Vintage Gallery";
   const cardClass = index === 0 ? "product-card featured-product reveal visible" : "product-card reveal visible";
   const inquirySubject = encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title || "Artwork"}`);
-  const canBuyNow = checkoutEnabled && !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
+  const canBuyNow = checkoutEnabled && isShippingReady(p) && !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
   const action = canBuyNow
     ? `<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`
     : `<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
