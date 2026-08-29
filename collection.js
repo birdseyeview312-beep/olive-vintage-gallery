@@ -7,6 +7,12 @@ const countEl = document.getElementById("collectionCount");
 const filters = document.querySelectorAll("[data-collection-filter]");
 const esc = (s="") => String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const money = value => value === null || value === undefined || value === "" ? "Price on request" : new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
+const isShippingReady = product => [
+  product?.shipping_weight_oz,
+  product?.shipping_length_in,
+  product?.shipping_width_in,
+  product?.shipping_height_in
+].every(value => Number(value) > 0);
 let rows = [];
 let activeFilter = "available";
 let checkoutEnabled = false;
@@ -39,7 +45,7 @@ async function beginBuyNow(productId, button){
 function card(p,index){
   const image=p.gallery_cover_image||p.images?.[0];
   const isSold=p.status==="sold";
-  const canBuy=checkoutEnabled&&!!p.id&&p.status==="available"&&!p.inquire_only&&p.price!==null&&p.price!==undefined&&Number(p.price)>0;
+  const canBuy=checkoutEnabled&&isShippingReady(p)&&!!p.id&&p.status==="available"&&!p.inquire_only&&p.price!==null&&p.price!==undefined&&Number(p.price)>0;
   const inquirySubject=encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title||"Artwork"}`);
   const action=isSold?`<span class="collection-status sold">Sold</span>`:canBuy?`<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`:`<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `<article class="product-card reveal visible ${isSold?"collection-sold":""}" data-product-id="${esc(p.id||"")}">
