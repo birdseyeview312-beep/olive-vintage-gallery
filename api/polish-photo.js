@@ -186,7 +186,7 @@ async function fetchImageBuffer(target) {
     );
 
     request.on("error", safeReject);
-    request.setTimeout(15000, () => request.destroy(new Error("Timed out downloading source image.")));
+    request.setTimeout(30000, () => request.destroy(new Error("Timed out downloading source image.")));
     request.end();
   });
 }
@@ -195,10 +195,10 @@ function getPixelcutErrorMessage(status) {
   if (status === 400 || status === 415 || status === 422) {
     return "Pixelcut could not process the image URL. Use a valid public image.";
   }
-  if (status === 401 || status === 403) {
+  if (status === 401) {
     return "Pixelcut authentication failed on the server.";
   }
-  if (status === 402) {
+  if (status === 402 || status === 403) {
     return "Pixelcut credits are insufficient. Please recharge and try again.";
   }
   if (status === 429) {
@@ -212,7 +212,7 @@ function getPixelcutErrorMessage(status) {
 
 async function runBackgroundRemoval(sourceImageUrl) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(() => controller.abort(), 45000);
   let response;
   try {
     response = await fetch("https://api.developer.pixelcut.ai/v1/remove-background", {
@@ -220,7 +220,7 @@ async function runBackgroundRemoval(sourceImageUrl) {
       headers: {
         "X-API-Key": PIXELCUT_API_KEY,
         "Content-Type": "application/json",
-        Accept: "image/*"
+        Accept: "application/json"
       },
       body: JSON.stringify({ image_url: sourceImageUrl, format: "png" }),
       signal: controller.signal
@@ -239,21 +239,25 @@ async function runBackgroundRemoval(sourceImageUrl) {
   }
 
   const contentType = (response.headers.get("content-type") || "").toLowerCase();
-  if (!contentType.startsWith("image/")) {
+  if (!contentType.includes("application/json")) {
     throw createHttpError(502, "Pixelcut returned an unexpected response format.");
   }
 
-  const contentLengthHeader = response.headers.get("content-length");
-  if (contentLengthHeader && Number(contentLengthHeader) > MAX_PIXELCUT_BYTES) {
+  const result = await response.json().catch(() => null);
+  const resultTarget = result?.result_url ? await resolveSafeImageTarget(result.result_url) : false;
+  if (!resultTarget) {
+    throw createHttpError(502, "Pixelcut did not return a valid result image.");
+  }
+
+  const downloaded = await fetchImageBuffer(resultTarget);
+  if (!downloaded?.buffer?.length) {
+    throw createHttpError(502, "Pixelcut returned an empty result image.");
+  }
+  if (downloaded.buffer.length > MAX_PIXELCUT_BYTES) {
     throw createHttpError(502, "Pixelcut output is too large. Maximum allowed size is 10 MB.");
   }
 
-  const output = Buffer.from(await response.arrayBuffer());
-  if (output.length > MAX_PIXELCUT_BYTES) {
-    throw createHttpError(502, "Pixelcut output is too large. Maximum allowed size is 10 MB.");
-  }
-
-  return output;
+  return downloaded.buffer;
 }
 
 function chooseBackgroundFromSubject(subjectImage) {
