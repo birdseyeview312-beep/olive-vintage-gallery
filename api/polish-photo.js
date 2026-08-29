@@ -29,6 +29,10 @@ function getTransportErrorCode(error) {
   return String(raw).replace(/[^A-Z0-9_-]/gi, "").slice(0, 48) || "UNKNOWN";
 }
 
+function hasValidPixelcutKeyFormat(value) {
+  return /^sk_[A-Za-z0-9_-]+$/.test(value);
+}
+
 function isPrivateIpv4(ip) {
   return (
     ip === "0.0.0.0" ||
@@ -235,11 +239,7 @@ async function runBackgroundRemoval(sourceImageUrl) {
       throw createHttpError(504, "Pixelcut request timed out.");
     }
     const transportCode = getTransportErrorCode(error);
-    console.error("Pixelcut transport failure", {
-      code: transportCode,
-      message: String(error?.message || "").slice(0, 200),
-      cause: String(error?.cause?.message || "").slice(0, 200)
-    });
+    console.error("Pixelcut transport failure", { code: transportCode });
     throw createHttpError(502, `Pixelcut request failed (${transportCode}).`);
   } finally {
     clearTimeout(timeout);
@@ -367,6 +367,9 @@ module.exports = async (req, res) => {
 
   if (!PIXELCUT_API_KEY) {
     return send(res, 500, { error: "Pixelcut image processing is not configured on the server." });
+  }
+  if (!hasValidPixelcutKeyFormat(PIXELCUT_API_KEY)) {
+    return send(res, 500, { error: "Pixelcut API key is formatted incorrectly. In Vercel, paste only the key value." });
   }
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return send(res, 500, { error: "Supabase auth verification is not configured on the server." });
