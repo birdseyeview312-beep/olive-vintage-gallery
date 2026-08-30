@@ -10,6 +10,7 @@ const els = {
   resultCount:$("resultCount"), stats:$("stats"), pieceForm:$("pieceForm"), pieceId:$("pieceId"),
   inventoryNumber:$("inventoryNumber"), status:$("status"), title:$("title"), maker:$("maker"),
   category:$("category"), price:$("price"), datePeriod:$("datePeriod"), origin:$("origin"),
+  autoCategory:$("autoCategory"), categorySuggestion:$("categorySuggestion"),
   medium:$("medium"), height:$("height"), width:$("width"), depth:$("depth"),
 shippingWeightLb:$("shippingWeightLb"), shippingLength:$("shippingLength"),
 shippingWidth:$("shippingWidth"), shippingHeight:$("shippingHeight"),
@@ -44,6 +45,32 @@ function isShippingReady(product){
     product?.shipping_width_in,
     product?.shipping_height_in
   ].every(value => Number(value) > 0);
+}
+
+const CATEGORY_RULES = {
+  paperweight: /\b(paper\s*weight|paperweight|marble|millefiori orb|lampwork orb)\b/i,
+  european: /\b(murano|italy|italian|venice|venetian|france|french|sweden|swedish|scandinavia|scandinavian|denmark|danish|finland|finnish|norway|norwegian|czech|czechoslovak|bohemia|bohemian|poland|polish|romania|romanian|germany|german|austria|austrian|belgium|belgian|netherlands|dutch|united kingdom|england|english|scotland|scottish|wales|welsh|ireland|irish|kosta boda|holmegaard|daum|loetz|lalique|saint louis|fratelli toso|cenedese|carlo moretti|ioan nemtoi|caithness|paul ysart|pallme|k[oö]nig)\b/i,
+  american: /\b(united states|u\.?s\.?a\.?|american|california|steuben|fenton|durand|eickholt|rollin karg|karg glass|neptune hot glass|annieglass|correia|tiffany|st\.? clair|cohn[- ]stone)\b/i,
+  vintage: /\b(vintage|antique|art nouveau|mid[- ]century|early 19\d\ds|circa 19\d\ds|c\.?\s*19\d\d)\b/i
+};
+
+function suggestedCategory(){
+  const text=[els.title.value,els.maker.value,els.origin.value,els.datePeriod.value,els.medium.value,els.description.value].filter(Boolean).join(" ");
+  if(CATEGORY_RULES.paperweight.test(text)) return "Marbles & Paperweights";
+  if(CATEGORY_RULES.vintage.test(text)) return "Vintage & Antique Glass";
+  if(CATEGORY_RULES.european.test(text)) return "European & Italian Glass";
+  if(CATEGORY_RULES.american.test(text)) return "American Art Glass";
+  return "Contemporary Studio Glass";
+}
+
+function refreshCategorySuggestion(){
+  if(!els.autoCategory)return;
+  const suggestion=suggestedCategory();
+  if(els.autoCategory.checked) els.category.value=suggestion;
+  els.category.disabled=els.autoCategory.checked;
+  els.categorySuggestion.textContent=els.autoCategory.checked
+    ? `Suggested: ${suggestion}. Turn off automatic selection to override.`
+    : "Manual category selected.";
 }
 
 function renderPolishButton(){
@@ -134,15 +161,18 @@ els.searchInput.addEventListener("input",render); els.statusFilter.addEventListe
 function clearForm(){
   els.pieceForm.reset(); els.pieceId.value=""; existingImages=[]; pendingFiles=[]; existingCoverImage=null; pendingCoverFile=null;
   els.polishBackground.value="auto";
+  els.autoCategory.checked=true;
   els.editorTitle.textContent="Add a piece"; els.deleteBtn.classList.add("hidden"); saveMessage("");
   renderCover(); renderPhotos();
   renderPolishButton();
+  refreshCategorySuggestion();
 }
 function editPiece(id){
   const p=products.find(x=>x.id===id); if(!p)return;
   els.polishBackground.value="auto";
   els.pieceId.value=p.id; els.inventoryNumber.value=p.inventory_number||""; els.status.value=p.status||"available";
   els.title.value=p.title||""; els.maker.value=p.maker||""; els.category.value=p.category||"Contemporary Studio Glass";
+  els.autoCategory.checked=!p.category_manual;
   els.price.value=p.price ?? ""; els.datePeriod.value=p.date_period||""; els.origin.value=p.origin||"";
   els.medium.value=p.medium||""; els.height.value=p.height||""; els.width.value=p.width||""; els.depth.value=p.depth||"";els.shippingWeightLb.value=p.shipping_weight_oz ? Number(p.shipping_weight_oz)/16 : "";
 els.shippingLength.value=p.shipping_length_in ?? "";
@@ -159,6 +189,7 @@ els.shippingReadyNote.textContent=
   existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
   renderCover(); renderPhotos();
   renderPolishButton();
+  refreshCategorySuggestion();
 }
 els.newPieceBtn.addEventListener("click",clearForm); els.resetBtn.addEventListener("click",clearForm);
 
@@ -211,12 +242,14 @@ async function uploadFiles(productId){
   return urls;
 }
 function formPayload(){
+  if(els.autoCategory.checked) els.category.value=suggestedCategory();
   return {
     inventory_number:els.inventoryNumber.value.trim(),
     status:els.status.value,
     title:els.title.value.trim(),
     maker:els.maker.value.trim()||null,
     category:els.category.value,
+    category_manual:!els.autoCategory.checked,
     price:els.price.value===""?null:Number(els.price.value),
     date_period:els.datePeriod.value.trim()||null,
     origin:els.origin.value.trim()||null,
@@ -238,6 +271,9 @@ shipping_package_source:[els.shippingWeightLb.value,els.shippingLength.value,els
     updated_at:new Date().toISOString()
   };
 }
+
+[els.title,els.maker,els.origin,els.datePeriod,els.medium,els.description].forEach(input=>input.addEventListener("input",refreshCategorySuggestion));
+els.autoCategory.addEventListener("change",refreshCategorySuggestion);
 els.pieceForm.addEventListener("submit",async e=>{
   e.preventDefault(); saveMessage("Saving…");
   try{
