@@ -58,11 +58,11 @@
     padding: 6px 9px;
     border: 1px solid rgba(241, 234, 220, .16);
     border-radius: 999px;
-    background: rgba(10, 13, 9, .70);
+    background: #0b0e0a;
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     box-shadow: 0 7px 20px rgba(0, 0, 0, .16);
-    color: #f1eadc;
+    color: #fff8e8;
     font-family: "DM Sans", system-ui, sans-serif;
     font-size: 8px;
     font-weight: 600;
