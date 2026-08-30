@@ -56,6 +56,21 @@ function card(p,index){
   </article>`;
 }
 
+function updateCategoryRepresentatives(){
+  document.querySelectorAll("[data-category-image]").forEach(image=>{
+    const category=image.dataset.categoryImage;
+    const categoryRows=rows.filter(p=>p.category===category);
+    const representative=categoryRows.find(p=>p.status==="available"&&(p.gallery_cover_image||p.images?.[0]))
+      ||categoryRows.find(p=>p.gallery_cover_image||p.images?.[0]);
+    if(!representative)return;
+    image.src=representative.gallery_cover_image||representative.images[0];
+    image.alt=`Representative listing: ${representative.title}`;
+    const button=image.closest("[data-category-filter]");
+    button?.setAttribute("aria-label",`Browse ${category}, represented by ${representative.title}`);
+    button?.setAttribute("title",representative.title);
+  });
+}
+
 function render(){
   const statusRows=activeFilter==="all"?rows:rows.filter(p=>p.status===activeFilter);
   const visible=activeCategory?statusRows.filter(p=>p.category===activeCategory):statusRows;
@@ -85,6 +100,7 @@ async function boot(){
     const [inventory,paymentsReady]=await Promise.all([getGalleryProducts({status:null}),getCheckoutEnabled()]);
     checkoutEnabled=paymentsReady;
     rows=inventory.filter(p=>["available","reserved","sold"].includes(p.status));
+    updateCategoryRepresentatives();
     const available=rows.filter(p=>p.status==="available").length;
     const sold=rows.filter(p=>p.status==="sold").length;
     document.querySelector('[data-collection-filter="available"]').textContent=`Available · ${available}`;
