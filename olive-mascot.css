@@ -4,7 +4,7 @@
   position:fixed;
   right:clamp(14px,2vw,30px);
   bottom:clamp(10px,1.5vw,22px);
-  z-index:300;
+  z-index:4900!important;
   width:clamp(170px,13vw,225px);
   pointer-events:none;
   opacity:0;
@@ -13,8 +13,11 @@
   transition:opacity .7s ease,transform .9s cubic-bezier(.2,.78,.2,1),filter .6s ease;
   filter:drop-shadow(0 20px 30px rgba(0,0,0,.42));
   will-change:transform,opacity;
+  overflow:visible!important;
+  clip-path:none!important;
+  isolation:isolate;
 }
-.olive-mascot img{display:block;width:100%;height:auto}
+.olive-mascot img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;overflow:visible!important;clip-path:none!important}
 .olive-mascot.is-visible{--mascot-x:0%;opacity:.96;transform:translate3d(var(--mascot-x),0,0) rotate(var(--mascot-rotate))}
 .olive-mascot.is-peeking{--mascot-x:0%;--mascot-rotate:-4deg}
 .olive-mascot.is-waving{--mascot-rotate:-3deg;animation:olive-wave 1.1s ease-in-out 2}
