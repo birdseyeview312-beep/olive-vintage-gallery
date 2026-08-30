@@ -103,6 +103,15 @@ function isGlassListing(input: { title: string; category: string; medium: string
   return GLASS_TERMS.test([input.title, input.category, input.medium, input.description].filter(Boolean).join(" "));
 }
 
+function curatedCategory(input: { title: string; sourceCategory: string; maker: string | null; origin: string | null; medium: string | null; datePeriod: string | null; description: string }) {
+  const value = [input.title, input.sourceCategory, input.maker, input.origin, input.medium, input.datePeriod, input.description].filter(Boolean).join(" ");
+  if (/\b(paper\s*weight|paperweight|marble|millefiori orb|lampwork orb)\b/i.test(value)) return "Marbles & Paperweights";
+  if (/\b(vintage|antique|art nouveau|mid[- ]century|early 19\d\ds|circa 19\d\ds|c\.?\s*19\d\d)\b/i.test(value)) return "Vintage & Antique Glass";
+  if (/\b(murano|italy|italian|venice|venetian|france|french|sweden|swedish|scandinavia|scandinavian|denmark|danish|finland|finnish|norway|norwegian|czech|czechoslovak|bohemia|bohemian|poland|polish|romania|romanian|germany|german|austria|austrian|belgium|belgian|netherlands|dutch|united kingdom|england|english|scotland|scottish|wales|welsh|ireland|irish|kosta boda|holmegaard|daum|loetz|lalique|saint louis|fratelli toso|cenedese|carlo moretti|ioan nemtoi|caithness|paul ysart|pallme|k[oö]nig)\b/i.test(value)) return "European & Italian Glass";
+  if (/\b(united states|u\.?s\.?a\.?|american|california|steuben|fenton|durand|eickholt|rollin karg|karg glass|neptune hot glass|annieglass|correia|tiffany|st\.? clair|cohn[- ]stone)\b/i.test(value)) return "American Art Glass";
+  return "Contemporary Studio Glass";
+}
+
 async function tradingCall(callName: string, token: string, mode: string, requestXml: string) {
   const response = await fetch(ebayTradingBase(mode), {
     method: "POST",
@@ -190,7 +199,7 @@ Deno.serve(async (req: Request) => {
         const inventoryNumber = sku || `EBAY-${itemId}`;
         const images = Array.from(new Set([...arr(item?.PictureDetails?.PictureURL).map(text), text(item?.PictureDetails?.GalleryURL), text(summary?.PictureDetails?.GalleryURL)].filter(x => /^https:\/\//i.test(x)))).slice(0, 12);
         const price = amount(item?.SellingStatus?.CurrentPrice) ?? amount(item?.StartPrice) ?? amount(summary?.SellingStatus?.CurrentPrice) ?? amount(summary?.StartPrice);
-        const category = text(item?.PrimaryCategory?.CategoryName) || "Uncategorized";
+        const sourceCategory = text(item?.PrimaryCategory?.CategoryName) || "Uncategorized";
         const maker = specific(item, /^(brand|maker|artist|designer|studio)$/i) || null;
         const origin = specific(item, /country.*manufacture|origin/i) || null;
         const medium = specific(item, /^(material|production technique)$/i) || null;
@@ -198,7 +207,8 @@ Deno.serve(async (req: Request) => {
         const conditionParts = [text(item?.ConditionDisplayName), plainText(item?.ConditionDescription)].filter(Boolean);
         const condition = conditionParts.join(" — ") || null;
         const description = plainText(item?.Description) || title;
-        const glassEligible = isGlassListing({ title, category, medium, description });
+        const glassEligible = isGlassListing({ title, category: sourceCategory, medium, description });
+        const category = curatedCategory({ title, sourceCategory, maker, origin, medium, datePeriod, description });
         const status = glassEligible && images.length > 0 && Number(price) > 0 ? "available" : "draft";
         const packageData = shippingPackage(item);
 
@@ -207,9 +217,9 @@ Deno.serve(async (req: Request) => {
         if (existingProduct?.id) {
           productId = existingProduct.id;
           const shippingUpdate = existingProduct.shipping_package_source === "manual" ? {} : packageData;
-          await service.from("products").update({ title, maker, category, price, status, date_period: datePeriod, origin, medium, description, condition, images, gallery_cover_image: images[0] || null, gallery_cover_source_image: images[0] || null, new_arrival: true, updated_at: now, ...shippingUpdate }).eq("id", productId);
+          await service.from("products").update({ title, maker, category, category_manual: false, price, status, date_period: datePeriod, origin, medium, description, condition, images, gallery_cover_image: images[0] || null, gallery_cover_source_image: images[0] || null, new_arrival: true, updated_at: now, ...shippingUpdate }).eq("id", productId);
         } else {
-          const { data: created, error: createErr } = await service.from("products").insert({ inventory_number: inventoryNumber, title, maker, category, price, status, date_period: datePeriod, origin, medium, description, condition, images, gallery_cover_image: images[0] || null, gallery_cover_source_image: images[0] || null, new_arrival: true, featured: false, inquire_only: false, ...packageData }).select("id").single();
+          const { data: created, error: createErr } = await service.from("products").insert({ inventory_number: inventoryNumber, title, maker, category, category_manual: false, price, status, date_period: datePeriod, origin, medium, description, condition, images, gallery_cover_image: images[0] || null, gallery_cover_source_image: images[0] || null, new_arrival: true, featured: false, inquire_only: false, ...packageData }).select("id").single();
           if (createErr) throw createErr;
           productId = created.id;
         }
