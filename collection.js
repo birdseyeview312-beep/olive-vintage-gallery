@@ -5,6 +5,7 @@ import { bindProductImageGalleries } from "./product-gallery.js";
 const grid = document.getElementById("collectionGrid");
 const countEl = document.getElementById("collectionCount");
 const filters = document.querySelectorAll("[data-collection-filter]");
+const categoryFilters = document.querySelectorAll("[data-category-filter]");
 const esc = (s="") => String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const money = value => value === null || value === undefined || value === "" ? "Price on request" : new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
 const isShippingReady = product => [
@@ -15,6 +16,7 @@ const isShippingReady = product => [
 ].every(value => Number(value) > 0);
 let rows = [];
 let activeFilter = "available";
+let activeCategory = "";
 let checkoutEnabled = false;
 
 async function getCheckoutEnabled(){
@@ -55,15 +57,28 @@ function card(p,index){
 }
 
 function render(){
-  const visible=activeFilter==="all"?rows:rows.filter(p=>p.status===activeFilter);
+  const statusRows=activeFilter==="all"?rows:rows.filter(p=>p.status===activeFilter);
+  const visible=activeCategory?statusRows.filter(p=>p.category===activeCategory):statusRows;
   const photoFirst=[...visible.filter(p=>p.images?.length),...visible.filter(p=>!p.images?.length)];
   grid.innerHTML=photoFirst.length?photoFirst.map(card).join(""):`<div class="collection-empty">No products in this view.</div>`;
-  countEl.textContent=`${visible.length} ${activeFilter==="all"?"public records":activeFilter==="sold"?"sold works":"available works"}`;
+  const categoryLabel=activeCategory?` in ${activeCategory}`:"";
+  countEl.textContent=`${visible.length} ${activeFilter==="all"?"public records":activeFilter==="sold"?"sold works":"available works"}${categoryLabel}`;
+  document.querySelectorAll("[data-category-count]").forEach(el=>{
+    const category=el.dataset.categoryCount;
+    const total=category?statusRows.filter(p=>p.category===category).length:statusRows.length;
+    el.textContent=`${total} ${total===1?"work":"works"}`;
+  });
   grid.querySelectorAll("[data-buy-product]").forEach(btn=>btn.addEventListener("click",()=>beginBuyNow(btn.dataset.buyProduct,btn)));
   bindProductImageGalleries(photoFirst,grid);
 }
 
 filters.forEach(btn=>btn.addEventListener("click",()=>{activeFilter=btn.dataset.collectionFilter;filters.forEach(b=>b.classList.toggle("active",b===btn));render();}));
+categoryFilters.forEach(btn=>btn.addEventListener("click",()=>{
+  activeCategory=btn.dataset.categoryFilter||"";
+  categoryFilters.forEach(b=>{const selected=b===btn;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected));});
+  render();
+  document.querySelector(".collection-controls")?.scrollIntoView({behavior:"smooth",block:"start"});
+}));
 
 async function boot(){
   try{
