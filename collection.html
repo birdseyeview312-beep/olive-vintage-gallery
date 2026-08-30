@@ -88,6 +88,29 @@
       <div><p class="eyebrow">THE LIVE COLLECTION</p><h1>Every available object.<br><em>One gallery.</em></h1></div>
       <p>Browse the full public Olive Vintage inventory. Tap any photographed object to open its complete recovered image set.</p>
     </section>
+    <section class="collection-category-browser" aria-labelledby="categoryBrowserTitle">
+      <div class="collection-category-heading"><p id="categoryBrowserTitle" class="eyebrow">BROWSE BY CATEGORY</p><p>Choose a collection to refine the gallery.</p></div>
+      <div class="collection-category-tiles" role="group" aria-label="Filter listings by category">
+        <button class="collection-category-tile active" type="button" data-category-filter="" aria-pressed="true">
+          <img src="./assets/olive-brand.jpg" alt="" loading="eager"><span><strong>All Categories</strong><small data-category-count="">All works</small></span>
+        </button>
+        <button class="collection-category-tile" type="button" data-category-filter="Contemporary Studio Glass" aria-pressed="false">
+          <img src="./assets/products/color-burst-studio-vase.webp" alt="" loading="lazy"><span><strong>Contemporary Studio Glass</strong><small data-category-count="Contemporary Studio Glass"></small></span>
+        </button>
+        <button class="collection-category-tile" type="button" data-category-filter="Vintage &amp; Antique Glass" aria-pressed="false">
+          <img src="./assets/products/steuben-carder-aurene.jpg" alt="" loading="lazy"><span><strong>Vintage &amp; Antique Glass</strong><small data-category-count="Vintage &amp; Antique Glass"></small></span>
+        </button>
+        <button class="collection-category-tile" type="button" data-category-filter="American Art Glass" aria-pressed="false">
+          <img src="./assets/products/rollin-karg-sculpture.jpg" alt="" loading="lazy"><span><strong>American Art Glass</strong><small data-category-count="American Art Glass"></small></span>
+        </button>
+        <button class="collection-category-tile" type="button" data-category-filter="European &amp; Italian Glass" aria-pressed="false">
+          <img src="./assets/products/carlo-colizza-aquarium-boot.jpg" alt="" loading="lazy"><span><strong>European &amp; Italian Glass</strong><small data-category-count="European &amp; Italian Glass"></small></span>
+        </button>
+        <button class="collection-category-tile" type="button" data-category-filter="Marbles &amp; Paperweights" aria-pressed="false">
+          <img src="./assets/products/paul-stankard-paperweight.jpg" alt="" loading="lazy"><span><strong>Marbles &amp; Paperweights</strong><small data-category-count="Marbles &amp; Paperweights"></small></span>
+        </button>
+      </div>
+    </section>
     <div class="collection-controls">
       <div class="collection-filters" role="group" aria-label="Filter collection"><button class="collection-filter active" type="button" data-collection-filter="available">Available</button><button class="collection-filter" type="button" data-collection-filter="sold">Sold Archive</button><button class="collection-filter" type="button" data-collection-filter="all">All Public</button></div>
       <div id="collectionCount" class="collection-count">Loading collection…</div>
