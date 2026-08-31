@@ -27,6 +27,7 @@
   let bubbleTimer = 0;
   let propTimer = 0;
   let x = Math.max(8, window.innerWidth - mascot.offsetWidth - 20);
+  let y = 0;
   let lastIdle = -1;
 
   const wait = ms => new Promise(resolve => window.setTimeout(resolve, ms));
@@ -38,15 +39,16 @@
     sprite.style.setProperty("--mascot-clip-right", frame < 12 ? "14%" : "0%");
   }
 
-  function setPosition(nextX, y = 0) {
+  function setPosition(nextX, nextY = 0) {
     x = clampX(nextX);
+    y = nextY;
     mascot.classList.toggle("bubble-left", x < window.innerWidth / 2);
     mascot.style.setProperty("--mascot-x", `${Math.round(x)}px`);
     mascot.style.setProperty("--mascot-y", `${Math.round(y)}px`);
   }
 
   function clearActionClasses() {
-    mascot.classList.remove("is-walking", "is-waving", "is-bowing", "is-hopping", "is-peeking", "is-inspecting", "is-tripping", "is-straightening", "is-sleeping", "is-celebrating");
+    mascot.classList.remove("is-walking", "is-climbing", "is-waving", "is-bowing", "is-hopping", "is-peeking", "is-inspecting", "is-tripping", "is-straightening", "is-sleeping", "is-celebrating");
   }
 
   function say(message, duration = 2300) {
@@ -64,12 +66,29 @@
   }
 
   async function playFrames(frames, speed, hop) {
+    const restingY = y;
     for (let i = 0; i < frames.length && visible; i += 1) {
       setFrame(frames[i]);
-      if (hop) setPosition(x, i === 1 ? -28 : 0);
+      if (hop) setPosition(x, i === 1 ? restingY - 28 : restingY);
       await wait(speed);
     }
-    setPosition(x, 0);
+    setPosition(x, restingY);
+  }
+
+  async function moveVertical(targetY, duration = 1600) {
+    const startY = y;
+    const started = performance.now();
+    await new Promise(resolve => {
+      function step(now) {
+        if (!visible) return resolve();
+        const progress = Math.min(1, (now - started) / duration);
+        const eased = .5 - Math.cos(progress * Math.PI) / 2;
+        setPosition(x, startY + (targetY - startY) * eased);
+        setFrame(WALK[Math.floor((now - started) / 190) % WALK.length]);
+        if (progress < 1) requestAnimationFrame(step); else resolve();
+      }
+      requestAnimationFrame(step);
+    });
   }
 
   async function action(name) {
@@ -125,6 +144,23 @@
     }
     if (name === "prop") { holdProp(pick(props)); say("Gallery duties call."); await action("bow"); return; }
     if (name === "comedy") { holdProp(pick(props)); say(pick(comedyReplies), 2800); await action(pick(["bow", "hop", "peek"])); return; }
+    if (name === "climb") {
+      await walkTo(x < window.innerWidth / 2 ? 8 : window.innerWidth - mascot.offsetWidth - 8);
+      clearActionClasses(); mascot.classList.add("is-climbing");
+      await moveVertical(-Math.min(270, window.innerHeight * .34), 1900);
+      say("A better view from up here."); await action("peek"); await wait(500);
+      mascot.classList.add("is-climbing"); await moveVertical(0, 1500); clearActionClasses(); return;
+    }
+    if (name === "perch") {
+      await walkTo(x < window.innerWidth / 2 ? 8 : window.innerWidth - mascot.offsetWidth - 8);
+      await moveVertical(-Math.min(165, window.innerHeight * .22), 1100);
+      say("I shall supervise from here."); await action("bow"); await wait(650); await moveVertical(0, 1000); return;
+    }
+    if (name === "popout") {
+      await walkTo(x < window.innerWidth / 2 ? 8 : window.innerWidth - mascot.offsetWidth - 8);
+      say("Be right back."); await moveVertical(mascot.offsetHeight * .82, 750); await wait(550);
+      await moveVertical(0, 650); say("Miss me?"); await action("hop"); return;
+    }
     if (name === "auction") { holdProp("①", 3000); say("Going once…", 2800); mascot.classList.add("is-celebrating"); await action("hop"); return; }
     if (name === "peek") { await walkTo(x < window.innerWidth / 2 ? 8 : window.innerWidth - mascot.offsetWidth - 8); say("Just looking."); await action("peek"); return; }
     if (name === "straighten") { say("There. Just so."); mascot.classList.add("is-straightening"); await action("bow"); return; }
@@ -163,7 +199,7 @@
     if (!visible || busy) return;
     busy = true;
     const margin = window.innerWidth < 720 ? 8 : 18;
-    const choices = ["wave", "bow", "hop", "peek", "inspect", "prop", "straighten", "trip", "comedy", "comedy"];
+    const choices = ["wave", "bow", "hop", "peek", "inspect", "prop", "straighten", "trip", "comedy", "comedy", "climb", "perch", "popout"];
     let next = Math.floor(Math.random() * choices.length);
     if (next === lastIdle) next = (next + 1) % choices.length;
     lastIdle = next;
