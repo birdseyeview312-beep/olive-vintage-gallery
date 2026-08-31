@@ -22,7 +22,6 @@
   let visible = false;
   let busy = false;
   let timer = 0;
-  let inactivityTimer = 0;
   let bubbleTimer = 0;
   let propTimer = 0;
   let x = Math.max(8, window.innerWidth - mascot.offsetWidth - 20);
@@ -88,7 +87,7 @@
     const start = x;
     const distance = clampX(target) - start;
     mascot.style.setProperty("--mascot-facing", distance < 0 ? "1" : "-1");
-    const duration = Math.max(900, Math.min(4300, Math.abs(distance) * 8));
+    const duration = Math.max(650, Math.min(2800, Math.abs(distance) * 5));
     const started = performance.now();
     let previousFrame = -1;
     await new Promise(resolve => {
@@ -137,7 +136,7 @@
 
   function scheduleRoutine() {
     window.clearTimeout(timer);
-    if (visible) timer = window.setTimeout(routine, 7500 + Math.random() * 6500);
+    if (visible) timer = window.setTimeout(routine, 450 + Math.random() * 650);
   }
 
   async function drainQueue() {
@@ -165,15 +164,10 @@
     let next = Math.floor(Math.random() * choices.length);
     if (next === lastIdle) next = (next + 1) % choices.length;
     lastIdle = next;
-    if (Math.random() < .55) await walkTo(x > window.innerWidth / 2 ? margin : window.innerWidth - mascot.offsetWidth - margin);
+    await walkTo(x > window.innerWidth / 2 ? margin : window.innerWidth - mascot.offsetWidth - margin);
     if (visible) await perform(choices[next]);
     busy = false;
     if (queue.length) drainQueue(); else scheduleRoutine();
-  }
-
-  function resetInactivity() {
-    window.clearTimeout(inactivityTimer);
-    inactivityTimer = window.setTimeout(() => enqueue("sleep"), 28000);
   }
 
   function updateVisibility() {
@@ -188,28 +182,24 @@
         sessionStorage.setItem("olive-mascot-welcomed", "true");
         window.setTimeout(() => enqueue("welcome", {}, true), 500);
       } else scheduleRoutine();
-      resetInactivity();
     } else {
       window.clearTimeout(timer);
-      window.clearTimeout(inactivityTimer);
       queue.length = 0;
       clearActionClasses();
     }
   }
 
-  mascot.addEventListener("click", event => { event.stopPropagation(); resetInactivity(); enqueue("tap", {}, true); });
+  mascot.addEventListener("click", event => { event.stopPropagation(); enqueue("tap", {}, true); });
   mascot.addEventListener("keydown", event => {
     if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault(); resetInactivity(); enqueue("tap", {}, true);
+    event.preventDefault(); enqueue("tap", {}, true);
   });
   document.addEventListener("click", event => {
-    resetInactivity();
     const category = event.target.closest("[data-home-category], [data-category-filter]");
     if (category) enqueue("category", { label: category.querySelector("strong")?.textContent?.trim() || category.textContent.trim() });
     const card = event.target.closest(".product-card");
     if (card) enqueue("inspect", { card });
   });
-  ["scroll", "pointermove", "keydown"].forEach(type => window.addEventListener(type, resetInactivity, { passive: true }));
   window.addEventListener("scroll", updateVisibility, { passive: true });
   window.addEventListener("resize", () => setPosition(Math.min(x, window.innerWidth - mascot.offsetWidth - 8)), { passive: true });
 
