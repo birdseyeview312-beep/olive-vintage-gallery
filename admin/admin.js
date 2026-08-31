@@ -133,6 +133,8 @@ async function loadProducts(){
   const { data, error } = await supabase.from("products").select("*").order("updated_at",{ascending:false});
   if(error){ els.inventoryList.innerHTML=`<p class="message">${escapeHtml(error.message)}</p>`; return; }
   products = data || []; render(); renderObjectWeekControl();
+  const requestedId=new URLSearchParams(location.search).get("product");
+  if(requestedId&&products.some(p=>p.id===requestedId))editPiece(requestedId);
 }
 function objectWeekCandidates(){
   return products.filter(p=>p.status==="available"&&(p.gallery_cover_image||p.images?.[0]));
