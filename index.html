@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Olive Vintage Gallery — exceptional contemporary, vintage and antique art glass.">
+  <meta name="description" content="Shop curated contemporary studio, vintage, antique, American and European art glass from Olive Vintage Gallery in Chicago.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://www.olivevintage.store/">
   <meta property="og:type" content="website">
@@ -14,21 +14,25 @@
   <meta property="og:image" content="https://www.olivevintage.store/assets/products/emerald-violet-striped-vase.webp">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0b0d0a">
-  <title>Olive Vintage Gallery</title>
+  <title>Curated Art Glass | Olive Vintage Gallery</title>
   <link rel="icon" href="./assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://hasewamqjectpfxxwspo.supabase.co" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260831-3">
+  <link rel="stylesheet" href="./styles.css?v=20260831-4">
   <link rel="stylesheet" href="./final-mobile-polish.css">
   <link rel="stylesheet" href="./scroll-reveal.css">
-  <link rel="stylesheet" href="./olive-mascot.css?v=20260831-14">
+  <link rel="stylesheet" href="./olive-mascot.css?v=20260831-15">
   <link rel="stylesheet" href="./product-image-fill.css">
   <link rel="stylesheet" href="./hero-image-fix.css">
   <link rel="stylesheet" href="./desktop-polish.css">
   <link rel="stylesheet" href="./home-logo-fade.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Olive Vintage Gallery","url":"https://www.olivevintage.store/","logo":"https://www.olivevintage.store/assets/olive-brand.jpg","email":"Olivejewelvintage@gmail.com","telephone":"+1-708-490-4987","description":"A curated gallery of contemporary studio, vintage, antique, American and European art glass."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Olive Vintage Gallery","url":"https://www.olivevintage.store/"}</script>
 </head>
-<body>
+<body id="top">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <noscript><style>.intro{display:none!important}.reveal{opacity:1!important;transform:none!important}</style></noscript>
   <div id="intro" class="intro" aria-hidden="true">
     <div class="intro-glow"></div>
@@ -45,8 +49,8 @@
         <span>GALLERY</span>
       </span>
     </a>
-    <button id="menuBtn" class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
-    <nav id="nav" class="nav">
+    <button id="menuBtn" class="menu-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav id="nav" class="nav" aria-label="Primary navigation">
       <a href="#new">Collection</a>
       <a href="./auction.html">Live Auctions</a>
       <a href="#story">Our Story</a>
@@ -55,7 +59,7 @@
     </nav>
   </header>
 
-  <main id="top">
+  <main id="main-content">
     <section class="hero">
       <div class="home-olive-watermark" aria-hidden="true">
         <img src="./assets/olive-brand.jpg" alt="">
@@ -82,7 +86,7 @@
 
         <figure class="hero-object-card hero-object-main">
           <div class="hero-object-image">
-            <img src="./assets/products/emerald-violet-striped-vase.webp" alt="Emerald and violet striped art glass vase" fetchpriority="high" data-parallax-image>
+            <img src="./assets/products/emerald-violet-striped-vase.webp" alt="Emerald and violet striped art glass vase" width="1254" height="1254" fetchpriority="high" data-parallax-image>
             <div class="hero-glass-sheen"></div>
           </div>
           <figcaption><strong>Studio Glass</strong><small>01 · New acquisition</small></figcaption>
@@ -90,14 +94,14 @@
 
         <figure class="hero-object-card hero-object-top">
           <div class="hero-object-image">
-            <img src="./assets/products/color-burst-studio-vase.webp" alt="Color burst studio glass vase">
+            <img src="./assets/products/color-burst-studio-vase.webp" alt="Color burst studio glass vase" width="1254" height="1254" decoding="async">
           </div>
           <figcaption><strong>Color &amp; Form</strong><small>02 · Studio glass</small></figcaption>
         </figure>
 
         <figure class="hero-object-card hero-object-bottom">
           <div class="hero-object-image">
-            <img src="./iridescent-amber-handled-vase.webp" alt="Iridescent amber art glass handled vase">
+            <img src="./iridescent-amber-handled-vase.webp" alt="Iridescent amber art glass handled vase" width="1152" height="1536" decoding="async">
           </div>
           <figcaption><strong>Iridescent Art Glass</strong><small>03 · Handled vase</small></figcaption>
         </figure>
@@ -198,7 +202,7 @@
 
       <div id="homeCollectionControls" class="collection-controls">
         <div class="collection-filters" role="group" aria-label="Filter homepage collection by availability"><button class="collection-filter active" type="button" data-home-status="available">Available</button><button class="collection-filter" type="button" data-home-status="sold">Sold Archive</button><button class="collection-filter" type="button" data-home-status="all">All Public</button></div>
-        <div id="homeCollectionCount" class="collection-count">Loading collection…</div>
+        <div id="homeCollectionCount" class="collection-count" role="status" aria-live="polite">Loading collection…</div>
       </div>
 
       <div id="productGrid" class="product-grid">
@@ -219,7 +223,7 @@
     </section>
 
     <section id="object-of-week" class="object-week section-pad reveal" hidden>
-      <div class="object-week-visual"><button id="objectWeekGallery" class="product-gallery-trigger" type="button"><img id="objectWeekImage" src="" alt=""><span>View complete photo set ↗</span></button></div>
+      <div class="object-week-visual"><button id="objectWeekGallery" class="product-gallery-trigger" type="button"><img id="objectWeekImage" alt="" decoding="async"><span>View complete photo set ↗</span></button></div>
       <div class="object-week-copy">
         <p class="eyebrow">OBJECT OF THE WEEK · CHOSEN BY OLIVE</p>
         <h2 id="objectWeekTitle"></h2>
@@ -292,14 +296,14 @@
       <span>OLIVE VINTAGE GALLERY</span>
     </div>
     <div class="footer-links">
-      <a href="#new">Collection</a><a href="#story">Story</a><a href="#contact">Contact</a><a href="tel:+17084904987">708-490-4987</a><a href="./admin/dashboard.html">Owner Login</a>
+      <a href="#new">Collection</a><a href="./private-viewing.html">Private Viewing</a><a href="#story">Story</a><a href="#contact">Contact</a><a href="tel:+17084904987">708-490-4987</a><a href="./admin/dashboard.html">Owner Login</a>
     </div>
     <div class="copyright">© <span id="year"></span> Olive Vintage Gallery</div>
   </footer>
 
-  <button id="collectorTrayButton" class="collector-tray-button" type="button" aria-haspopup="dialog"><span>Collector’s Tray</span><strong id="collectorTrayCount">0</strong></button>
+  <button id="collectorTrayButton" class="collector-tray-button" type="button" aria-haspopup="dialog" aria-controls="collectorTray" aria-expanded="false"><span>Collector’s Tray</span><strong id="collectorTrayCount">0</strong></button>
   <div id="collectorTray" class="collector-tray" role="dialog" aria-modal="true" aria-labelledby="collectorTrayTitle" hidden>
-    <button id="collectorTrayBackdrop" class="collector-tray-backdrop" type="button" aria-label="Close Collector’s Tray"></button>
+    <button id="collectorTrayBackdrop" class="collector-tray-backdrop" type="button" tabindex="-1" aria-label="Close Collector’s Tray"></button>
     <section class="collector-tray-panel">
       <header><div><p class="eyebrow">YOUR PRIVATE EDIT</p><h2 id="collectorTrayTitle">Collector’s Tray</h2></div><button id="collectorTrayClose" type="button" aria-label="Close Collector’s Tray">×</button></header>
       <p class="collector-tray-intro">Save the pieces you want to revisit. Your tray stays on this device.</p>
@@ -317,6 +321,6 @@
   <script defer src="./scroll-reveal.js"></script>
   <script defer src="./olive-mascot.js?v=20260831-15"></script>
 
-  <script type="module" src="./app.js?v=20260831-3"></script>
+  <script type="module" src="./app.js?v=20260831-4"></script>
 </body>
 </html>

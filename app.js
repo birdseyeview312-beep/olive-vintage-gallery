@@ -114,7 +114,7 @@ function productCard(p, index = 0) {
   return `
     <article class="${cardClass}" data-product-id="${esc(p.id || "")}">
       ${image ? `<button class="product-image live-product-image product-gallery-trigger" type="button" data-gallery-product="${esc(p.id)}" aria-label="View ${p.images?.length > 1 ? `all ${p.images.length} photos` : "larger photo"} of ${esc(p.title)}">
-        <div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" ${index === 0 ? 'fetchpriority="high"' : ""}></div>
+        <div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async" ${index === 0 ? 'fetchpriority="high"' : ""}></div>
         <div class="product-image-topline">
           <span>${isSold ? "Gallery Archive" : "Available"}</span>
           ${p.status === "reserved" ? `<span class="product-badge">Reserved</span>` : ""}
@@ -315,11 +315,22 @@ function renderObjectOfWeek() {
 }
 
 const tray = document.getElementById("collectorTray");
-const closeTray = () => { if (!tray) return; tray.hidden = true; document.body.classList.remove("collector-tray-open"); document.getElementById("collectorTrayButton")?.focus(); };
-document.getElementById("collectorTrayButton")?.addEventListener("click", () => { tray.hidden = false; document.body.classList.add("collector-tray-open"); renderCollectorTray(); document.getElementById("collectorTrayClose")?.focus(); });
+const trayButton = document.getElementById("collectorTrayButton");
+const setPageInert = value => document.querySelectorAll("header,main,footer,#oliveMascot").forEach(el => { el.inert = value; });
+const closeTray = () => { if (!tray) return; tray.hidden = true; document.body.classList.remove("collector-tray-open"); setPageInert(false); trayButton?.setAttribute("aria-expanded","false"); trayButton?.focus(); };
+trayButton?.addEventListener("click", () => { tray.hidden = false; document.body.classList.add("collector-tray-open"); setPageInert(true); trayButton.setAttribute("aria-expanded","true"); renderCollectorTray(); document.getElementById("collectorTrayClose")?.focus(); });
 document.getElementById("collectorTrayClose")?.addEventListener("click", closeTray);
 document.getElementById("collectorTrayBackdrop")?.addEventListener("click", closeTray);
-document.addEventListener("keydown", event => { if (event.key === "Escape" && tray && !tray.hidden) closeTray(); });
+document.addEventListener("keydown", event => {
+  if (!tray || tray.hidden) return;
+  if (event.key === "Escape") { closeTray(); return; }
+  if (event.key !== "Tab") return;
+  const focusable = [...tray.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el => !el.hidden);
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
 renderCollectorTray();
 
 const lightsToggle = document.getElementById("galleryLightsToggle");

@@ -46,7 +46,7 @@ function message(el,text,error=false){ if(!el)return; el.textContent=text||""; e
 function setupChrome(){
   $("year").textContent = new Date().getFullYear();
   els.menuBtn?.addEventListener("click",()=>{const open=els.nav.classList.toggle("open");els.menuBtn.setAttribute("aria-expanded",String(open));});
-  els.nav?.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>els.nav.classList.remove("open")));
+  els.nav?.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{els.nav.classList.remove("open");els.menuBtn?.setAttribute("aria-expanded","false");}));
 }
 
 async function loadSession(){

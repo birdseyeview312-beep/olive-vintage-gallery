@@ -3,5 +3,6 @@ Allow: /
 Disallow: /admin/
 Disallow: /checkout-success.html
 Disallow: /private-viewing-room.html
+Disallow: /assets/products/index.html
 
 Sitemap: https://www.olivevintage.store/sitemap.xml
