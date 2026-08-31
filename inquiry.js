@@ -1,4 +1,4 @@
-import { supabase } from "./supabase-client.js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const dialog=document.createElement("div");
 dialog.className="inquiry-dialog";
@@ -54,20 +54,29 @@ document.addEventListener("click",event=>{
   open(trigger.dataset.inquiryType,trigger.dataset.productId||article?.dataset.productId||"",trigger.dataset.productTitle||article?.querySelector("h3")?.textContent?.trim()||"");
 });
 form.addEventListener("submit",async event=>{
-  event.preventDefault();if($("inquiryWebsite").value||Date.now()-openedAt<1200)return;
+  event.preventDefault();
   const submit=form.querySelector('[type="submit"]');submit.disabled=true;status.textContent="Sending securely…";
-  const id=crypto.randomUUID(),paths=[];
   try{
-    const files=[...photos.files].slice(0,5);
+    const files=[...photos.files];
+    if(files.length>5)throw new Error("Please choose no more than five photos.");
     for(const file of files){
       if(file.size>5*1024*1024)throw new Error(`${file.name} is larger than 5 MB.`);
-      const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
-      const path=`${id}/${crypto.randomUUID()}.${ext}`;
-      const {error}=await supabase.storage.from("inquiry-uploads").upload(path,file,{cacheControl:"3600",upsert:false});
-      if(error)throw error;paths.push(path);
     }
-    const payload={id,inquiry_type:$("inquiryType").value,product_id:$("inquiryProductId").value||null,product_title:$("inquiryProductTitle").value||null,name:$("inquiryName").value.trim(),email:$("inquiryEmail").value.trim(),phone:$("inquiryPhone").value.trim()||null,location:$("inquiryLocation").value.trim()||null,message:$("inquiryMessage").value.trim(),image_paths:paths};
-    const {error}=await supabase.from("gallery_inquiries").insert(payload);if(error)throw error;
+    const payload=new FormData();
+    payload.set("inquiry_type",$("inquiryType").value);
+    payload.set("product_id",$("inquiryProductId").value);
+    payload.set("product_title",$("inquiryProductTitle").value);
+    payload.set("name",$("inquiryName").value.trim());
+    payload.set("email",$("inquiryEmail").value.trim());
+    payload.set("phone",$("inquiryPhone").value.trim());
+    payload.set("location",$("inquiryLocation").value.trim());
+    payload.set("message",$("inquiryMessage").value.trim());
+    payload.set("website",$("inquiryWebsite").value);
+    payload.set("opened_at",String(openedAt));
+    files.forEach(file=>payload.append("photos",file,file.name));
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/gallery-inquiry`,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY},body:payload});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||"Unable to send right now. Please try again shortly.");
     form.hidden=true;$("inquirySuccess").hidden=false;
   }catch(error){status.textContent=error?.message||"Unable to send right now. Please email Olivejewelvintage@gmail.com.";}
   finally{submit.disabled=false;}
