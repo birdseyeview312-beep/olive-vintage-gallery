@@ -41,6 +41,52 @@ function extension(type: string) {
   return type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, character => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;",
+  }[character] || character));
+}
+
+async function sendInquiryNotification(inquiry: {
+  id: string; type: string; productTitle: string; name: string; email: string;
+  phone: string; location: string; message: string; photoCount: number;
+}) {
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  if (!apiKey) {
+    console.warn("gallery-inquiry notification skipped: RESEND_API_KEY is not configured");
+    return false;
+  }
+
+  const recipient = Deno.env.get("INQUIRY_NOTIFICATION_EMAIL") || "Olivejewelvintage@gmail.com";
+  const from = Deno.env.get("INQUIRY_FROM_EMAIL") || "Olive Vintage Gallery <onboarding@resend.dev>";
+  const kind = inquiry.type === "seller" ? "Seller offer" : inquiry.type === "buyer" ? "Buyer inquiry" : "Gallery inquiry";
+  const details = [
+    inquiry.productTitle && `<p><strong>Piece:</strong> ${escapeHtml(inquiry.productTitle)}</p>`,
+    `<p><strong>From:</strong> ${escapeHtml(inquiry.name)} &lt;${escapeHtml(inquiry.email)}&gt;</p>`,
+    inquiry.phone && `<p><strong>Phone:</strong> ${escapeHtml(inquiry.phone)}</p>`,
+    inquiry.location && `<p><strong>Location:</strong> ${escapeHtml(inquiry.location)}</p>`,
+    `<p><strong>Photos:</strong> ${inquiry.photoCount}</p>`,
+  ].filter(Boolean).join("");
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": `gallery-inquiry-${inquiry.id}`,
+    },
+    body: JSON.stringify({
+      from,
+      to: [recipient],
+      reply_to: inquiry.email,
+      subject: `${kind}${inquiry.productTitle ? ` — ${inquiry.productTitle}` : ""}`,
+      html: `<div style="background:#10150e;color:#eee8d9;padding:32px;font:16px/1.6 Arial,sans-serif"><h1 style="color:#c9d49c;font:28px Georgia,serif">New ${escapeHtml(kind.toLowerCase())}</h1>${details}<div style="margin:24px 0;padding:18px;border-left:3px solid #9daa60;background:#171d14;white-space:pre-wrap">${escapeHtml(inquiry.message)}</div><p><a href="https://www.olivevintage.store/admin/inquiries.html" style="display:inline-block;padding:12px 18px;border-radius:999px;background:#9daa60;color:#0b0e09;text-decoration:none;font-weight:bold">Open Owner Inbox</a></p></div>`,
+    }),
+  });
+  if (!response.ok) throw new Error(`Resend notification failed with HTTP ${response.status}`);
+  return true;
+}
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(origin) });
@@ -108,7 +154,16 @@ Deno.serve(async (req: Request) => {
       name, email, phone: phone || null, location: location || null, message, image_paths: uploaded,
     });
     if (insertError) throw insertError;
-    return json(origin, { ok: true, id: inquiryId }, 201);
+    let notified = false;
+    try {
+      notified = await sendInquiryNotification({
+        id: inquiryId, type: inquiryType, productTitle, name, email, phone, location, message, photoCount: photos.length,
+      });
+    } catch (notificationError) {
+      // Email is secondary: the saved owner-inbox record must remain successful.
+      console.error("gallery-inquiry notification", notificationError);
+    }
+    return json(origin, { ok: true, id: inquiryId, notified }, 201);
   } catch (error) {
     if (uploaded.length) {
       try {
