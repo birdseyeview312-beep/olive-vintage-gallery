@@ -16,7 +16,10 @@ shippingWeightLb:$("shippingWeightLb"), shippingLength:$("shippingLength"),
 shippingWidth:$("shippingWidth"), shippingHeight:$("shippingHeight"),
 shippingSource:$("shippingSource"), shippingReadyNote:$("shippingReadyNote"),
   description:$("description"), condition:$("condition"), provenance:$("provenance"),
-  featured:$("featured"), newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
+  newArrival:$("newArrival"), inquireOnly:$("inquireOnly"),
+  objectWeekProduct:$("objectWeekProduct"), objectWeekMode:$("objectWeekMode"),
+  objectWeekMessage:$("objectWeekMessage"), setObjectWeekBtn:$("setObjectWeekBtn"),
+  clearObjectWeekBtn:$("clearObjectWeekBtn"),
   photoInput:$("photoInput"), photoPreview:$("photoPreview"), galleryCoverInput:$("galleryCoverInput"),
   galleryCoverPreview:$("galleryCoverPreview"),
   saveMessage:$("saveMessage"), editorTitle:$("editorTitle"), deleteBtn:$("deleteBtn"),
@@ -129,8 +132,40 @@ els.signOutBtn.addEventListener("click",()=>supabase.auth.signOut());
 async function loadProducts(){
   const { data, error } = await supabase.from("products").select("*").order("updated_at",{ascending:false});
   if(error){ els.inventoryList.innerHTML=`<p class="message">${escapeHtml(error.message)}</p>`; return; }
-  products = data || []; render();
+  products = data || []; render(); renderObjectWeekControl();
 }
+function objectWeekCandidates(){
+  return products.filter(p=>p.status==="available"&&(p.gallery_cover_image||p.images?.[0]));
+}
+function renderObjectWeekControl(){
+  if(!els.objectWeekProduct)return;
+  const candidates=objectWeekCandidates();
+  const featured=products.find(p=>p.featured);
+  els.objectWeekProduct.innerHTML=candidates.map(p=>`<option value="${p.id}">${escapeHtml(p.title)}${p.maker?` — ${escapeHtml(p.maker)}`:""}</option>`).join("");
+  if(featured&&candidates.some(p=>p.id===featured.id)){
+    els.objectWeekProduct.value=featured.id;
+    els.objectWeekMode.textContent=`Manual selection: ${featured.title}. It will stay featured until you change it or return to automatic.`;
+  }else{
+    els.objectWeekMode.textContent="Automatic mode: the gallery chooses a different available piece each week.";
+  }
+  els.setObjectWeekBtn.disabled=!candidates.length;
+  els.clearObjectWeekBtn.disabled=!featured;
+}
+async function setObjectWeek(productId){
+  els.setObjectWeekBtn.disabled=true;
+  els.clearObjectWeekBtn.disabled=true;
+  els.objectWeekMessage.textContent="Updating the homepage feature…";
+  const {error:clearError}=await supabase.from("products").update({featured:false}).eq("featured",true);
+  if(clearError){ els.objectWeekMessage.textContent=clearError.message; renderObjectWeekControl(); return; }
+  if(productId){
+    const {error:setError}=await supabase.from("products").update({featured:true,updated_at:new Date().toISOString()}).eq("id",productId).eq("status","available");
+    if(setError){ els.objectWeekMessage.textContent=setError.message; await loadProducts(); return; }
+  }
+  els.objectWeekMessage.textContent=productId?"Manual Object of the Week saved.":"Automatic weekly rotation restored.";
+  await loadProducts();
+}
+els.setObjectWeekBtn?.addEventListener("click",()=>setObjectWeek(els.objectWeekProduct.value));
+els.clearObjectWeekBtn?.addEventListener("click",()=>setObjectWeek(null));
 function render(){
   const q=els.searchInput.value.trim().toLowerCase(), sf=els.statusFilter.value;
   const filtered=products.filter(p=>{
@@ -185,7 +220,7 @@ const shippingReady=isShippingReady(p);
 els.shippingReadyNote.textContent=
   shippingReady ? "Shipping ready." : "Shipping data needed.";
   els.description.value=p.description||""; els.condition.value=p.condition||""; els.provenance.value=p.provenance||"";
-  els.featured.checked=!!p.featured; els.newArrival.checked=!!p.new_arrival; els.inquireOnly.checked=!!p.inquire_only;
+  els.newArrival.checked=!!p.new_arrival; els.inquireOnly.checked=!!p.inquire_only;
   existingImages=[...(p.images||[])]; pendingFiles=[]; existingCoverImage=p.gallery_cover_image||null; pendingCoverFile=null; els.editorTitle.textContent=p.title; els.deleteBtn.classList.remove("hidden");
   renderCover(); renderPhotos();
   renderPolishButton();
@@ -265,7 +300,6 @@ shipping_package_source:[els.shippingWeightLb.value,els.shippingLength.value,els
     description:els.description.value.trim()||null,
     condition:els.condition.value.trim()||null,
     provenance:els.provenance.value.trim()||null,
-    featured:els.featured.checked,
     new_arrival:els.newArrival.checked,
     inquire_only:els.inquireOnly.checked,
     updated_at:new Date().toISOString()
