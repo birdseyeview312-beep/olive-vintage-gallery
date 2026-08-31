@@ -525,6 +525,26 @@ body.gallery-lights:before{opacity:1}body.gallery-lights .product-card,body.gall
   }
 }
 
+/* Desktop-only: show the round marble/paperweight artwork at its true proportions. */
+@media (min-width:901px){
+  .category-grid .category-card:nth-child(5) .category-photo,
+  .collection-category-tile[data-home-category="Marbles & Paperweights"]{
+    background:#080a07;
+  }
+
+  .category-grid .category-card:nth-child(5) .category-photo img,
+  .collection-category-tile[data-home-category="Marbles & Paperweights"] img{
+    object-fit:contain;
+    object-position:center;
+    transform:none;
+  }
+
+  .category-grid .category-card:nth-child(5):hover .category-photo img,
+  .collection-category-tile[data-home-category="Marbles & Paperweights"]:hover img{
+    transform:scale(1.015);
+  }
+}
+
 @media (max-width:620px){
   .live-product-stage,
   .featured-product .live-product-stage,
