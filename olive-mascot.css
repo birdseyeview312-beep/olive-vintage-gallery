@@ -30,7 +30,7 @@
   clip-path:inset(0 var(--mascot-clip-right) 0 0);
   will-change:background-position,transform;
 }
-.olive-mascot.is-walking .olive-mascot-sprite{animation:olive-walk-sway .48s ease-in-out infinite alternate}
+.olive-mascot.is-walking .olive-mascot-sprite{animation:olive-walk-sway .72s ease-in-out infinite alternate}
 .olive-mascot.is-visible:not(.is-walking):not(.is-waving):not(.is-bowing):not(.is-hopping):not(.is-peeking):not(.is-inspecting):not(.is-tripping):not(.is-straightening):not(.is-sleeping) .olive-mascot-sprite{animation:olive-idle .7s ease-in-out infinite alternate}
 .olive-mascot.is-waving .olive-mascot-sprite{animation:olive-greeting .55s ease-in-out infinite alternate}
 .olive-mascot.is-bowing .olive-mascot-sprite{animation:olive-bow-finish .8s ease-in-out infinite alternate}
