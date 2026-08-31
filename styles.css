@@ -480,6 +480,10 @@ body.lightbox-open{overflow:hidden}
   object-fit:contain;
 }
 
+/* Keep the Collector's Tray anchored on the lower-right above the moving mascot. */
+.collector-tray-button{left:auto;right:18px;z-index:5000}
+@media(max-width:760px){.collector-tray-button{left:auto;right:10px}}
+
 /* Sell-to-gallery acquisition invitation */
 .sell-to-olive{background:linear-gradient(135deg,#11160f 0%,#0b0e0a 58%,#15170e 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .sell-to-olive-head{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:clamp(40px,7vw,110px);align-items:end}.sell-to-olive-head h2{font-size:clamp(42px,5vw,78px);line-height:1.03;margin-top:15px}.sell-to-olive-head>p{max-width:560px;color:#a9aa9f;line-height:1.85;margin:0}
