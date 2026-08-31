@@ -112,7 +112,7 @@ function productCard(p, index = 0) {
   const canBuyNow = checkoutEnabled && isShippingReady(p) && !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
   const action = isSold ? `<span class="collection-status sold">Sold</span>` : canBuyNow
     ? `<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`
-    : `<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
+    : `<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}" data-inquiry-type="buyer">Inquire <span>↗</span></a>`;
   return `
     <article class="${cardClass}" data-product-id="${esc(p.id || "")}">
       ${image ? `<button class="product-image live-product-image product-gallery-trigger" type="button" data-gallery-product="${esc(p.id)}" aria-label="View ${p.images?.length > 1 ? `all ${p.images.length} photos` : "larger photo"} of ${esc(p.title)}">
@@ -127,7 +127,7 @@ function productCard(p, index = 0) {
         <div class="product-meta-line">
           <p class="eyebrow">${esc(p.category || "ART GLASS")}</p>
           ${!isSold && needsPriceInquiry(p)
-            ? `<a class="product-price price-inquiry-button" href="${inquiryHref(p)}">Price on request <span aria-hidden="true">↗</span></a>`
+            ? `<a class="product-price price-inquiry-button" href="${inquiryHref(p)}" data-inquiry-type="buyer">Price on request <span aria-hidden="true">↗</span></a>`
             : `<span class="product-price">${esc(price)}</span>`}
         </div>
         <h3>${esc(p.title)}</h3>
@@ -287,7 +287,7 @@ function renderCollectorTray() {
     const trayPrice=p.status==="sold"
       ? "Sold"
       : needsPriceInquiry(p)
-        ? `<a class="price-inquiry-button tray-price-inquiry" href="${inquiryHref(p)}">Price on request <span aria-hidden="true">↗</span></a>`
+        ? `<a class="price-inquiry-button tray-price-inquiry" href="${inquiryHref(p)}" data-inquiry-type="buyer" data-product-id="${esc(p.id)}" data-product-title="${esc(p.title)}">Price on request <span aria-hidden="true">↗</span></a>`
         : esc(money(p.price));
     return `<article><img src="${esc(image)}" alt=""><div><p class="eyebrow">${esc(p.category || "ART GLASS")}</p><h3>${esc(p.title)}</h3><p>${trayPrice}</p></div><button type="button" data-remove-tray="${esc(p.id)}" aria-label="Remove ${esc(p.title)}">Remove</button></article>`;
   }).join("") : `<div class="collector-tray-empty"><span>◇</span><h3>Your tray is ready.</h3><p>Tap “Save” on any listing to build a private edit.</p></div>`;
@@ -295,6 +295,8 @@ function renderCollectorTray() {
   const titles = saved.map(p => `• ${p.title}`).join("\n");
   if (inquiry) {
     inquiry.hidden = !saved.length;
+    inquiry.dataset.inquiryType = "buyer";
+    inquiry.dataset.productTitle = saved.length === 1 ? saved[0].title : `Collector’s Tray: ${saved.map(p => p.title).join(", ")}`;
     inquiry.href = `mailto:Olivejewelvintage@gmail.com?subject=${encodeURIComponent("Collector’s Tray inquiry")}&body=${encodeURIComponent(`Hello Olive Vintage Gallery,\n\nI’m interested in these pieces:\n${titles}\n\nPlease tell me more.`)}`;
   }
 }
@@ -315,7 +317,7 @@ function renderObjectOfWeek() {
   document.getElementById("objectWeekDescription").textContent = product.description || "A singular gallery selection chosen for its form, color, craftsmanship and unmistakable presence.";
   const objectWeekPrice=document.getElementById("objectWeekPrice");
   if(needsPriceInquiry(product)){
-    objectWeekPrice.innerHTML=`<a class="price-inquiry-button object-week-price-inquiry" href="${inquiryHref(product)}">Price on request <span aria-hidden="true">↗</span></a>`;
+    objectWeekPrice.innerHTML=`<a class="price-inquiry-button object-week-price-inquiry" href="${inquiryHref(product)}" data-inquiry-type="buyer" data-product-id="${esc(product.id)}" data-product-title="${esc(product.title)}">Price on request <span aria-hidden="true">↗</span></a>`;
   }else{
     objectWeekPrice.textContent=money(product.price);
   }
