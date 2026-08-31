@@ -1,5 +1,20 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Olive Vintage Gallery — Inquiry Inbox</title><link rel="stylesheet" href="./admin.css"><link rel="stylesheet" href="./inquiries.css"></head>
 <body><header class="topbar"><div><div class="eyebrow">OLIVE VINTAGE GALLERY</div><h1>Inquiry Inbox</h1></div><div class="top-actions"><a class="ghost" href="./dashboard.html">Dashboard</a><span id="sessionEmail" class="muted"></span><button id="signOutBtn" class="ghost hidden">Sign out</button></div></header>
 <main class="shell inquiry-admin-shell"><section id="loginPanel" class="panel login-panel"><div class="eyebrow">PRIVATE ACCESS</div><h2>Owner sign in</h2><form id="loginForm" class="stack"><label>Email<input id="loginEmail" type="email" required autocomplete="email"></label><label>Password<input id="loginPassword" type="password" required autocomplete="current-password"></label><button class="primary">Enter Inquiry Inbox</button><p id="loginMessage" class="message"></p></form></section>
-<section id="appPanel" class="hidden"><div class="inquiry-admin-head"><div><div class="eyebrow">COLLECTOR & SELLER REQUESTS</div><h2>Gallery correspondence</h2><p class="muted">Artwork questions and collection offers submitted through the website.</p></div><select id="inquiryFilter"><option value="">All requests</option><option value="new">New</option><option value="reviewing">Reviewing</option><option value="closed">Closed</option><option value="buyer">Artwork inquiries</option><option value="seller">Items offered</option></select></div><div id="inquiryList" class="inquiry-admin-list"></div></section></main>
+<section id="appPanel" class="hidden">
+  <div class="inquiry-admin-head"><div><div class="eyebrow">COLLECTOR & SELLER REQUESTS</div><h2>Gallery correspondence</h2><p class="muted">Artwork questions and collection offers submitted through the website.</p></div><button id="refreshInquiries" class="ghost" type="button">Refresh inbox</button></div>
+  <div class="inquiry-overview" aria-label="Inquiry totals">
+    <button type="button" data-quick-filter="new"><span>Needs attention</span><strong id="countNew">0</strong></button>
+    <button type="button" data-quick-filter="reviewing"><span>In review</span><strong id="countReviewing">0</strong></button>
+    <button type="button" data-quick-filter="seller"><span>Items offered</span><strong id="countSeller">0</strong></button>
+    <button type="button" data-quick-filter="closed"><span>Completed</span><strong id="countClosed">0</strong></button>
+  </div>
+  <div class="inquiry-toolbar panel">
+    <label class="inquiry-search"><span>Search</span><input id="inquirySearch" type="search" placeholder="Name, email, item or message…" autocomplete="off"></label>
+    <label><span>Status</span><select id="inquiryStatusFilter"><option value="">All statuses</option><option value="new">New</option><option value="reviewing">Reviewing</option><option value="closed">Closed</option></select></label>
+    <label><span>Request type</span><select id="inquiryTypeFilter"><option value="">All request types</option><option value="buyer">Artwork inquiries</option><option value="seller">Items offered</option><option value="general">General inquiries</option></select></label>
+    <span id="inquiryResultCount" class="inquiry-result-count" aria-live="polite"></span>
+  </div>
+  <div id="inquiryList" class="inquiry-admin-list"></div>
+</section></main>
 <script type="module" src="./inquiries.js"></script></body></html>
