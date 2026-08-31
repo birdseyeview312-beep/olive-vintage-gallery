@@ -70,6 +70,10 @@ let homeActiveStatus = "available";
 let homeActiveCategory = "";
 const HOME_PAGE_SIZE = 18;
 let homeVisibleLimit = HOME_PAGE_SIZE;
+const TRAY_KEY = "olive_collector_tray_v1";
+const LIGHTS_KEY = "olive_gallery_lights_v1";
+let collectorTrayIds = new Set();
+try { collectorTrayIds = new Set(JSON.parse(localStorage.getItem(TRAY_KEY) || "[]").map(String)); } catch {}
 
 async function getCheckoutEnabled() {
   try {
@@ -125,7 +129,7 @@ function productCard(p, index = 0) {
         <h3>${esc(p.title)}</h3>
         <div class="product-detail-row">
           <p>${esc(makerLine)}</p>
-          ${action}
+          <div class="product-card-actions">${action}<button class="collector-save" type="button" data-save-product="${esc(p.id || "")}" aria-pressed="${collectorTrayIds.has(String(p.id))}">${collectorTrayIds.has(String(p.id)) ? "♥ Saved" : "♡ Save"}</button></div>
         </div>
       </div>
     </article>`;
@@ -158,6 +162,7 @@ function renderHomeCollection(){
   if(loadMore){const remaining=Math.max(0,photoFirst.length-renderedRows.length);loadMore.hidden=remaining===0;loadMore.textContent=remaining?`Show ${Math.min(HOME_PAGE_SIZE,remaining)} more works`:"";}
   document.querySelectorAll("[data-home-category-count]").forEach(el=>{const category=el.dataset.homeCategoryCount;const total=category?statusRows.filter(p=>p.category===category).length:statusRows.length;el.textContent=`${total} ${total===1?"work":"works"}`;});
   bindBuyNowButtons();
+  bindCollectorButtons();
   bindProductImageGalleries(renderedRows,grid);
 }
 
@@ -180,7 +185,7 @@ async function loadLiveInventory() {
     ]);
     checkoutEnabled = paymentsReady;
     homeInventoryRows = rows.filter(p => ["available","reserved","sold"].includes(p.status));
-    if(!homeInventoryRows.length)homeInventoryRows=fallbackProducts;
+    if(!homeInventoryRows.length)homeInventoryRows=fallbackProducts.map((p,index)=>({...p,id:`curated-${index+1}`}));
     updateHomeCategoryRepresentatives();
     const available=homeInventoryRows.filter(p=>p.status==="available").length;
     const sold=homeInventoryRows.filter(p=>p.status==="sold").length;
@@ -190,10 +195,12 @@ async function loadLiveInventory() {
     if(availableButton)availableButton.textContent=`Available · ${available}`;
     if(soldButton){soldButton.textContent=`Sold Archive · ${sold}`;soldButton.hidden=sold===0;}
     if(allButton){allButton.textContent=`All Public · ${homeInventoryRows.length}`;allButton.hidden=sold===0;}
+    renderObjectOfWeek();
     renderHomeCollection();
   } catch (error) {
     console.info("Live inventory is not configured yet. Showing curated local collection.", error);
-    homeInventoryRows=fallbackProducts;
+    homeInventoryRows=fallbackProducts.map((p,index)=>({...p,id:`curated-${index+1}`}));
+    renderObjectOfWeek();
     renderHomeCollection();
   }
 }
@@ -238,6 +245,117 @@ function bindBuyNowButtons() {
     button.addEventListener("click", () => beginBuyNow(button.dataset.buyProduct, button));
   });
 }
+
+function saveCollectorTray() {
+  try { localStorage.setItem(TRAY_KEY, JSON.stringify([...collectorTrayIds])); } catch {}
+  renderCollectorTray();
+  document.querySelectorAll("[data-save-product]").forEach(button => {
+    const saved = collectorTrayIds.has(String(button.dataset.saveProduct));
+    button.setAttribute("aria-pressed", String(saved));
+    button.textContent = saved ? "♥ Saved" : button.id === "objectWeekSave" ? "♡ Save to Collector’s Tray" : "♡ Save";
+  });
+}
+
+function toggleCollectorItem(id) {
+  const key = String(id || "");
+  if (!key) return;
+  if (collectorTrayIds.has(key)) collectorTrayIds.delete(key); else collectorTrayIds.add(key);
+  saveCollectorTray();
+}
+
+function bindCollectorButtons() {
+  document.querySelectorAll("[data-save-product]").forEach(button => {
+    if (button.dataset.trayBound) return;
+    button.dataset.trayBound = "true";
+    button.addEventListener("click", event => { event.stopPropagation(); toggleCollectorItem(button.dataset.saveProduct); });
+  });
+}
+
+function renderCollectorTray() {
+  const count = document.getElementById("collectorTrayCount");
+  const items = document.getElementById("collectorTrayItems");
+  const inquiry = document.getElementById("collectorTrayInquiry");
+  const saved = [...collectorTrayIds].map(id => homeInventoryRows.find(p => String(p.id) === id)).filter(Boolean);
+  if (count) count.textContent = String(saved.length);
+  if (!items) return;
+  items.innerHTML = saved.length ? saved.map(p => {
+    const image = p.gallery_cover_image || p.images?.[0] || "./assets/olive-brand.jpg";
+    return `<article><img src="${esc(image)}" alt=""><div><p class="eyebrow">${esc(p.category || "ART GLASS")}</p><h3>${esc(p.title)}</h3><p>${esc(p.status === "sold" ? "Sold" : p.inquire_only ? "Price on request" : money(p.price))}</p></div><button type="button" data-remove-tray="${esc(p.id)}" aria-label="Remove ${esc(p.title)}">Remove</button></article>`;
+  }).join("") : `<div class="collector-tray-empty"><span>◇</span><h3>Your tray is ready.</h3><p>Tap “Save” on any listing to build a private edit.</p></div>`;
+  items.querySelectorAll("[data-remove-tray]").forEach(button => button.addEventListener("click", () => toggleCollectorItem(button.dataset.removeTray)));
+  const titles = saved.map(p => `• ${p.title}`).join("\n");
+  if (inquiry) {
+    inquiry.hidden = !saved.length;
+    inquiry.href = `mailto:Olivejewelvintage@gmail.com?subject=${encodeURIComponent("Collector’s Tray inquiry")}&body=${encodeURIComponent(`Hello Olive Vintage Gallery,\n\nI’m interested in these pieces:\n${titles}\n\nPlease tell me more.`)}`;
+  }
+}
+
+function renderObjectOfWeek() {
+  const section = document.getElementById("object-of-week");
+  const product = homeInventoryRows.find(p => p.featured && p.status === "available" && (p.gallery_cover_image || p.images?.[0])) || homeInventoryRows.find(p => p.status === "available" && (p.gallery_cover_image || p.images?.[0]));
+  if (!section || !product) return;
+  const image = product.gallery_cover_image || product.images[0];
+  section.hidden = false;
+  document.getElementById("objectWeekImage").src = image;
+  document.getElementById("objectWeekImage").alt = product.title || "Featured art glass";
+  document.getElementById("objectWeekTitle").textContent = product.title;
+  document.getElementById("objectWeekMaker").textContent = [product.maker, product.date_period, product.category].filter(Boolean).join(" · ") || "Olive Vintage Gallery selection";
+  document.getElementById("objectWeekDescription").textContent = product.description || "A singular gallery selection chosen for its form, color, craftsmanship and unmistakable presence.";
+  document.getElementById("objectWeekPrice").textContent = product.inquire_only ? "Price on request" : money(product.price);
+  const gallery = document.getElementById("objectWeekGallery");
+  gallery.dataset.galleryProduct = product.id;
+  const save = document.getElementById("objectWeekSave");
+  save.dataset.saveProduct = product.id;
+  bindCollectorButtons();
+  saveCollectorTray();
+  bindProductImageGalleries(homeInventoryRows, section);
+}
+
+const tray = document.getElementById("collectorTray");
+const closeTray = () => { if (!tray) return; tray.hidden = true; document.body.classList.remove("collector-tray-open"); document.getElementById("collectorTrayButton")?.focus(); };
+document.getElementById("collectorTrayButton")?.addEventListener("click", () => { tray.hidden = false; document.body.classList.add("collector-tray-open"); renderCollectorTray(); document.getElementById("collectorTrayClose")?.focus(); });
+document.getElementById("collectorTrayClose")?.addEventListener("click", closeTray);
+document.getElementById("collectorTrayBackdrop")?.addEventListener("click", closeTray);
+document.addEventListener("keydown", event => { if (event.key === "Escape" && tray && !tray.hidden) closeTray(); });
+renderCollectorTray();
+
+const lightsToggle = document.getElementById("galleryLightsToggle");
+let galleryLights = false;
+try { galleryLights = localStorage.getItem(LIGHTS_KEY) === "on"; } catch {}
+function updateGalleryLights() {
+  document.body.classList.toggle("gallery-lights", galleryLights);
+  lightsToggle?.setAttribute("aria-pressed", String(galleryLights));
+  if (lightsToggle) lightsToggle.textContent = galleryLights ? "✦ Gallery Lights On" : "✦ Gallery Lights";
+}
+lightsToggle?.addEventListener("click", () => { galleryLights = !galleryLights; try { localStorage.setItem(LIGHTS_KEY, galleryLights ? "on" : "off"); } catch {} updateGalleryLights(); });
+updateGalleryLights();
+
+const tourButton = document.getElementById("oliveTourButton");
+let tourRunning = false;
+const tourWait = ms => new Promise(resolve => window.setTimeout(resolve, ms));
+tourButton?.addEventListener("click", async () => {
+  if (tourRunning) { tourRunning = false; tourButton.textContent = "Tour with Olive"; return; }
+  tourRunning = true;
+  tourButton.textContent = "End Olive’s Tour";
+  const stops = [
+    ["#collection", "These are our five collecting rooms. I alphabetized them emotionally.", "wave"],
+    ["#new", "The live collection. Looking is encouraged; gasping is complimentary.", "inspect"],
+    ["#object-of-week", "My weekly favorite. I remain professionally unbiased, obviously.", "bow"],
+    ["#live-auctions", "The auction room. I practice my serious face here.", "hop"],
+    ["#story", "And that is our point of view: extraordinary objects, no velvet rope required.", "wave"]
+  ];
+  for (const [selector, message, action] of stops) {
+    if (!tourRunning) break;
+    const target = document.querySelector(selector);
+    if (!target || target.hidden) continue;
+    target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+    await tourWait(reducedMotion ? 150 : 850);
+    window.dispatchEvent(new CustomEvent("olive:tour-stop", { detail: { message, action } }));
+    await tourWait(reducedMotion ? 1200 : 3200);
+  }
+  tourRunning = false;
+  tourButton.textContent = "Tour with Olive";
+});
 
 const checkoutState = new URLSearchParams(location.search).get("checkout");
 if (checkoutState === "cancelled") {

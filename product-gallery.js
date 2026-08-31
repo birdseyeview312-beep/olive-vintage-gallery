@@ -359,7 +359,7 @@ function closeLightbox() {
 }
 
 export function bindProductImageGalleries(products, root = document) {
-  activeProducts = new Map((products || []).filter(p => p?.id).map(p => [String(p.id), p]));
+  (products || []).filter(p => p?.id).forEach(p => activeProducts.set(String(p.id), p));
   root.querySelectorAll("[data-gallery-product]").forEach(el => {
     el.addEventListener("click", () => openLightbox(el.dataset.galleryProduct));
   });

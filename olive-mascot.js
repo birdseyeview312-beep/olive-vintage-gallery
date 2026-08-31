@@ -148,6 +148,16 @@
     }
     if (name === "prop") { holdProp(pick(props)); say("Gallery duties call."); await action("bow"); return; }
     if (name === "comedy") { holdProp(pick(props)); say(pick(comedyReplies), 2800); await action(pick(["bow", "hop", "peek"])); return; }
+    if (name === "tour") { say(payload.message || "Right this way.", 3000); await action(payload.action || "wave"); return; }
+    if (name === "easter") {
+      const moments = [
+        ["✨", "A little polish. For the gallery—not my résumé.", "inspect"],
+        ["①", "Sold! To the visitor with suspiciously excellent taste.", "hop"],
+        ["📋", "Inventory count: still fabulous.", "bow"],
+        ["🧤", "Please admire responsibly. I have tiny gloves.", "peek"]
+      ];
+      const [icon, line, move] = pick(moments); holdProp(icon, 3300); say(line, 3200); await action(move); return;
+    }
     if (name === "climb") {
       await walkTo(x < window.innerWidth / 2 ? 8 : window.innerWidth - mascot.offsetWidth - 8);
       clearActionClasses(); mascot.classList.add("is-climbing");
@@ -203,7 +213,7 @@
     if (!visible || busy) return;
     busy = true;
     const margin = window.innerWidth < 720 ? 8 : 18;
-    const choices = ["wave", "bow", "hop", "peek", "inspect", "prop", "straighten", "trip", "comedy", "comedy", "climb", "perch", "popout"];
+    const choices = ["wave", "bow", "hop", "peek", "inspect", "prop", "straighten", "trip", "comedy", "comedy", "climb", "perch", "popout", "easter"];
     let next = Math.floor(Math.random() * choices.length);
     if (next === lastIdle) next = (next + 1) % choices.length;
     lastIdle = next;
@@ -245,6 +255,7 @@
   });
   window.addEventListener("scroll", updateVisibility, { passive: true });
   window.addEventListener("resize", () => setPosition(Math.min(x, window.innerWidth - mascot.offsetWidth - 8)), { passive: true });
+  window.addEventListener("olive:tour-stop", event => enqueue("tour", event.detail || {}, true));
 
   const observer = new IntersectionObserver(entries => entries.forEach(entry => {
     if (!visible || !entry.isIntersecting || entry.intersectionRatio < .35 || seenSections.has(entry.target)) return;
