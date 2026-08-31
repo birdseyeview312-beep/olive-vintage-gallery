@@ -52,6 +52,24 @@
 
       <div class="stats" id="stats"></div>
 
+      <section class="panel object-week-control" aria-labelledby="objectWeekControlTitle">
+        <div>
+          <div class="eyebrow">HOMEPAGE FEATURE</div>
+          <h2 id="objectWeekControlTitle">Object of the Week</h2>
+          <p id="objectWeekMode" class="muted">Loading the current selection…</p>
+        </div>
+        <div class="object-week-actions">
+          <label for="objectWeekProduct">Choose an available piece
+            <select id="objectWeekProduct"></select>
+          </label>
+          <div class="object-week-buttons">
+            <button id="setObjectWeekBtn" class="primary" type="button">Feature this piece</button>
+            <button id="clearObjectWeekBtn" class="ghost" type="button">Use automatic weekly rotation</button>
+          </div>
+          <p id="objectWeekMessage" class="message" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
       <div class="workspace">
         <section class="panel inventory-panel">
           <div class="panel-head">
@@ -185,7 +203,6 @@
             <label>Provenance<textarea id="provenance" rows="3" placeholder="Collection history, labels, exhibition history, documentation..."></textarea></label>
 
             <div class="flags">
-              <label class="check"><input id="featured" type="checkbox"> Featured piece</label>
               <label class="check"><input id="newArrival" type="checkbox"> New arrival</label>
               <label class="check"><input id="inquireOnly" type="checkbox"> Inquire to purchase</label>
             </div>
