@@ -65,6 +65,9 @@ const isShippingReady = product => [
 ].every(value => Number(value) > 0);
 
 let checkoutEnabled = false;
+let homeInventoryRows = [];
+let homeActiveStatus = "available";
+let homeActiveCategory = "";
 
 async function getCheckoutEnabled() {
   try {
@@ -92,13 +95,14 @@ const fallbackProducts = [
 ];
 
 function productCard(p, index = 0) {
-  const image = p.images?.[0];
-  const price = p.inquire_only ? "Inquire to purchase" : money(p.price);
+  const image = p.gallery_cover_image || p.images?.[0];
+  const isSold = p.status === "sold";
+  const price = isSold ? "Sold" : p.inquire_only ? "Inquire to purchase" : money(p.price);
   const makerLine = [p.maker, p.date_period].filter(Boolean).join(" · ") || "Olive Vintage Gallery";
   const cardClass = index === 0 ? "product-card featured-product reveal visible" : "product-card reveal visible";
   const inquirySubject = encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title || "Artwork"}`);
   const canBuyNow = checkoutEnabled && isShippingReady(p) && !!p.id && p.status === "available" && !p.inquire_only && p.price !== null && p.price !== undefined && Number(p.price) > 0;
-  const action = canBuyNow
+  const action = isSold ? `<span class="collection-status sold">Sold</span>` : canBuyNow
     ? `<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`
     : `<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `
@@ -106,7 +110,7 @@ function productCard(p, index = 0) {
       ${image ? `<button class="product-image live-product-image product-gallery-trigger" type="button" data-gallery-product="${esc(p.id)}" aria-label="View ${p.images?.length > 1 ? `all ${p.images.length} photos` : "larger photo"} of ${esc(p.title)}">
         <div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index === 0 ? "eager" : "lazy"}" ${index === 0 ? 'fetchpriority="high"' : ""}></div>
         <div class="product-image-topline">
-          <span>New Acquisition</span>
+          <span>${isSold ? "Gallery Archive" : "Available"}</span>
           ${p.status === "reserved" ? `<span class="product-badge">Reserved</span>` : ""}
         </div>
         <div class="product-image-number">${p.images?.length > 1 ? `${p.images.length} PHOTOS · ` : ""}${String(index + 1).padStart(2, "0")}</div>
@@ -125,6 +129,36 @@ function productCard(p, index = 0) {
     </article>`;
 }
 
+function updateHomeCategoryRepresentatives(){
+  document.querySelectorAll("[data-home-category-image]").forEach(image=>{
+    const category=image.dataset.homeCategoryImage;
+    const categoryRows=homeInventoryRows.filter(p=>p.category===category);
+    const representative=categoryRows.find(p=>p.status==="available"&&(p.gallery_cover_image||p.images?.[0]))||categoryRows.find(p=>p.gallery_cover_image||p.images?.[0]);
+    if(!representative)return;
+    image.src=representative.gallery_cover_image||representative.images[0];
+    image.alt=`Representative listing: ${representative.title}`;
+    const button=image.closest("[data-home-category]");
+    button?.setAttribute("aria-label",`Browse ${category}, represented by ${representative.title}`);
+  });
+}
+
+function renderHomeCollection(){
+  const grid=document.getElementById("productGrid");
+  const count=document.getElementById("homeCollectionCount");
+  if(!grid)return;
+  const statusRows=homeActiveStatus==="all"?homeInventoryRows:homeInventoryRows.filter(p=>p.status===homeActiveStatus);
+  const visible=homeActiveCategory?statusRows.filter(p=>p.category===homeActiveCategory):statusRows;
+  const photoFirst=[...visible.filter(p=>p.gallery_cover_image||p.images?.length),...visible.filter(p=>!p.gallery_cover_image&&!p.images?.length)];
+  grid.innerHTML=photoFirst.length?photoFirst.map((p,index)=>productCard(p,index)).join(""):`<div class="collection-empty">No products in this view.</div>`;
+  if(count){const suffix=homeActiveCategory?` in ${homeActiveCategory}`:"";count.textContent=`${visible.length} ${homeActiveStatus==="all"?"public records":homeActiveStatus==="sold"?"sold works":"available works"}${suffix}`;}
+  document.querySelectorAll("[data-home-category-count]").forEach(el=>{const category=el.dataset.homeCategoryCount;const total=category?statusRows.filter(p=>p.category===category).length:statusRows.length;el.textContent=`${total} ${total===1?"work":"works"}`;});
+  bindBuyNowButtons();
+  bindProductImageGalleries(photoFirst,grid);
+}
+
+document.querySelectorAll("[data-home-status]").forEach(btn=>btn.addEventListener("click",()=>{homeActiveStatus=btn.dataset.homeStatus;document.querySelectorAll("[data-home-status]").forEach(b=>b.classList.toggle("active",b===btn));renderHomeCollection();}));
+document.querySelectorAll("[data-home-category]").forEach(btn=>btn.addEventListener("click",()=>{homeActiveCategory=btn.dataset.homeCategory||"";document.querySelectorAll("[data-home-category]").forEach(b=>{const selected=b===btn;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected));});renderHomeCollection();document.getElementById("homeCollectionControls")?.scrollIntoView({behavior:"smooth",block:"start"});}));
+
 async function loadLiveInventory() {
   const grid = document.getElementById("productGrid");
   if (!grid) return;
@@ -139,21 +173,22 @@ async function loadLiveInventory() {
       getCheckoutEnabled()
     ]);
     checkoutEnabled = paymentsReady;
-    const live = rows.filter(p => ["available","reserved"].includes(p.status));
-    const photographed = live.filter(p => Array.isArray(p.images) && p.images.length > 0);
-    const awaitingPhotos = live.filter(p => !Array.isArray(p.images) || p.images.length === 0);
-    // Keep the homepage editorial and fast: show a curated newest set here.
-    // The Collection page remains unlimited and contains the complete public inventory.
-    const prioritized = [...photographed, ...awaitingPhotos];
-    const products = prioritized.length ? prioritized.slice(0, 9) : fallbackProducts;
-    grid.innerHTML = products.map((p, index) => productCard(p, index)).join("");
-    bindBuyNowButtons();
-    bindProductImageGalleries(products, grid);
+    homeInventoryRows = rows.filter(p => ["available","reserved","sold"].includes(p.status));
+    if(!homeInventoryRows.length)homeInventoryRows=fallbackProducts;
+    updateHomeCategoryRepresentatives();
+    const available=homeInventoryRows.filter(p=>p.status==="available").length;
+    const sold=homeInventoryRows.filter(p=>p.status==="sold").length;
+    const availableButton=document.querySelector('[data-home-status="available"]');
+    const soldButton=document.querySelector('[data-home-status="sold"]');
+    const allButton=document.querySelector('[data-home-status="all"]');
+    if(availableButton)availableButton.textContent=`Available · ${available}`;
+    if(soldButton)soldButton.textContent=`Sold Archive · ${sold}`;
+    if(allButton)allButton.textContent=`All Public · ${homeInventoryRows.length}`;
+    renderHomeCollection();
   } catch (error) {
     console.info("Live inventory is not configured yet. Showing curated local collection.", error);
-    grid.innerHTML = fallbackProducts.map((p, index) => productCard(p, index)).join("");
-    bindBuyNowButtons();
-    bindProductImageGalleries(fallbackProducts, grid);
+    homeInventoryRows=fallbackProducts;
+    renderHomeCollection();
   }
 }
 

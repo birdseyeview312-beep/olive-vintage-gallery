@@ -47,7 +47,7 @@
     </a>
     <button id="menuBtn" class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav id="nav" class="nav">
-      <a href="./collection.html">Collection</a>
+      <a href="#new">Collection</a>
       <a href="#new">New Arrivals</a>
       <a href="./auction.html">Live Auctions</a>
       <a href="#story">Our Story</a>
@@ -70,7 +70,7 @@
           A living collection of studio, vintage, antique and Murano glass—selected for authorship, rarity, color and presence.
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="./collection.html">Explore the Collection</a>
+          <a class="button primary" href="#new">Explore the Collection</a>
           <a class="button text" href="#story">Discover the Gallery</a>
         </div>
       </div>
@@ -177,10 +177,27 @@
     <section id="new" class="new-arrivals section-pad">
       <div class="section-head reveal">
         <div>
-          <p class="eyebrow">NEW ACQUISITIONS</p>
-          <h2>Recently selected.</h2>
+          <p class="eyebrow">THE LIVE COLLECTION</p>
+          <h2>Every available object.</h2>
         </div>
-        <a class="button text" href="./collection.html">View full collection</a>
+        <p class="section-note">Browse and purchase the complete public Olive Vintage inventory without leaving the homepage.</p>
+      </div>
+
+      <section class="collection-category-browser home-category-browser" aria-labelledby="homeCategoryBrowserTitle">
+        <div class="collection-category-heading"><p id="homeCategoryBrowserTitle" class="eyebrow">BROWSE BY CATEGORY</p><p>Choose a collection to refine the gallery.</p></div>
+        <div class="collection-category-tiles" role="group" aria-label="Filter homepage listings by category">
+          <button class="collection-category-tile active" type="button" data-home-category="" aria-pressed="true"><img src="./assets/olive-brand.jpg" alt=""><span><strong>All Categories</strong><small data-home-category-count="">All works</small></span></button>
+          <button class="collection-category-tile" type="button" data-home-category="Contemporary Studio Glass" aria-pressed="false"><img src="./assets/products/color-burst-studio-vase.webp" alt="" data-home-category-image="Contemporary Studio Glass"><span><strong>Contemporary Studio Glass</strong><small data-home-category-count="Contemporary Studio Glass"></small></span></button>
+          <button class="collection-category-tile" type="button" data-home-category="Vintage &amp; Antique Glass" aria-pressed="false"><img src="./assets/products/steuben-carder-aurene.jpg" alt="" data-home-category-image="Vintage &amp; Antique Glass"><span><strong>Vintage &amp; Antique Glass</strong><small data-home-category-count="Vintage &amp; Antique Glass"></small></span></button>
+          <button class="collection-category-tile" type="button" data-home-category="American Art Glass" aria-pressed="false"><img src="./assets/products/rollin-karg-sculpture.jpg" alt="" data-home-category-image="American Art Glass"><span><strong>American Art Glass</strong><small data-home-category-count="American Art Glass"></small></span></button>
+          <button class="collection-category-tile" type="button" data-home-category="European &amp; Italian Glass" aria-pressed="false"><img src="./assets/products/carlo-colizza-aquarium-boot.jpg" alt="" data-home-category-image="European &amp; Italian Glass"><span><strong>European &amp; Italian Glass</strong><small data-home-category-count="European &amp; Italian Glass"></small></span></button>
+          <button class="collection-category-tile" type="button" data-home-category="Marbles &amp; Paperweights" aria-pressed="false"><img src="./assets/products/paul-stankard-paperweight.jpg" alt="" data-home-category-image="Marbles &amp; Paperweights"><span><strong>Marbles &amp; Paperweights</strong><small data-home-category-count="Marbles &amp; Paperweights"></small></span></button>
+        </div>
+      </section>
+
+      <div id="homeCollectionControls" class="collection-controls">
+        <div class="collection-filters" role="group" aria-label="Filter homepage collection by availability"><button class="collection-filter active" type="button" data-home-status="available">Available</button><button class="collection-filter" type="button" data-home-status="sold">Sold Archive</button><button class="collection-filter" type="button" data-home-status="all">All Public</button></div>
+        <div id="homeCollectionCount" class="collection-count">Loading collection…</div>
       </div>
 
       <div id="productGrid" class="product-grid">
@@ -262,7 +279,7 @@
       <span>OLIVE VINTAGE GALLERY</span>
     </div>
     <div class="footer-links">
-      <a href="./collection.html">Collection</a><a href="#story">Story</a><a href="#contact">Contact</a><a href="tel:+17084904987">708-490-4987</a><a href="./admin/dashboard.html">Owner Login</a>
+      <a href="#new">Collection</a><a href="#story">Story</a><a href="#contact">Contact</a><a href="tel:+17084904987">708-490-4987</a><a href="./admin/dashboard.html">Owner Login</a>
     </div>
     <div class="copyright">© <span id="year"></span> Olive Vintage Gallery</div>
   </footer>
