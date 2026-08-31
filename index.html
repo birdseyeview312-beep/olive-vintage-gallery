@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./final-mobile-polish.css">
   <link rel="stylesheet" href="./scroll-reveal.css">
-  <link rel="stylesheet" href="./olive-mascot.css?v=20260831-6">
+  <link rel="stylesheet" href="./olive-mascot.css?v=20260831-7">
   <link rel="stylesheet" href="./product-image-fill.css">
   <link rel="stylesheet" href="./hero-image-fix.css">
   <link rel="stylesheet" href="./desktop-polish.css">
@@ -284,13 +284,15 @@
     <div class="copyright">© <span id="year"></span> Olive Vintage Gallery</div>
   </footer>
 
-  <div id="oliveMascot" class="olive-mascot" aria-hidden="true">
+  <div id="oliveMascot" class="olive-mascot" role="button" tabindex="0" aria-label="Olive gallery mascot. Tap for a surprise.">
+    <div class="olive-mascot-prop" aria-hidden="true"></div>
     <div class="olive-mascot-sprite"></div>
+    <div class="olive-mascot-bubble" role="status" aria-live="polite"></div>
   </div>
 
   <script defer src="./scroll-reveal.js"></script>
   <script defer src="./home-logo-fade.js"></script>
-  <script defer src="./olive-mascot.js?v=20260831-6"></script>
+  <script defer src="./olive-mascot.js?v=20260831-7"></script>
 
   <script type="module" src="./app.js"></script>
 </body>
