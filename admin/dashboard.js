@@ -1,14 +1,14 @@
 import { supabase } from "./supabase-client.js";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 const $=id=>document.getElementById(id);
-const e={loginPanel:$("loginPanel"),dashboardApp:$("dashboardApp"),loginForm:$("loginForm"),loginEmail:$("loginEmail"),loginPassword:$("loginPassword"),loginMessage:$("loginMessage"),signOutBtn:$("signOutBtn"),sessionEmail:$("sessionEmail"),overviewStats:$("overviewStats"),inventoryCardStatus:$("inventoryCardStatus"),auctionCardStatus:$("auctionCardStatus"),videoCardStatus:$("videoCardStatus"),privateViewingCardStatus:$("privateViewingCardStatus"),paymentCardStatus:$("paymentCardStatus"),ordersCardStatus:$("ordersCardStatus"),inquiryCardStatus:$("inquiryCardStatus"),ownerSessionLabel:$("ownerSessionLabel"),forgotPasswordBtn:$("forgotPasswordBtn")};
+const e={loginPanel:$("loginPanel"),dashboardApp:$("dashboardApp"),loginForm:$("loginForm"),loginEmail:$("loginEmail"),loginPassword:$("loginPassword"),loginMessage:$("loginMessage"),signOutBtn:$("signOutBtn"),sessionEmail:$("sessionEmail"),overviewStats:$("overviewStats"),inventoryCardStatus:$("inventoryCardStatus"),auctionCardStatus:$("auctionCardStatus"),videoCardStatus:$("videoCardStatus"),privateViewingCardStatus:$("privateViewingCardStatus"),paymentCardStatus:$("paymentCardStatus"),ordersCardStatus:$("ordersCardStatus"),inquiryCardStatus:$("inquiryCardStatus"),readinessCardStatus:$("readinessCardStatus"),ownerSessionLabel:$("ownerSessionLabel"),forgotPasswordBtn:$("forgotPasswordBtn")};
 let session=null;
 const isAdmin=()=>session?.user?.app_metadata?.olive_role==="admin";
 async function functionGet(slug){const {data:{session:s}}=await supabase.auth.getSession();if(!s?.access_token)throw new Error("Owner session expired");const r=await fetch(`${SUPABASE_URL}/functions/v1/${slug}`,{headers:{Authorization:`Bearer ${s.access_token}`,apikey:SUPABASE_ANON_KEY}});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data?.error||"Connection check failed");return data;}
 async function loadDashboard(){
   e.ownerSessionLabel.textContent="Secure · Admin";
   const [productsRes,eventsRes,lotsRes,regsRes,webOrdersRes,privateSessionsRes,privateRequestsRes,inquiriesRes]=await Promise.all([
-    supabase.from("products").select("id,status,price",{count:"exact"}),
+    supabase.from("products").select("id,status,price,category,description,images,gallery_cover_image,shipping_weight_oz,shipping_length_in,shipping_width_in,shipping_height_in",{count:"exact"}),
     supabase.from("auction_events").select("id,status,published",{count:"exact"}),
     supabase.from("auction_lots").select("id,status,current_bid",{count:"exact"}),
     supabase.from("auction_registrations").select("auction_id,user_id",{count:"exact"}),
@@ -29,6 +29,8 @@ async function loadDashboard(){
   e.privateViewingCardStatus.textContent=`${openPrivateSessions} open room${openPrivateSessions===1?"":"s"} · ${newPrivateRequests} new request${newPrivateRequests===1?"":"s"}`;
   e.ordersCardStatus.textContent=paidWebOrders||soldLots?`${paidWebOrders} web order${paidWebOrders===1?"":"s"} · ${soldLots} auction win${soldLots===1?"":"s"}${unfulfilledWebOrders?` · ${unfulfilledWebOrders} to fulfill`:""}`:"No completed sales yet";
   e.inquiryCardStatus.textContent=`${newInquiries} new · ${inquiries.length} total`;
+  const active=products.filter(x=>x.status==="available"),needsWork=active.filter(x=>!(x.gallery_cover_image||x.images?.length)||!Number(x.price)||!x.category||!x.description||![x.shipping_weight_oz,x.shipping_length_in,x.shipping_width_in,x.shipping_height_in].every(v=>Number(v)>0)).length;
+  e.readinessCardStatus.textContent=needsWork?`${needsWork} active listing${needsWork===1?"":"s"} need attention`:`${active.length} active listings ready`;
   Promise.allSettled([functionGet("square-settings"),functionGet("cloudflare-settings")]).then(results=>{const p=results[0].status==="fulfilled"?results[0].value:null;const v=results[1].status==="fulfilled"?results[1].value:null;e.paymentCardStatus.textContent=p?.configured?`Square connected · ${p.mode==="live"?"Live":"Sandbox"}`:"Square not connected";e.videoCardStatus.textContent=v?.configured?"Cloudflare connected":"Cloudflare not connected";});
 }
 function render(){const ok=isAdmin();e.loginPanel.classList.toggle("hidden",ok);e.dashboardApp.classList.toggle("hidden",!ok);e.signOutBtn.classList.toggle("hidden",!session);e.sessionEmail.textContent=session?.user?.email||"";if(session&&!ok)e.loginMessage.textContent="This account does not have Olive Vintage owner access.";if(ok){e.loginMessage.textContent="";loadDashboard();}}
