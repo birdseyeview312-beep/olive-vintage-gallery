@@ -541,3 +541,7 @@ body.gallery-lights:before{opacity:1}body.gallery-lights .product-card,body.gall
 .product-lightbox-stage>img{
   object-fit:contain;
 }
+
+/* Final tray placement: compact lower-right pill, never a full-width bar. */
+.collector-tray-button{left:auto;right:18px;width:max-content;max-width:calc(100vw - 36px);display:inline-flex;z-index:5000}
+@media(max-width:760px){.collector-tray-button{left:auto;right:10px;width:auto;max-width:calc(100vw - 20px)}}
