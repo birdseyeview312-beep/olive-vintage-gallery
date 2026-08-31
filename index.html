@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260831-2">
+  <link rel="stylesheet" href="./styles.css?v=20260831-3">
   <link rel="stylesheet" href="./final-mobile-polish.css">
   <link rel="stylesheet" href="./scroll-reveal.css">
   <link rel="stylesheet" href="./olive-mascot.css?v=20260831-14">
@@ -51,6 +51,7 @@
       <a href="./auction.html">Live Auctions</a>
       <a href="#story">Our Story</a>
       <a href="#contact">Contact</a>
+      <button id="galleryLightsToggle" class="gallery-lights-toggle" type="button" aria-pressed="false">✦ Gallery Lights</button>
     </nav>
   </header>
 
@@ -71,6 +72,7 @@
         <div class="hero-actions">
           <a class="button primary" href="#new">Explore the Collection</a>
           <a class="button text" href="#story">Discover the Gallery</a>
+          <button id="oliveTourButton" class="button text olive-tour-button" type="button">Tour with Olive</button>
         </div>
       </div>
 
@@ -216,6 +218,17 @@
       <div class="home-load-more-wrap"><button id="homeLoadMore" class="button primary home-load-more" type="button" hidden>Show more works</button></div>
     </section>
 
+    <section id="object-of-week" class="object-week section-pad reveal" hidden>
+      <div class="object-week-visual"><button id="objectWeekGallery" class="product-gallery-trigger" type="button"><img id="objectWeekImage" src="" alt=""><span>View complete photo set ↗</span></button></div>
+      <div class="object-week-copy">
+        <p class="eyebrow">OBJECT OF THE WEEK · CHOSEN BY OLIVE</p>
+        <h2 id="objectWeekTitle"></h2>
+        <p id="objectWeekMaker" class="object-week-maker"></p>
+        <p id="objectWeekDescription"></p>
+        <div class="object-week-footer"><strong id="objectWeekPrice"></strong><button id="objectWeekSave" class="button text" type="button">♡ Save to Collector’s Tray</button></div>
+      </div>
+    </section>
+
     <section id="live-auctions" class="live-auction-promo section-pad reveal">
       <div class="live-auction-orbit" aria-hidden="true"></div>
       <div class="live-auction-label">
@@ -284,6 +297,17 @@
     <div class="copyright">© <span id="year"></span> Olive Vintage Gallery</div>
   </footer>
 
+  <button id="collectorTrayButton" class="collector-tray-button" type="button" aria-haspopup="dialog"><span>Collector’s Tray</span><strong id="collectorTrayCount">0</strong></button>
+  <div id="collectorTray" class="collector-tray" role="dialog" aria-modal="true" aria-labelledby="collectorTrayTitle" hidden>
+    <button id="collectorTrayBackdrop" class="collector-tray-backdrop" type="button" aria-label="Close Collector’s Tray"></button>
+    <section class="collector-tray-panel">
+      <header><div><p class="eyebrow">YOUR PRIVATE EDIT</p><h2 id="collectorTrayTitle">Collector’s Tray</h2></div><button id="collectorTrayClose" type="button" aria-label="Close Collector’s Tray">×</button></header>
+      <p class="collector-tray-intro">Save the pieces you want to revisit. Your tray stays on this device.</p>
+      <div id="collectorTrayItems" class="collector-tray-items"></div>
+      <a id="collectorTrayInquiry" class="button primary" href="mailto:Olivejewelvintage@gmail.com">Inquire about saved pieces</a>
+    </section>
+  </div>
+
   <div id="oliveMascot" class="olive-mascot" role="button" tabindex="0" aria-label="Olive gallery mascot. Tap for a surprise.">
     <div class="olive-mascot-prop" aria-hidden="true"></div>
     <div class="olive-mascot-sprite"></div>
@@ -291,8 +315,8 @@
   </div>
 
   <script defer src="./scroll-reveal.js"></script>
-  <script defer src="./olive-mascot.js?v=20260831-14"></script>
+  <script defer src="./olive-mascot.js?v=20260831-15"></script>
 
-  <script type="module" src="./app.js?v=20260831-2"></script>
+  <script type="module" src="./app.js?v=20260831-3"></script>
 </body>
 </html>
