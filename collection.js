@@ -8,6 +8,8 @@ const filters = document.querySelectorAll("[data-collection-filter]");
 const categoryFilters = document.querySelectorAll("[data-category-filter]");
 const esc = (s="") => String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const money = value => value === null || value === undefined || value === "" ? "Price on request" : new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
+const needsPriceInquiry = product => product?.inquire_only || product?.price === null || product?.price === undefined || product?.price === "";
+const inquiryHref = product => `mailto:Olivejewelvintage@gmail.com?subject=${encodeURIComponent(`Olive Vintage Gallery inquiry — ${product?.title || "Artwork"}`)}`;
 const isShippingReady = product => [
   product?.shipping_weight_oz,
   product?.shipping_length_in,
@@ -52,7 +54,7 @@ function card(p,index){
   const action=isSold?`<span class="collection-status sold">Sold</span>`:canBuy?`<button class="product-buy-now" type="button" data-buy-product="${esc(p.id)}">Buy Now <span>↗</span></button>`:`<a class="product-inquire" href="mailto:Olivejewelvintage@gmail.com?subject=${inquirySubject}">Inquire <span>↗</span></a>`;
   return `<article class="product-card reveal visible ${isSold?"collection-sold":""}" data-product-id="${esc(p.id||"")}">
     ${image?`<button class="product-image live-product-image product-gallery-trigger" type="button" data-gallery-product="${esc(p.id)}" aria-label="View ${p.images?.length>1?`all ${p.images.length} photos`:"larger photo"} of ${esc(p.title)}"><div class="live-product-stage"><img src="${esc(image)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></div><div class="product-image-topline"><span>${isSold?"Gallery Archive":"Available"}</span></div><div class="product-image-number">${p.images?.length>1?`${p.images.length} PHOTOS`:String(index+1).padStart(2,"0")}</div></button>`:`<div class="product-image live-product-image awaiting-product-image"><div class="awaiting-product-art" aria-hidden="true"><span class="awaiting-product-ring"></span><span class="awaiting-product-mark">OV</span></div><div class="product-image-topline"><span>${isSold?"Gallery Archive":"Photos being added"}</span></div><div class="awaiting-product-copy"><strong>${isSold?"Archive imagery in recovery":"Original imagery in recovery"}</strong><small>Exact marketplace photos only</small></div></div>`}
-    <div class="product-info"><div class="product-meta-line"><p class="eyebrow">${esc(p.category||"COLLECTIBLE")}</p><span class="product-price">${isSold?"Sold":esc(p.inquire_only?"Inquire":money(p.price))}</span></div><h3>${esc(p.title)}</h3><div class="product-detail-row"><p>${esc([p.maker,p.date_period].filter(Boolean).join(" · ")||"Olive Vintage Gallery")}</p>${action}</div></div>
+    <div class="product-info"><div class="product-meta-line"><p class="eyebrow">${esc(p.category||"COLLECTIBLE")}</p>${!isSold&&needsPriceInquiry(p)?`<a class="product-price price-inquiry-button" href="${inquiryHref(p)}">Price on request <span aria-hidden="true">↗</span></a>`:`<span class="product-price">${isSold?"Sold":esc(money(p.price))}</span>`}</div><h3>${esc(p.title)}</h3><div class="product-detail-row"><p>${esc([p.maker,p.date_period].filter(Boolean).join(" · ")||"Olive Vintage Gallery")}</p>${action}</div></div>
   </article>`;
 }
 
