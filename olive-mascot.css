@@ -23,7 +23,7 @@
   --mascot-clip-right:0%;
   width:100%;
   height:100%;
-  background:url("./assets/olive-mascot-sprite.png?v=20260830-1") no-repeat 0 0;
+  background:url("./assets/olive-mascot-sprite.webp?v=20260831-1") no-repeat 0 0;
   background-size:1400% 100%;
   transform:scaleX(var(--mascot-facing));
   transform-origin:50% 85%;
