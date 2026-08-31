@@ -87,7 +87,7 @@
     const start = x;
     const distance = clampX(target) - start;
     mascot.style.setProperty("--mascot-facing", distance < 0 ? "1" : "-1");
-    const duration = Math.max(650, Math.min(2800, Math.abs(distance) * 5));
+    const duration = Math.max(1100, Math.min(6200, Math.abs(distance) * 10));
     const started = performance.now();
     let previousFrame = -1;
     await new Promise(resolve => {
@@ -96,7 +96,7 @@
         const progress = Math.min(1, (now - started) / duration);
         const eased = progress < .5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
         setPosition(start + distance * eased);
-        const frame = WALK[Math.floor((now - started) / 115) % WALK.length];
+        const frame = WALK[Math.floor((now - started) / 175) % WALK.length];
         if (frame !== previousFrame) { setFrame(frame); previousFrame = frame; }
         if (progress < 1) requestAnimationFrame(step); else resolve();
       }
