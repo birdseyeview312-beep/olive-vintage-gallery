@@ -108,16 +108,20 @@
     const start = x;
     const distance = clampX(target) - start;
     mascot.style.setProperty("--mascot-facing", distance < 0 ? "1" : "-1");
-    const duration = Math.max(1100, Math.min(6200, Math.abs(distance) * 10));
+    const duration = Math.max(1350, Math.min(7400, Math.abs(distance) * 12));
     const started = performance.now();
     let previousFrame = -1;
     await new Promise(resolve => {
       function step(now) {
         if (!visible) return resolve();
         const progress = Math.min(1, (now - started) / duration);
-        const eased = progress < .5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        const eased = progress < .1
+          ? 5 * progress * progress
+          : progress > .9
+            ? 1 - 5 * Math.pow(1 - progress, 2)
+            : .05 + (progress - .1) * 1.125;
         setPosition(start + distance * eased);
-        const frame = WALK[Math.floor((now - started) / 175) % WALK.length];
+        const frame = WALK[Math.floor((now - started) / 210) % WALK.length];
         if (frame !== previousFrame) { setFrame(frame); previousFrame = frame; }
         if (progress < 1) requestAnimationFrame(step); else resolve();
       }

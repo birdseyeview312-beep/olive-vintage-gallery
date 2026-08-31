@@ -30,7 +30,7 @@
   clip-path:inset(0 var(--mascot-clip-right) 0 0);
   will-change:background-position,transform;
 }
-.olive-mascot.is-walking .olive-mascot-sprite{animation:olive-walk-sway .72s ease-in-out infinite alternate}
+.olive-mascot.is-walking .olive-mascot-sprite{animation:olive-walk-sway .86s linear infinite}
 .olive-mascot.is-climbing .olive-mascot-sprite{animation:olive-climb .55s ease-in-out infinite alternate}
 .olive-mascot.is-visible:not(.is-walking):not(.is-waving):not(.is-bowing):not(.is-hopping):not(.is-peeking):not(.is-inspecting):not(.is-tripping):not(.is-straightening):not(.is-sleeping) .olive-mascot-sprite{animation:olive-idle .7s ease-in-out infinite alternate}
 .olive-mascot.is-waving .olive-mascot-sprite{animation:olive-greeting .55s ease-in-out infinite alternate}
@@ -47,7 +47,7 @@
 .olive-mascot.bubble-left .olive-mascot-bubble{left:0;right:auto;border-radius:14px 14px 14px 4px}
 .olive-mascot-bubble::after{content:"";position:absolute;right:12px;bottom:-9px;width:14px;height:14px;border-right:2px solid #bda765;border-bottom:2px solid #bda765;background:#f7f1df;transform:rotate(45deg)}
 .olive-mascot.has-message .olive-mascot-bubble{opacity:1;transform:translateY(0) scale(1)}
-@keyframes olive-walk-sway{from{transform:scaleX(var(--mascot-facing)) rotate(-1deg)}to{transform:scaleX(var(--mascot-facing)) rotate(1deg)}}
+@keyframes olive-walk-sway{0%,100%{transform:scaleX(var(--mascot-facing)) translateY(0) rotate(-1deg)}25%{transform:scaleX(var(--mascot-facing)) translateY(-3px) rotate(0)}50%{transform:scaleX(var(--mascot-facing)) translateY(0) rotate(1deg)}75%{transform:scaleX(var(--mascot-facing)) translateY(-2px) rotate(0)}}
 @keyframes olive-climb{from{transform:scaleX(var(--mascot-facing)) rotate(-4deg)}to{transform:scaleX(var(--mascot-facing)) rotate(4deg)}}
 @keyframes olive-idle{from{transform:scaleX(var(--mascot-facing)) translateY(0) rotate(-.5deg)}to{transform:scaleX(var(--mascot-facing)) translateY(-3px) rotate(.5deg)}}
 @keyframes olive-greeting{from{transform:scaleX(var(--mascot-facing)) rotate(-2deg)}to{transform:scaleX(var(--mascot-facing)) rotate(2deg)}}
