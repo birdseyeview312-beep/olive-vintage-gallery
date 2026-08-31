@@ -44,3 +44,27 @@
     object-position:center center !important;
   }
 }
+
+@media (max-width: 620px){
+  #productGrid .live-product-stage,
+  .collection-product-grid .live-product-stage{
+    width:100% !important;
+    height:100% !important;
+    padding:0 !important;
+    overflow:hidden;
+    background:#11130f;
+  }
+
+  #productGrid .live-product-stage > img,
+  #productGrid .featured-product .live-product-stage > img,
+  .collection-product-grid .live-product-stage > img{
+    display:block;
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+    object-fit:cover !important;
+    object-position:center center !important;
+    transform:scale(1.002) !important;
+  }
+}
