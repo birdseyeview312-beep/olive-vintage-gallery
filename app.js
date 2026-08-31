@@ -56,6 +56,8 @@ const money = value => {
     style:"currency", currency:"USD", maximumFractionDigits:0
   }).format(Number(value));
 };
+const needsPriceInquiry = product => product?.inquire_only || product?.price === null || product?.price === undefined || product?.price === "";
+const inquiryHref = product => `mailto:Olivejewelvintage@gmail.com?subject=${encodeURIComponent(`Olive Vintage Gallery inquiry — ${product?.title || "Artwork"}`)}`;
 
 const isShippingReady = product => [
   product?.shipping_weight_oz,
@@ -103,7 +105,7 @@ const fallbackProducts = [
 function productCard(p, index = 0) {
   const image = p.gallery_cover_image || p.images?.[0];
   const isSold = p.status === "sold";
-  const price = isSold ? "Sold" : p.inquire_only ? "Inquire to purchase" : money(p.price);
+  const price = isSold ? "Sold" : money(p.price);
   const makerLine = [p.maker, p.date_period].filter(Boolean).join(" · ") || "Olive Vintage Gallery";
   const cardClass = index === 0 ? "product-card featured-product reveal visible" : "product-card reveal visible";
   const inquirySubject = encodeURIComponent(`Olive Vintage Gallery inquiry — ${p.title || "Artwork"}`);
@@ -124,7 +126,9 @@ function productCard(p, index = 0) {
       <div class="product-info">
         <div class="product-meta-line">
           <p class="eyebrow">${esc(p.category || "ART GLASS")}</p>
-          <span class="product-price">${esc(price)}</span>
+          ${!isSold && needsPriceInquiry(p)
+            ? `<a class="product-price price-inquiry-button" href="${inquiryHref(p)}">Price on request <span aria-hidden="true">↗</span></a>`
+            : `<span class="product-price">${esc(price)}</span>`}
         </div>
         <h3>${esc(p.title)}</h3>
         <div class="product-detail-row">
@@ -280,7 +284,12 @@ function renderCollectorTray() {
   if (!items) return;
   items.innerHTML = saved.length ? saved.map(p => {
     const image = p.gallery_cover_image || p.images?.[0] || "./assets/olive-brand.jpg";
-    return `<article><img src="${esc(image)}" alt=""><div><p class="eyebrow">${esc(p.category || "ART GLASS")}</p><h3>${esc(p.title)}</h3><p>${esc(p.status === "sold" ? "Sold" : p.inquire_only ? "Price on request" : money(p.price))}</p></div><button type="button" data-remove-tray="${esc(p.id)}" aria-label="Remove ${esc(p.title)}">Remove</button></article>`;
+    const trayPrice=p.status==="sold"
+      ? "Sold"
+      : needsPriceInquiry(p)
+        ? `<a class="price-inquiry-button tray-price-inquiry" href="${inquiryHref(p)}">Price on request <span aria-hidden="true">↗</span></a>`
+        : esc(money(p.price));
+    return `<article><img src="${esc(image)}" alt=""><div><p class="eyebrow">${esc(p.category || "ART GLASS")}</p><h3>${esc(p.title)}</h3><p>${trayPrice}</p></div><button type="button" data-remove-tray="${esc(p.id)}" aria-label="Remove ${esc(p.title)}">Remove</button></article>`;
   }).join("") : `<div class="collector-tray-empty"><span>◇</span><h3>Your tray is ready.</h3><p>Tap “Save” on any listing to build a private edit.</p></div>`;
   items.querySelectorAll("[data-remove-tray]").forEach(button => button.addEventListener("click", () => toggleCollectorItem(button.dataset.removeTray)));
   const titles = saved.map(p => `• ${p.title}`).join("\n");
@@ -304,7 +313,12 @@ function renderObjectOfWeek() {
   document.getElementById("objectWeekTitle").textContent = product.title;
   document.getElementById("objectWeekMaker").textContent = [product.maker, product.date_period, product.category].filter(Boolean).join(" · ") || "Olive Vintage Gallery selection";
   document.getElementById("objectWeekDescription").textContent = product.description || "A singular gallery selection chosen for its form, color, craftsmanship and unmistakable presence.";
-  document.getElementById("objectWeekPrice").textContent = product.inquire_only ? "Price on request" : money(product.price);
+  const objectWeekPrice=document.getElementById("objectWeekPrice");
+  if(needsPriceInquiry(product)){
+    objectWeekPrice.innerHTML=`<a class="price-inquiry-button object-week-price-inquiry" href="${inquiryHref(product)}">Price on request <span aria-hidden="true">↗</span></a>`;
+  }else{
+    objectWeekPrice.textContent=money(product.price);
+  }
   const gallery = document.getElementById("objectWeekGallery");
   gallery.dataset.galleryProduct = product.id;
   const save = document.getElementById("objectWeekSave");
