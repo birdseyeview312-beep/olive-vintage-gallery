@@ -292,7 +292,10 @@ function renderCollectorTray() {
 
 function renderObjectOfWeek() {
   const section = document.getElementById("object-of-week");
-  const product = homeInventoryRows.find(p => p.featured && p.status === "available" && (p.gallery_cover_image || p.images?.[0])) || homeInventoryRows.find(p => p.status === "available" && (p.gallery_cover_image || p.images?.[0]));
+  const weeklyCandidates = homeInventoryRows.filter(p => p.status === "available" && (p.gallery_cover_image || p.images?.[0]));
+  const featured = weeklyCandidates.find(p => p.featured);
+  const weekNumber = Math.floor(Date.now() / 604800000);
+  const product = featured || weeklyCandidates[weekNumber % weeklyCandidates.length];
   if (!section || !product) return;
   const image = product.gallery_cover_image || product.images[0];
   section.hidden = false;
