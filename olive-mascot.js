@@ -39,6 +39,7 @@
 
   function setPosition(nextX, y = 0) {
     x = clampX(nextX);
+    mascot.classList.toggle("bubble-left", x < window.innerWidth / 2);
     mascot.style.setProperty("--mascot-x", `${Math.round(x)}px`);
     mascot.style.setProperty("--mascot-y", `${Math.round(y)}px`);
   }
@@ -115,7 +116,7 @@
   async function perform(name, payload = {}) {
     if (name === "welcome") { say("Welcome to the gallery."); await action("wave"); return; }
     if (name === "goodbye") { say("Thank you for visiting."); await action("wave"); return; }
-    if (name === "category") { say(payload.label ? `${payload.label}. ${pick(categoryReplies)}` : pick(categoryReplies)); await action("hop"); return; }
+    if (name === "category") { say(pick(categoryReplies)); await action("hop"); return; }
     if (name === "inspect") {
       const card = payload.card || nearestVisibleCard();
       if (card) await walkTo(card.getBoundingClientRect().left - mascot.offsetWidth * .2);
