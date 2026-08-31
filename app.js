@@ -16,8 +16,8 @@ try { introSeen = sessionStorage.getItem("olive_intro_seen") === "1"; } catch {}
 if (reducedMotion || introSeen) {
   dismissIntro();
 } else {
-  window.addEventListener("load", () => setTimeout(dismissIntro, 850));
-  setTimeout(dismissIntro, 1800);
+  window.addEventListener("load", () => setTimeout(dismissIntro, 250));
+  setTimeout(dismissIntro, 900);
   try { sessionStorage.setItem("olive_intro_seen", "1"); } catch {}
 }
 
@@ -68,6 +68,8 @@ let checkoutEnabled = false;
 let homeInventoryRows = [];
 let homeActiveStatus = "available";
 let homeActiveCategory = "";
+const HOME_PAGE_SIZE = 18;
+let homeVisibleLimit = HOME_PAGE_SIZE;
 
 async function getCheckoutEnabled() {
   try {
@@ -149,15 +151,19 @@ function renderHomeCollection(){
   const statusRows=homeActiveStatus==="all"?homeInventoryRows:homeInventoryRows.filter(p=>p.status===homeActiveStatus);
   const visible=homeActiveCategory?statusRows.filter(p=>p.category===homeActiveCategory):statusRows;
   const photoFirst=[...visible.filter(p=>p.gallery_cover_image||p.images?.length),...visible.filter(p=>!p.gallery_cover_image&&!p.images?.length)];
-  grid.innerHTML=photoFirst.length?photoFirst.map((p,index)=>productCard(p,index)).join(""):`<div class="collection-empty">No products in this view.</div>`;
-  if(count){const suffix=homeActiveCategory?` in ${homeActiveCategory}`:"";count.textContent=`${visible.length} ${homeActiveStatus==="all"?"public records":homeActiveStatus==="sold"?"sold works":"available works"}${suffix}`;}
+  const renderedRows=photoFirst.slice(0,homeVisibleLimit);
+  grid.innerHTML=renderedRows.length?renderedRows.map((p,index)=>productCard(p,index)).join(""):`<div class="collection-empty">No products in this view.</div>`;
+  if(count){const suffix=homeActiveCategory?` in ${homeActiveCategory}`:"";const label=homeActiveStatus==="all"?"public records":homeActiveStatus==="sold"?"sold works":"available works";count.textContent=visible.length>renderedRows.length?`Showing ${renderedRows.length} of ${visible.length} ${label}${suffix}`:`${visible.length} ${label}${suffix}`;}
+  const loadMore=document.getElementById("homeLoadMore");
+  if(loadMore){const remaining=Math.max(0,photoFirst.length-renderedRows.length);loadMore.hidden=remaining===0;loadMore.textContent=remaining?`Show ${Math.min(HOME_PAGE_SIZE,remaining)} more works`:"";}
   document.querySelectorAll("[data-home-category-count]").forEach(el=>{const category=el.dataset.homeCategoryCount;const total=category?statusRows.filter(p=>p.category===category).length:statusRows.length;el.textContent=`${total} ${total===1?"work":"works"}`;});
   bindBuyNowButtons();
-  bindProductImageGalleries(photoFirst,grid);
+  bindProductImageGalleries(renderedRows,grid);
 }
 
-document.querySelectorAll("[data-home-status]").forEach(btn=>btn.addEventListener("click",()=>{homeActiveStatus=btn.dataset.homeStatus;document.querySelectorAll("[data-home-status]").forEach(b=>b.classList.toggle("active",b===btn));renderHomeCollection();}));
-document.querySelectorAll("[data-home-category]").forEach(btn=>btn.addEventListener("click",()=>{homeActiveCategory=btn.dataset.homeCategory||"";document.querySelectorAll("[data-home-category]").forEach(b=>{const selected=b===btn;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected));});renderHomeCollection();document.getElementById("homeCollectionControls")?.scrollIntoView({behavior:"smooth",block:"start"});}));
+document.querySelectorAll("[data-home-status]").forEach(btn=>btn.addEventListener("click",()=>{homeActiveStatus=btn.dataset.homeStatus;homeVisibleLimit=HOME_PAGE_SIZE;document.querySelectorAll("[data-home-status]").forEach(b=>b.classList.toggle("active",b===btn));renderHomeCollection();}));
+document.querySelectorAll("[data-home-category]").forEach(btn=>btn.addEventListener("click",()=>{homeActiveCategory=btn.dataset.homeCategory||"";homeVisibleLimit=HOME_PAGE_SIZE;document.querySelectorAll("[data-home-category]").forEach(b=>{const selected=b===btn;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected));});renderHomeCollection();document.getElementById("homeCollectionControls")?.scrollIntoView({behavior:"smooth",block:"start"});}));
+document.getElementById("homeLoadMore")?.addEventListener("click",()=>{homeVisibleLimit+=HOME_PAGE_SIZE;renderHomeCollection();});
 
 async function loadLiveInventory() {
   const grid = document.getElementById("productGrid");
@@ -182,8 +188,8 @@ async function loadLiveInventory() {
     const soldButton=document.querySelector('[data-home-status="sold"]');
     const allButton=document.querySelector('[data-home-status="all"]');
     if(availableButton)availableButton.textContent=`Available · ${available}`;
-    if(soldButton)soldButton.textContent=`Sold Archive · ${sold}`;
-    if(allButton)allButton.textContent=`All Public · ${homeInventoryRows.length}`;
+    if(soldButton){soldButton.textContent=`Sold Archive · ${sold}`;soldButton.hidden=sold===0;}
+    if(allButton){allButton.textContent=`All Public · ${homeInventoryRows.length}`;allButton.hidden=sold===0;}
     renderHomeCollection();
   } catch (error) {
     console.info("Live inventory is not configured yet. Showing curated local collection.", error);
