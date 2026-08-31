@@ -14,8 +14,10 @@
     peek: { className: "is-peeking", frames: [12, 12, 12], speed: 480 },
     inspect: { className: "is-inspecting", frames: [13, 13, 13, 13], speed: 420 }
   };
-  const compliments = ["Exceptional craftsmanship.", "A remarkable piece.", "Look at that color.", "Beautifully chosen."];
-  const categoryReplies = ["A fine choice.", "This way, please.", "An excellent collection."];
+  const compliments = ["Exceptional craftsmanship.", "A remarkable piece.", "Look at that color.", "Beautifully chosen.", "I have excellent taste. Obviously.", "Very fancy. I approve."];
+  const categoryReplies = ["A fine choice.", "This way, please.", "Excellent choice. I helped.", "Ah yes, my favorite. Again."];
+  const comedyReplies = ["Act natural. The art is watching.", "No touching. That includes me.", "I call this professional wandering.", "Do I work here? Apparently.", "Very distinguished. Mostly.", "I meant to look busy."];
+  const tapReplies = ["You rang?", "Oh! A visitor!", "I was posing.", "That tickles the garnish.", "At your service. Probably."];
   const props = ["🔍", "🧤", "📋", "✨"];
   const queue = [];
   const seenSections = new Set();
@@ -122,6 +124,7 @@
       holdProp("🔍"); say(pick(compliments)); await action("inspect"); return;
     }
     if (name === "prop") { holdProp(pick(props)); say("Gallery duties call."); await action("bow"); return; }
+    if (name === "comedy") { holdProp(pick(props)); say(pick(comedyReplies), 2800); await action(pick(["bow", "hop", "peek"])); return; }
     if (name === "auction") { holdProp("①", 3000); say("Going once…", 2800); mascot.classList.add("is-celebrating"); await action("hop"); return; }
     if (name === "peek") { await walkTo(x < window.innerWidth / 2 ? 8 : window.innerWidth - mascot.offsetWidth - 8); say("Just looking."); await action("peek"); return; }
     if (name === "straighten") { say("There. Just so."); mascot.classList.add("is-straightening"); await action("bow"); return; }
@@ -130,7 +133,7 @@
     if (name === "tap") {
       const choice = pick(["wave", "bow", "hop", "straighten", "trip"]);
       if (choice === "straighten" || choice === "trip") await perform(choice);
-      else { say(choice === "wave" ? "Hello there!" : choice === "hop" ? "You found me!" : "At your service."); await action(choice); }
+      else { say(pick(tapReplies)); await action(choice); }
     }
   }
 
@@ -160,7 +163,7 @@
     if (!visible || busy) return;
     busy = true;
     const margin = window.innerWidth < 720 ? 8 : 18;
-    const choices = ["wave", "bow", "hop", "peek", "inspect", "prop", "straighten", "trip"];
+    const choices = ["wave", "bow", "hop", "peek", "inspect", "prop", "straighten", "trip", "comedy", "comedy"];
     let next = Math.floor(Math.random() * choices.length);
     if (next === lastIdle) next = (next + 1) % choices.length;
     lastIdle = next;
