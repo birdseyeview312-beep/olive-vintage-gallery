@@ -17,7 +17,13 @@
   let x = Math.max(8, window.innerWidth - mascot.offsetWidth - 20);
   let lastAction = -1;
   const wait = ms => new Promise(resolve => window.setTimeout(resolve, ms));
-  function setFrame(frame){sprite.style.backgroundPosition = `${(frame / (FRAME_COUNT - 1)) * 100}% 0`}
+  function setFrame(frame){
+    sprite.style.backgroundPosition = `${(frame / (FRAME_COUNT - 1)) * 100}% 0`;
+    // Several source poses extend a leaf into the following 313px cell. Mask
+    // that disconnected edge fragment while preserving the two final poses,
+    // including the intentionally right-aligned peeking frame.
+    sprite.style.setProperty("--mascot-clip-right",frame<12?"14%":"0%");
+  }
   function setPosition(nextX,y=0){
     x=nextX;
     mascot.style.setProperty("--mascot-x",`${Math.round(nextX)}px`);

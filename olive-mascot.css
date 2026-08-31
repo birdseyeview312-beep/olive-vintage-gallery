@@ -18,12 +18,14 @@
 }
 .olive-mascot.is-visible{opacity:.97;transform:translate3d(var(--mascot-x),var(--mascot-y),0)}
 .olive-mascot-sprite{
+  --mascot-clip-right:0%;
   width:100%;
   height:100%;
   background:url("./assets/olive-mascot-sprite.png?v=20260830-1") no-repeat 0 0;
   background-size:1400% 100%;
   transform:scaleX(var(--mascot-facing));
   transform-origin:50% 85%;
+  clip-path:inset(0 var(--mascot-clip-right) 0 0);
   will-change:background-position,transform;
 }
 .olive-mascot.is-walking .olive-mascot-sprite{animation:olive-walk-sway .48s ease-in-out infinite alternate}
