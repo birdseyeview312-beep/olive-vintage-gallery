@@ -169,7 +169,12 @@ $("importBtn").addEventListener("click", async () => {
     }
     const idBySku = new Map(existingBySku);
     inserted.forEach((p) => idBySku.set(p.sku, p.id));
-    const candidates = prepared.filter((item) => item.externalId && idBySku.has(item.product.sku));
+    const candidateKeys = new Set();
+    const candidates = prepared.filter((item) => {
+      if (!item.externalId || !idBySku.has(item.product.sku) || candidateKeys.has(item.externalId)) return false;
+      candidateKeys.add(item.externalId);
+      return true;
+    });
     const externalIds = [...new Set(candidates.map((item) => item.externalId))];
     let linkedCount = 0;
     if (externalIds.length) {
