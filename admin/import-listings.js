@@ -96,13 +96,13 @@ function productFrom(row, index, mapping = map) {
 function renderPreview() {
   map = currentValues();
   const prepared = rows.map((r, i) => productFrom(r, i));
-  const visible = prepared.slice(0, 40);
+  const visible = prepared;
   $("previewRows").innerHTML = visible.map((item, i) => {
     const duplicateLikely = rows[i] && item.product.sku.startsWith("IMPORT-") ? " · generated SKU" : "";
     return `<tr><td><label><input class="include-row" type="checkbox" data-index="${i}" checked> Include</label></td><td>${escapeHtml(item.product.title || "(missing title)")}</td><td>${item.product.price === null ? "No price" : new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(item.product.price)}</td><td>${escapeHtml(item.product.sku)}${duplicateLikely}</td><td>${item.images.length}</td></tr>`;
   }).join("");
   $("previewTitle").textContent = `Preview — ${rows.length} row${rows.length === 1 ? "" : "s"}`;
-  $("previewCount").textContent = rows.length > 40 ? "Showing first 40 rows" : "";
+  $("previewCount").textContent = `${rows.length} rows ready to review`;
   $("importBtn").disabled = !map.title || !rows.length;
 }
 function renderMappings() {
@@ -132,7 +132,7 @@ $("csvFile").addEventListener("change", async () => {
     $("mappingPanel").classList.add("hidden"); $("previewPanel").classList.add("hidden");
   }
 });
-$("importBtn").addEventListener("click", async () => {
+$("sourcePlatform").addEventListener("change", renderPreview);\n$("importBtn").addEventListener("click", async () => {
   const button = $("importBtn");
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user || session.user.app_metadata?.olive_role !== "admin") {
