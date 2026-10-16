@@ -132,7 +132,8 @@ $("csvFile").addEventListener("change", async () => {
     $("mappingPanel").classList.add("hidden"); $("previewPanel").classList.add("hidden");
   }
 });
-$("sourcePlatform").addEventListener("change", renderPreview);\n$("importBtn").addEventListener("click", async () => {
+$("sourcePlatform").addEventListener("change", renderPreview);
+$("importBtn").addEventListener("click", async () => {
   const button = $("importBtn");
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user || session.user.app_metadata?.olive_role !== "admin") {
@@ -141,10 +142,6 @@ $("sourcePlatform").addEventListener("change", renderPreview);\n$("importBtn").a
   }
   map = currentValues();
   const selected = [...document.querySelectorAll(".include-row:checked")].map((box) => Number(box.dataset.index));
-  if (rows.length > 40 && document.querySelectorAll(".include-row").length === 40) {
-    $("importMessage").textContent = "This preview is limited to 40 rows; use a smaller CSV batch so every row can be reviewed.";
-    return;
-  }
   const prepared = selected.map((i) => productFrom(rows[i], i)).filter((item) => item.product.title);
   if (!prepared.length) { $("importMessage").textContent = "Select at least one row with a title."; return; }
   button.disabled = true; button.textContent = "Importing…"; $("importMessage").textContent = "Checking for duplicates…";
