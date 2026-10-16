@@ -146,16 +146,20 @@ $("importBtn").addEventListener("click", async () => {
   if (!prepared.length) { $("importMessage").textContent = "Select at least one row with a title."; return; }
   button.disabled = true; button.textContent = "Importing…"; $("importMessage").textContent = "Checking for duplicates…";
   try {
-    const skus = prepared.map((item) => item.product.sku);
-    const { data: found, error: findError } = await supabase.from("products").select("sku").in("sku", skus);
+    const platform = $("sourcePlatform").value;
+    const skus = [...new Set(prepared.map((item) => item.product.sku))];
+    const { data: found, error: findError } = await supabase.from("products").select("id,sku").in("sku", skus);
     if (findError) throw findError;
-    const existing = new Set((found || []).map((p) => p.sku).filter(Boolean));
-    const fresh = prepared.filter((item) => !existing.has(item.product.sku));
-    const skipped = prepared.length - fresh.length;
-    if (!fresh.length) {
-      $("importMessage").textContent = `Nothing new to import; ${skipped} duplicate row${skipped === 1 ? "" : "s"} skipped.`;
-      return;
+    const existingBySku = new Map((found || []).filter((p) => p.sku).map((p) => [p.sku, p.id]));
+    const uniquePrepared = [];
+    const seen = new Set();
+    for (const item of prepared) {
+      if (seen.has(item.product.sku)) continue;
+      seen.add(item.product.sku);
+      uniquePrepared.push(item);
     }
+    const fresh = uniquePrepared.filter((item) => !existingBySku.has(item.product.sku));
+    const duplicateProducts = prepared.length - fresh.length;
     const inserted = [];
     for (let start = 0; start < fresh.length; start += 20) {
       const batch = fresh.slice(start, start + 20);
@@ -163,22 +167,32 @@ $("importBtn").addEventListener("click", async () => {
       if (error) throw error;
       inserted.push(...(data || []));
     }
-    const bySku = new Map(inserted.map((p) => [p.sku, p.id]));
-    const links = fresh.filter((item) => item.externalId && bySku.has(item.product.sku)).map((item) => ({
-      product_id: bySku.get(item.product.sku),
-      platform: $("sourcePlatform").value,
-      external_listing_id: item.externalId,
-      listing_url: item.url || null,
-      listing_status: "active",
-      sync_managed: false,
-      last_synced_at: new Date().toISOString()
-    }));
-    let linkNote = "";
-    if (links.length) {
-      const { error } = await supabase.from("platform_listings").insert(links);
-      if (error) linkNote = ` Product drafts were created, but marketplace links need attention: ${error.message}`;
+    const idBySku = new Map(existingBySku);
+    inserted.forEach((p) => idBySku.set(p.sku, p.id));
+    const candidates = prepared.filter((item) => item.externalId && idBySku.has(item.product.sku));
+    const externalIds = [...new Set(candidates.map((item) => item.externalId))];
+    let linkedCount = 0;
+    if (externalIds.length) {
+      const { data: existingLinks, error: linksReadError } = await supabase.from("platform_listings")
+        .select("external_listing_id").eq("platform", platform).in("external_listing_id", externalIds);
+      if (linksReadError) throw linksReadError;
+      const linkedIds = new Set((existingLinks || []).map((link) => link.external_listing_id));
+      const links = candidates.filter((item) => !linkedIds.has(item.externalId)).map((item) => ({
+        product_id: idBySku.get(item.product.sku),
+        platform,
+        external_listing_id: item.externalId,
+        listing_url: item.url || null,
+        listing_status: "active",
+        sync_managed: false,
+        last_synced_at: new Date().toISOString()
+      }));
+      if (links.length) {
+        const { error } = await supabase.from("platform_listings").insert(links);
+        if (error) throw error;
+        linkedCount = links.length;
+      }
     }
-    $("importMessage").textContent = `Imported ${inserted.length} draft${inserted.length === 1 ? "" : "s"}; skipped ${skipped} duplicate row${skipped === 1 ? "" : "s"}.${linkNote} Review imported items in Inventory Manager before publishing.`;
+    $("importMessage").textContent = `Added ${inserted.length} new Olive draft${inserted.length === 1 ? "" : "s"}; ${duplicateProducts} existing/duplicate product row${duplicateProducts === 1 ? "" : "s"} reused or skipped. Linked ${linkedCount} new ${platform === "ebay" ? "eBay" : "Whatnot"} listing${linkedCount === 1 ? "" : "s"}.`;
   } catch (error) {
     $("importMessage").textContent = error?.message || "Import failed.";
   } finally {
