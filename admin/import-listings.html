@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Import Listings — Olive Vintage Gallery</title>
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./import-listings.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="market-brand" href="./dashboard.html">
+      <span class="eyebrow">OLIVE VINTAGE GALLERY</span>
+      <h1>Import Listings</h1>
+    </a>
+    <div class="top-actions">
+      <a class="ghost" href="./dashboard.html">Dashboard</a>
+      <span id="sessionEmail" class="muted"></span>
+      <button id="signOutBtn" class="ghost hidden" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <main class="shell import-shell">
+    <section id="accessPanel" class="panel access-panel">
+      <div class="eyebrow">OWNER ACCESS</div>
+      <h2>Sign in from the Owner Dashboard</h2>
+      <a class="primary button-link" href="./dashboard.html">Open Owner Dashboard</a>
+    </section>
+
+    <div id="importApp" class="hidden">
+      <section class="panel import-intro">
+        <div class="eyebrow">VENDOO → OLIVE</div>
+        <h2>Bring marketplace listings into the website catalog</h2>
+        <p>Export your listings from Vendoo as a CSV, select the file here, match its columns, review the preview, then import. New Olive items stay as drafts until you add and verify their photos, descriptions, prices, and shipping details.</p>
+        <ol>
+          <li>In Vendoo, export your inventory to CSV.</li>
+          <li>Select the CSV and confirm the column matches below.</li>
+          <li>Review the preview, then import the rows you want.</li>
+        </ol>
+        <p class="import-safety"><strong>Safe by default:</strong> this does not publish to Olive, change marketplace listings, or delete anything. Re-imports with the same SKU or listing ID are skipped.</p>
+      </section>
+
+      <section class="panel import-panel">
+        <label class="file-label">Vendoo CSV file
+          <input id="csvFile" type="file" accept=".csv,text/csv">
+        </label>
+        <p id="fileInfo" class="muted" aria-live="polite">Choose a CSV file to start.</p>
+      </section>
+
+      <section id="mappingPanel" class="panel hidden">
+        <div class="section-heading">
+          <div><div class="eyebrow">COLUMN MATCHING</div><h3>Match your CSV fields</h3></div>
+        </div>
+        <p class="muted">Olive will suggest matches from the header names. Check the choices before importing; title is required.</p>
+        <div id="mappingGrid" class="mapping-grid"></div>
+        <label>Primary marketplace represented by this file
+          <select id="sourcePlatform">
+            <option value="ebay">eBay</option>
+            <option value="whatnot">Whatnot</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="previewPanel" class="panel hidden">
+        <div class="section-heading">
+          <div><div class="eyebrow">REVIEW</div><h3 id="previewTitle">Preview</h3></div>
+          <span id="previewCount" class="muted"></span>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Import?</th><th>Title</th><th>Price</th><th>SKU / listing ID</th><th>Photos</th></tr></thead><tbody id="previewRows"></tbody></table></div>
+        <div class="button-row">
+          <button id="importBtn" class="primary" type="button" disabled>Import selected as drafts</button>
+          <span id="importMessage" class="muted" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="./import-listings.js"></script>
+</body>
+</html>
